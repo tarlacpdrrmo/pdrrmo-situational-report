@@ -1,0 +1,335 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDRRMO Inventory | Dark Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --border-subtle: #2e2e2e; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
+        .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;}
+        .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
+        .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
+        .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
+        .dashboard-link:active { transform: translateX(4px) scale(0.98); }
+        .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--accent-orange); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(255, 140, 0, 0.2); }
+        .active-tab i { color: var(--accent-orange); transform: scale(1.1); }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
+        .top-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px;}
+        .top-header .avatar { width: 45px; height: 45px; border-radius: 10px; background-color: rgba(255, 140, 0, 0.1); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-orange); border: 1px solid rgba(255,140,0,0.2);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--accent-green); font-weight: 500;}
+        .form-section { background: var(--bg-card); padding: 25px 30px; border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 35px; }
+        .form-section h2 { margin: 0 0 25px 0; color: var(--text-main); font-size: 18px; font-weight: 600; display: flex; align-items: center; gap: 10px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px;}
+        .row { display: flex; gap: 20px; align-items: flex-start; margin-bottom: 15px;}
+        .col { flex: 1; display: flex; flex-direction: column; }
+        label { font-size: 12px; font-weight: 500; color: var(--text-muted); margin-bottom: 8px;}
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        input, select { padding: 12px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); background-color: var(--bg-input); transition: all 0.2s; outline: none;}
+        input:focus, select:focus { border-color: var(--accent-orange); }
+        input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(1); }
+        .ts-wrapper { width: 100%; }
+        .ts-control, .ts-control input { color: var(--text-main) !important; font-family: 'Inter', sans-serif; font-size: 13px; }
+        .ts-wrapper.single .ts-control { background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 15px; box-shadow: none; cursor: text; transition: 0.2s;}
+        .ts-wrapper.single.focus .ts-control { border-color: var(--accent-orange); }
+        .ts-dropdown { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-top: 5px; }
+        .ts-dropdown .option { padding: 12px 15px; color: var(--text-main); font-size: 13px; cursor: pointer; }
+        .ts-dropdown .active { background-color: var(--bg-hover) !important; color: var(--accent-orange) !important; }
+        .ts-wrapper.focus .ts-control, .ts-control.focus, .ts-control.input-active { background-color: var(--bg-input) !important; color: var(--text-main) !important; }
+        .ts-wrapper .ts-control > input { color: var(--text-main) !important; background-color: transparent !important; }
+        .submit-btn { background-color: var(--accent-orange); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; margin-top: 15px; width: 100%; font-size: 14px; font-weight: 700; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .submit-btn:hover { background-color: #e67e00; }
+        .alert { font-weight: 500; font-size: 13px; margin-top: 20px; display: none; text-align: center; padding: 15px; border-radius: 8px; color: var(--accent-green); border: 1px solid var(--accent-green); background: rgba(16, 185, 129, 0.1); }
+        .section-title { color: var(--text-main); margin-bottom: 15px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .table-container { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 300px; overflow-y: auto; overflow-x: hidden;}
+        .table-container::-webkit-scrollbar { width: 6px; }
+        .table-container::-webkit-scrollbar-track { background: var(--bg-card); border-radius: 12px; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 12px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
+        table { width: 100%; border-collapse: collapse; text-align: left; }
+        th { background-color: #1a1a1a; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; }
+        td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: #e2e8f0; vertical-align: middle;}
+        tr:last-child td { border-bottom: none; }
+        tr:hover { background-color: rgba(255, 255, 255, 0.02); }
+        .ledger-filter-row { display: flex; gap: 10px; margin-bottom: 15px; }
+        .ledger-filter-row input, .ledger-filter-row select { padding: 10px 15px; font-size: 12px; border-radius: 8px; border: 1px solid var(--border-subtle); background-color: var(--bg-input); color: var(--text-main); outline: none; transition: 0.2s;}
+        .ledger-filter-row input:focus, .ledger-filter-row select:focus { border-color: var(--accent-orange); }
+        .strong-text { font-weight: 600; color: white; display: block;}
+        .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
+        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; text-align: center; border: 1px solid transparent;}
+        .bg-in { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.2); }
+        .bg-out { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2); }
+        .empty-state { text-align: center; padding: 30px !important; color: var(--text-muted); font-style: italic; }
+        .ledger-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 30px; margin-bottom: 35px; }
+        @media (max-width: 1200px) { .ledger-grid { grid-template-columns: 1fr; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
+        <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
+        
+        <div style="margin-top: 10px;">
+            <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
+            <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
+            <a href="login.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="inventory.html" class="dashboard-link active-tab"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        
+        <div class="top-header">
+            <div class="avatar"><i class="fa-solid fa-boxes-packing"></i></div>
+            <div class="top-header-text">
+                <h2>Relief Logistics & Inventory System</h2>
+                <p><i class="fa-solid fa-circle-dot fa-fade" style="font-size: 10px;"></i> Tracking live warehouse balances and deployments</p>
+            </div>
+        </div>
+
+        <div class="ledger-grid">
+            <div>
+                <h2 class="section-title"><i class="fa-solid fa-calculator"></i> Live Warehouse Balances</h2>
+                <div class="table-container" style="margin-bottom: 0;">
+                    <table>
+                        <thead><tr><th>Relief Item</th><th>Total Entry (In)</th><th>Total Released (Out)</th><th>Current Stock Left</th></tr></thead>
+                        <tbody id="balance-tbody"><tr><td colspan="4" class="empty-state">Loading stock data...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div style="display: flex; flex-direction: column;">
+                <h2 class="section-title"><i class="fa-solid fa-clock-rotate-left"></i> Transaction Ledger</h2>
+                
+                <div class="ledger-filter-row">
+                    <input type="text" id="filter-ledger-search" placeholder="Search Item or Entity..." style="flex: 2;">
+                    <select id="filter-ledger-flow" style="flex: 1;">
+                        <option value="">All Flows</option>
+                        <option value="IN">Entry (IN)</option>
+                        <option value="OUT">Release (OUT)</option>
+                    </select>
+                    <input type="date" id="filter-ledger-date" style="flex: 1;">
+                </div>
+
+                <div class="table-container" style="margin-bottom: 0; flex: 1;">
+                    <table>
+                        <thead><tr><th>Flow</th><th>Item & Qty</th><th>Entity / Remarks</th><th>Date & Time</th></tr></thead>
+                        <tbody id="history-tbody"><tr><td colspan="4" class="empty-state">Loading history...</td></tr></tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="form-section" style="margin-bottom: 0;">
+            <h2><i class="fa-solid fa-barcode"></i> Log an Inventory Transaction</h2>
+            <form id="form-inventory">
+                <div class="row">
+                    <div class="col" style="flex: 1.2;">
+                        <label>Transaction Type</label>
+                        <select id="inv-type" required>
+                            <option value="">Select Flow...</option>
+                            <option value="IN">Entry (Stock IN / Received)</option>
+                            <option value="OUT">Release (Stock OUT / Deployed)</option>
+                        </select>
+                    </div>
+                    <div class="col" style="flex: 2;">
+                        <label>Item Description / Name</label>
+                        <select id="inv-item" required placeholder="Type or Select Item..."><option value=""></option></select>
+                    </div>
+                    <div class="col" style="flex: 1;">
+                        <label>Quantity</label>
+                        <input type="number" id="inv-qty" min="1" placeholder="e.g., 500" required>
+                    </div>
+                    <div class="col" style="flex: 1;">
+                        <label>Unit</label>
+                        <select id="inv-unit" required placeholder="Unit..."><option value=""></option></select>
+                    </div>
+                </div>
+                
+                <div class="row">
+                    <div class="col">
+                        <label>Entity (Received From / Released To)</label>
+                        <input type="text" id="inv-entity" placeholder="e.g., DSWD, LGU Camiling, Mayor's Office" required>
+                    </div>
+                    <div class="col">
+                        <label>Transaction Date & Time</label>
+                        <input type="datetime-local" id="inv-date" required>
+                    </div>
+                </div>
+
+                <div class="row" style="margin-bottom: 0;">
+                    <div class="col">
+                        <label>Remarks / Driver / Purpose</label>
+                        <input type="text" id="inv-remarks" placeholder="Optional notes about the transaction...">
+                    </div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-truck-ramp-box"></i> Log Transaction</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Transaction logged and balances updated!</div>
+            </form>
+        </div>
+
+    </div>
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { initializeFirestore, collection, addDoc, onSnapshot, query, orderBy, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk",
+        authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com",
+        projectId: "tarlac-sitrep-backend-5000e",
+        storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app",
+        messagingSenderId: "575825350427",
+        appId: "1:575825350427:web:d4e336b580e44a29900dbe"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+
+    const now = new Date();
+    const tzOffset = now.getTimezoneOffset() * 60000;
+    const localISOTime = (new Date(now - tzOffset)).toISOString().slice(0, 16);
+    document.getElementById('inv-date').value = localISOTime;
+
+    const commonItems = ["Family Food Packs (FFP)", "Sacks of Rice (50kg)", "Hygiene Kits", "Sleeping Kits", "Bottled Water", "Modular Tents"];
+    const itemSelect = document.getElementById('inv-item');
+    commonItems.forEach(i => itemSelect.add(new Option(i, i)));
+    new TomSelect(itemSelect, { create: true });
+
+    const commonUnits = ["Packs", "Sacks", "Pieces", "Boxes", "Gallons", "Liters", "Sets", "Units"];
+    const unitSelect = document.getElementById('inv-unit');
+    commonUnits.forEach(u => unitSelect.add(new Option(u, u)));
+    new TomSelect(unitSelect, { create: true });
+
+    document.getElementById('form-inventory').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const btn = form.querySelector('.submit-btn');
+        const successMsg = form.querySelector('.msg-success');
+        
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing...';
+        btn.disabled = true;
+
+        const payload = {
+            type: document.getElementById('inv-type').value,
+            item: document.getElementById('inv-item').value,
+            quantity: parseInt(document.getElementById('inv-qty').value),
+            unit: document.getElementById('inv-unit').value,
+            entity: document.getElementById('inv-entity').value,
+            transactionDate: document.getElementById('inv-date').value,
+            remarks: document.getElementById('inv-remarks').value,
+            systemTimestamp: serverTimestamp()
+        };
+
+        try {
+            await addDoc(collection(db, "inventory_data"), payload);
+            btn.innerHTML = '<i class="fa-solid fa-truck-ramp-box"></i> Log Transaction';
+            btn.disabled = false;
+            
+            document.getElementById('inv-qty').value = '';
+            document.getElementById('inv-entity').value = '';
+            document.getElementById('inv-remarks').value = '';
+            
+            successMsg.style.display = 'block';
+            setTimeout(() => successMsg.style.display = 'none', 3000);
+        } catch (err) {
+            console.error(err); alert("Error logging transaction.");
+            btn.disabled = false;
+        }
+    });
+
+    let allTransactions = [];
+    const filterSearch = document.getElementById('filter-ledger-search');
+    const filterFlow = document.getElementById('filter-ledger-flow');
+    const filterDate = document.getElementById('filter-ledger-date');
+
+    [filterSearch, filterFlow, filterDate].forEach(el => el.addEventListener('input', renderData));
+
+    function formatActionTime(dateString) { 
+        if(!dateString) return "N/A";
+        const d = new Date(dateString);
+        return d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' });
+    }
+
+    function renderData() {
+        const histTb = document.getElementById('history-tbody');
+        const balTb = document.getElementById('balance-tbody');
+        
+        histTb.innerHTML = '';
+        balTb.innerHTML = '';
+
+        if(allTransactions.length === 0) {
+            histTb.innerHTML = '<tr><td colspan="4" class="empty-state">No transactions recorded yet.</td></tr>';
+            balTb.innerHTML = '<tr><td colspan="4" class="empty-state">No stock available.</td></tr>';
+            return;
+        }
+
+        let balances = {};
+        allTransactions.forEach(t => {
+            if (!balances[t.item]) balances[t.item] = { in: 0, out: 0, unit: t.unit || '' };
+            if (t.type === 'IN') balances[t.item].in += t.quantity;
+            if (t.type === 'OUT') balances[t.item].out += t.quantity;
+            
+            if(t.unit && !balances[t.item].unit) balances[t.item].unit = t.unit;
+        });
+
+        for (const [itemName, data] of Object.entries(balances)) {
+            let currentStock = data.in - data.out;
+            let stockColor = currentStock <= 0 ? 'var(--accent-red)' : (currentStock < 100 ? 'var(--accent-orange)' : 'var(--accent-green)');
+            let unitDisplay = data.unit ? `<span style="font-size: 11px; color: var(--text-muted); margin-left: 4px;">${data.unit}</span>` : '';
+            
+            balTb.innerHTML += `<tr>
+                <td><span class="strong-text">${itemName}</span></td>
+                <td><span style="color:var(--text-muted);">${data.in}</span></td>
+                <td><span style="color:var(--text-muted);">${data.out}</span></td>
+                <td><span class="strong-text" style="color:${stockColor}; font-size:15px;">${currentStock}</span>${unitDisplay}</td>
+            </tr>`;
+        }
+
+        const searchVal = filterSearch.value.toLowerCase();
+        const flowVal = filterFlow.value;
+        const dateVal = filterDate.value; 
+
+        const filteredTx = allTransactions.filter(t => {
+            const matchSearch = searchVal === "" || t.item.toLowerCase().includes(searchVal) || t.entity.toLowerCase().includes(searchVal);
+            const matchFlow = flowVal === "" || t.type === flowVal;
+            const matchDate = dateVal === "" || t.transactionDate.startsWith(dateVal);
+            return matchSearch && matchFlow && matchDate;
+        });
+
+        if (filteredTx.length === 0) {
+            histTb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching transactions found.</td></tr>';
+        } else {
+            filteredTx.forEach(t => {
+                let badge = t.type === 'IN' ? `<span class="badge bg-in"><i class="fa-solid fa-arrow-down" style="margin-right:4px;"></i> ENTRY</span>` : `<span class="badge bg-out"><i class="fa-solid fa-arrow-up" style="margin-right:4px;"></i> RELEASE</span>`;
+                let color = t.type === 'IN' ? 'var(--accent-green)' : 'var(--accent-red)';
+                let unitText = t.unit ? t.unit : "x"; 
+
+                histTb.innerHTML += `<tr>
+                    <td>${badge}</td>
+                    <td><span class="strong-text" style="color:${color};">${t.quantity} ${unitText}</span> <span class="strong-text">${t.item}</span></td>
+                    <td><span class="strong-text">${t.entity}</span><span class="sub-text">${t.remarks || 'No remarks'}</span></td>
+                    <td>${formatActionTime(t.transactionDate)}</td>
+                </tr>`;
+            });
+        }
+    }
+
+    onSnapshot(query(collection(db, "inventory_data"), orderBy("transactionDate", "desc")), (snap) => {
+        allTransactions = snap.docs.map(d => d.data());
+        renderData();
+    });
+
+</script>
+</body>
+</html>
