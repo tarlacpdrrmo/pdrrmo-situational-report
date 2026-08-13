@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDRRMO | Secure Login</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        body { font-family: 'Inter', sans-serif; background-color: #121212; margin: 0; display: flex; height: 100vh; justify-content: center; align-items: center; color: #ffffff; }
+        .login-card { background: #1e1e1e; padding: 40px; border-radius: 12px; border: 1px solid #2e2e2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 350px; text-align: center; }
+        .login-card i.fa-shield-halved { font-size: 40px; color: #ff8c00; margin-bottom: 20px; }
+        .login-card h2 { margin: 0 0 5px 0; font-size: 22px; font-weight: 700; }
+        .login-card p { margin: 0 0 25px 0; font-size: 13px; color: #a0a0a0; }
+        .form-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 15px; }
+        .form-group label { font-size: 11px; font-weight: 600; color: #a0a0a0; text-transform: uppercase; margin-bottom: 6px; }
+        .form-group input { padding: 12px 15px; border: 1px solid #2e2e2e; border-radius: 8px; background: #121212; color: #fff; font-family: 'Inter'; font-size: 14px; outline: none; transition: 0.2s; }
+        .form-group input:focus { border-color: #ff8c00; }
+        .login-btn { background: #ff8c00; color: #000; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; }
+        .login-btn:hover { background: #e67e00; }
+        .error-msg { color: #ef4444; font-size: 12px; margin-top: 15px; display: none; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.2); }
+        .back-link { display: inline-block; margin-top: 20px; color: #a0a0a0; font-size: 12px; text-decoration: none; transition: 0.2s; }
+        .back-link:hover { color: #ffffff; }
+    </style>
+</head>
+<body>
+
+    <div class="login-card">
+        <i class="fa-solid fa-shield-halved"></i>
+        <h2>Restricted Access</h2>
+        <p>PDRRMO Data Entry Portal</p>
+
+        <form id="loginForm">
+            <div class="form-group">
+                <label>Authorized Email</label>
+                <input type="email" id="email" required placeholder="admin@pdrrmo.gov.ph">
+            </div>
+            <div class="form-group">
+                <label>Security Password</label>
+                <input type="password" id="password" required placeholder="••••••••">
+            </div>
+            <button type="submit" class="login-btn" id="submitBtn"><i class="fa-solid fa-right-to-bracket"></i> Authenticate</button>
+            <div class="error-msg" id="errorMsg">Invalid credentials.</div>
+        </form>
+        <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Return to Dashboard</a>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getAuth, signInWithEmailAndPassword, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk",
+        authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com",
+        projectId: "tarlac-sitrep-backend-5000e",
+        storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app",
+        messagingSenderId: "575825350427",
+        appId: "1:575825350427:web:d4e336b580e44a29900dbe"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    // If already logged in, redirect immediately
+    onAuthStateChanged(auth, (user) => {
+        if (user) { window.location.href = "data_entry.html"; }
+    });
+
+    document.getElementById('loginForm').addEventListener('submit', (e) => {
+        e.preventDefault();
+        const email = document.getElementById('email').value;
+        const password = document.getElementById('password').value;
+        const btn = document.getElementById('submitBtn');
+        const err = document.getElementById('errorMsg');
+
+        btn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Verifying...';
+        btn.disabled = true;
+        err.style.display = 'none';
+
+        signInWithEmailAndPassword(auth, email, password)
+            .then(() => { window.location.href = "data_entry.html"; })
+            .catch((error) => {
+                err.style.display = 'block';
+                btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Authenticate';
+                btn.disabled = false;
+            });
+    });
+</script>
+</body>
+</html>
