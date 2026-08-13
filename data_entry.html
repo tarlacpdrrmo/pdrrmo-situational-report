@@ -332,10 +332,15 @@
         <div id="suspensions" class="form-section">
             <h2><i class="fa-solid fa-school"></i> Work & Class Suspensions</h2>
             <form id="form-suspensions">
-                <div class="form-group"><label>Coverage Area</label><select class="f-coverage" required placeholder="Select Coverage..."><option value=""></option></select></div>
-                <div class="form-group"><label>Suspension Type</label><select class="f-type" required><option value="">Select Type...</option><option value="Classes Only (All Levels)">Classes Only (All Levels)</option><option value="Work Only (Govt & Private)">Work Only (Govt & Private)</option><option value="Classes and Work">Both Classes and Work</option></select></div>
-                <div class="form-group"><label>Status</label><select class="f-status" required><option value="Suspended">Suspended</option><option value="Lifted/Resumed">Lifted / Resumed</option></select></div>
-                <button type="submit" class="submit-btn" style="margin-top: 40px;"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
+                <div class="row">
+                    <div class="col form-group"><label>Coverage Area</label><select class="f-coverage" required placeholder="Select Coverage..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Suspension Type</label><select class="f-type" required><option value="">Select Type...</option><option value="Classes Only (All Levels)">Classes Only (All Levels)</option><option value="Work Only (Govt & Private)">Work Only (Govt & Private)</option><option value="Classes and Work">Both Classes and Work</option></select></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Status</label><select class="f-status" required><option value="Suspended">Suspended</option><option value="Lifted/Resumed">Lifted / Resumed</option></select></div>
+                    <div class="col form-group"><label>Remarks / Issuance Details</label><input type="text" class="f-remarks" placeholder="e.g., Declared via EO No. 15 s. 2026"></div>
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top: 20px;"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Data encoded to Firestore!</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
             </form>
@@ -666,7 +671,10 @@
 
     document.getElementById('form-suspensions').addEventListener('submit', (e) => {
         handleSubmission(e, "suspensions_data", (f) => ({
-            coverage: f.querySelector('.f-coverage').value, type: f.querySelector('.f-type').value, status: f.querySelector('.f-status').value
+            coverage: f.querySelector('.f-coverage').value, 
+            type: f.querySelector('.f-type').value, 
+            status: f.querySelector('.f-status').value,
+            remarks: f.querySelector('.f-remarks').value
         }));
     });
 
