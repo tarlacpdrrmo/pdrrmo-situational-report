@@ -95,10 +95,40 @@
         .btn-export:hover { background-color: var(--accent-green); color: #000;}
 
         .section-title { color: var(--text-main); margin-top: 10px; margin-bottom: 15px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .table-container { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-subtle); overflow: hidden; margin-bottom: 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
+        
+        /* UPDATED: SCROLLABLE TABLE CONTAINERS */
+        .table-container { 
+            background: var(--bg-card); 
+            border-radius: 12px; 
+            border: 1px solid var(--border-subtle); 
+            margin-bottom: 35px; 
+            box-shadow: 0 4px 15px rgba(0,0,0,0.2);
+            max-height: 400px;
+            overflow-y: auto;
+            overflow-x: hidden;
+        }
+        .table-container::-webkit-scrollbar { width: 6px; }
+        .table-container::-webkit-scrollbar-track { background: var(--bg-card); border-radius: 12px; }
+        .table-container::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 12px; }
+        .table-container::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
         
         table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
-        th { background-color: #1a1a1a; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle); }
+        
+        /* UPDATED: STICKY HEADERS */
+        th { 
+            background-color: #1a1a1a; 
+            color: var(--text-muted); 
+            font-size: 11px; 
+            font-weight: 600; 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px; 
+            padding: 15px 20px; 
+            border-bottom: 1px solid var(--border-subtle); 
+            position: sticky; 
+            top: 0; 
+            z-index: 2;
+        }
+        
         td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: #e2e8f0; vertical-align: top; word-wrap: break-word; word-break: break-word; }
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: rgba(255, 255, 255, 0.02); }
@@ -232,9 +262,9 @@
 
             <h2 class="section-title"><i class="fa-solid fa-school"></i> 6. Class & Work Suspensions</h2>
             <div class="table-container">
-                <table>
-                    <thead><tr><th>Coverage Area</th><th>Suspension Type</th><th>Status</th><th>Report Info</th></tr></thead>
-                    <tbody id="sus-tbody"><tr><td colspan="4" class="empty-state">Loading data...</td></tr></tbody>
+                <table style="table-layout: auto;">
+                    <thead><tr><th>Coverage Area</th><th>Suspension Type</th><th>Status</th><th style="width: 25%;">Remarks / Details</th><th>Report Info</th></tr></thead>
+                    <tbody id="sus-tbody"><tr><td colspan="5" class="empty-state">Loading data...</td></tr></tbody>
                 </table>
             </div>
 
@@ -436,10 +466,11 @@
     function renderSuspensions() {
         const tb = document.getElementById('sus-tbody'); tb.innerHTML = '';
         const filtered = dbData.suspensions.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching data found.</td></tr>'; return; }
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => {
             let badgeClass = (data.status === 'Suspended') ? "bg-danger" : "bg-success";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.coverage}</span></td><td>${data.type}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
+            let remarksText = data.remarks ? data.remarks : '<span class="sub-text">N/A</span>';
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.coverage}</span></td><td>${data.type}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${remarksText}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
         });
     }
 
