@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDRRMO Executive Analytics | Dark Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-yellow: #fcd34d; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; --accent-teal: #14b8a6; --border-subtle: #2e2e2e; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
+        .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;}
+        .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
+        .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
+        .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
+        .dashboard-link:active { transform: translateX(4px) scale(0.98); }
+        .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--accent-orange); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(255, 140, 0, 0.2); }
+        .active-tab i { color: var(--accent-orange); transform: scale(1.1); }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;}
+        .header-left { display: flex; align-items: center; gap: 15px;}
+        .header-left .avatar { width: 45px; height: 45px; border-radius: 10px; background-color: rgba(59, 130, 246, 0.1); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-blue); border: 1px solid rgba(59,130,246,0.2);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--accent-green); font-weight: 500;}
+        .global-sitrep-filter-box { display: flex; align-items: center; gap: 15px; background: var(--accent-orange); color: #000; padding: 8px 12px 8px 16px; border-radius: 8px; box-shadow: 0 4px 15px rgba(255, 140, 0, 0.25); }
+        .sitrep-info-col { display: flex; flex-direction: column; gap: 2px; }
+        .sitrep-info-col span { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
+        .as-of-text { font-size: 10px !important; font-weight: 700 !important; opacity: 0.75; letter-spacing: 0.5px; }
+        .global-sitrep-select { background: #000; color: var(--accent-orange); border: 2px solid #000; padding: 6px 30px 6px 12px; border-radius: 6px; font-size: 13px; font-weight: 800; font-family: 'Inter', sans-serif; text-transform: uppercase; outline: none; cursor: pointer; transition: 0.2s; appearance: none; background-image: url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23ff8c00' stroke-width='3' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e"); background-repeat: no-repeat; background-position: right 10px center; background-size: 14px; }
+        .global-sitrep-select:hover, .global-sitrep-select:focus { background: #1a1a1a; }
+        .kpi-grid { display: grid; grid-template-columns: repeat(6, 1fr); gap: 15px; margin-bottom: 30px; }
+        .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border-subtle); display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
+        .kpi-icon { width: 45px; height: 45px; border-radius: 10px; display: flex; justify-content: center; align-items: center; font-size: 18px; flex-shrink: 0; margin-top: 2px;}
+        .kpi-details { display: flex; flex-direction: column; width: 100%; }
+        .kpi-title { font-size: 10px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 5px;}
+        .kpi-value { font-size: 20px; font-weight: 700; color: var(--text-main); line-height: 1;}
+        .dashboard-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
+        .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;}
+        .chart-card { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle); box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
+        .chart-header h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-main);}
+        .chart-container { position: relative; height: 220px; width: 100%; }
+        .incident-feed-container { position: relative; height: 220px; width: 100%; overflow-y: auto; overflow-x: hidden; padding-right: 5px; box-sizing: border-box; }
+        .incident-feed-container::-webkit-scrollbar { width: 6px; }
+        .incident-feed-container::-webkit-scrollbar-track { background: transparent; }
+        .incident-feed-container::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 10px; }
+        .incident-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
+        .incident-item { display: flex; align-items: flex-start; gap: 15px; padding: 14px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 12px; transition: 0.2s; }
+        .incident-item:last-child { border-bottom: none; }
+        .incident-item:hover { background: rgba(255, 255, 255, 0.02); }
+        .incident-loc { font-weight: 600; color: var(--text-main); width: 110px; flex-shrink: 0; display: flex; gap: 6px; align-items: flex-start; }
+        .incident-desc { flex: 1.5; color: #e2e8f0; line-height: 1.4; }
+        .incident-act { flex: 1.5; color: var(--text-muted); line-height: 1.4; }
+        .incident-label { font-size: 9px; text-transform: uppercase; color: var(--text-muted); font-weight: 600; margin-bottom: 4px; display: block; letter-spacing: 0.5px;}
+        .chart-filter { background: var(--bg-input); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 6px 12px; border-radius: 6px; font-size: 11px; font-family: 'Inter', sans-serif; font-weight: 500; outline: none; cursor: pointer; transition: 0.2s;}
+        .chart-filter:focus, .chart-filter:hover { border-color: var(--accent-orange); }
+        .chart-filter option { background-color: var(--bg-card); color: var(--text-main); }
+        .chart-layout-flex { display: flex; gap: 15px; height: 220px; }
+        .chart-layout-canvas { flex: 1; position: relative; height: 100%; }
+        .chart-details-panel { width: 40%; background: transparent; border-radius: 8px; padding: 10px; border: 1px solid transparent; display: block; height: 100%; box-sizing: border-box; overflow-y: auto; }
+        .chart-details-panel::-webkit-scrollbar { width: 6px; }
+        .chart-details-panel::-webkit-scrollbar-track { background: transparent; }
+        .chart-details-panel::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 10px; }
+        .empty-state { text-align: center; color: var(--text-muted); font-style: italic; display: flex; justify-content: center; align-items: center; height: 100%; letter-spacing: 0.5px;}
+        @keyframes slideInFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
+        .animate-reveal { animation: slideInFade 0.3s ease-out forwards; padding-right: 5px; } 
+        @media (max-width: 1600px) { .kpi-grid { grid-template-columns: repeat(3, 1fr); } }
+        @media (max-width: 1200px) { .chart-grid { grid-template-columns: 1fr; } .chart-layout-flex { flex-direction: column; height: auto; } .chart-details-panel { width: 100%; height: 180px; } }
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+<div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
+        <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
+        <div style="margin-top: 10px;">
+            <a href="index.html" class="dashboard-link active-tab"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
+            <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
+            <a href="login.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
+        </div>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <div class="header-left">
+                <div class="avatar"><i class="fa-solid fa-chart-line"></i></div>
+                <div class="top-header-text">
+                    <h2>Executive Analytics Dashboard</h2>
+                    <p><i class="fa-solid fa-circle-dot fa-fade" style="font-size: 10px;"></i> Real-time quantitative visualization</p>
+                </div>
+            </div>
+            
+            <div class="global-sitrep-filter-box">
+                <div class="sitrep-info-col">
+                    <span id="incidentNameDisplay"><i class="fa-solid fa-tower-broadcast fa-fade"></i> SCANNING NETWORK...</span>
+                    <span id="asOfDisplay" class="as-of-text">AS OF: --</span>
+                </div>
+                <select id="globalSitrepFilter" class="global-sitrep-select"><option value="ALL">ALL REPORTS (CUMULATIVE)</option></select>
+            </div>
+        </div>
+
+        <div class="kpi-grid">
+            <div class="kpi-card" style="align-items: center;">
+                <div class="kpi-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--accent-red); margin-top: 0;"><i class="fa-solid fa-users-rays"></i></div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Total Affected</span>
+                    <div style="display: flex; align-items: baseline; gap: 4px; margin-top: 2px;">
+                        <span class="kpi-value" id="kpi-aff-indv">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-right: 6px;">INDV</span>
+                        <span class="kpi-value" id="kpi-aff-fam" style="font-size: 16px; color: var(--accent-yellow);">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600;">FAM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card" style="align-items: center;">
+                <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); margin-top: 0;"><i class="fa-solid fa-person-shelter"></i></div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Inside ECs (Evacuated)</span>
+                    <div style="display: flex; align-items: baseline; gap: 4px; margin-top: 2px;">
+                        <span class="kpi-value" id="kpi-ec-indv">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-right: 6px;">INDV</span>
+                        <span class="kpi-value" id="kpi-ec-fam" style="font-size: 16px; color: var(--accent-yellow);">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600;">FAM</span>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-green); margin-top: 0;"><i class="fa-solid fa-house-crack"></i></div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Est. Damages (PHP)</span>
+                    <span class="kpi-value" id="kpi-damages">₱0</span>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">AGRI</span><span id="kpi-dmg-agri" style="font-size: 11px; font-weight: 700; color: var(--accent-green);">₱0</span></div>
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">INFRA</span><span id="kpi-dmg-infra" style="font-size: 11px; font-weight: 700; color: var(--accent-blue);">₱0</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(20, 184, 166, 0.1); color: var(--accent-teal); margin-top: 0;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Relief Assistance</span>
+                    <span class="kpi-value" id="kpi-assistance">₱0</span>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">FOOD/WTR</span><span id="kpi-item-food" style="font-size: 11px; font-weight: 700; color: var(--accent-yellow);">0 <span style="font-size:8px;">QTY</span></span></div>
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">KITS</span><span id="kpi-item-kits" style="font-size: 11px; font-weight: 700; color: var(--accent-teal);">0 <span style="font-size:8px;">QTY</span></span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); margin-top: 0;"><i class="fa-solid fa-truck-fast"></i></div>
+                <div class="kpi-details">
+                    <span class="kpi-title">Resources</span>
+                    <span class="kpi-value" id="kpi-res-total">0</span>
+                    <div style="display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">DEP</span><span id="kpi-res-dep" style="font-size: 11px; font-weight: 700; color: var(--accent-green);">0</span></div>
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">STB</span><span id="kpi-res-stb" style="font-size: 11px; font-weight: 700; color: var(--accent-yellow);">0</span></div>
+                    </div>
+                </div>
+            </div>
+            <div class="kpi-card" style="align-items: center;">
+                <div class="kpi-icon" style="background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); margin-top: 0;"><i class="fa-solid fa-truck-medical"></i></div>
+                <div class="kpi-details"><span class="kpi-title">Casualties</span><span class="kpi-value" id="kpi-casualties">0</span></div>
+            </div>
+        </div>
+
+        <div class="dashboard-section-title"><i class="fa-solid fa-chart-column" style="color: var(--accent-blue);"></i> Quantitative Analytics</div>
+        <div class="chart-grid">
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-users-between-lines" style="color: var(--accent-orange);"></i> Affected vs. Inside ECs</h3></div><div class="chart-container"><canvas id="evacChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-coins" style="color: var(--accent-green);"></i> Damages vs. Assistance (PHP)</h3></div><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-boxes-packing" style="color: var(--accent-teal);"></i> Distributed Relief Items</h3><select id="items-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-container"><canvas id="itemsChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-truck-medical" style="color: var(--accent-red);"></i> Casualties by Location</h3><select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-container"><canvas id="casChart"></canvas></div></div>
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-purple);"></i> Resource Deployments</h3><select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-container"><canvas id="resChart"></canvas></div></div>
+            <div class="chart-card">
+                <div class="chart-header"><h3><i class="fa-solid fa-triangle-exclamation fa-beat" style="color: var(--accent-red);"></i> Active Hazards Feed</h3></div>
+                <div class="incident-feed-container"><ul id="incidentFeed" class="incident-list"><li class="empty-state">No related incidents or hazards reported.</li></ul></div>
+            </div>
+        </div>
+
+        <div class="dashboard-section-title" style="margin-top: 10px;"><i class="fa-solid fa-location-crosshairs" style="color: var(--accent-orange);"></i> Situational Analytics</div>
+        <div class="chart-grid">
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flood Status Overview</h3><select id="flood-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-layout-flex"><div class="chart-layout-canvas"><canvas id="floodChart"></canvas></div><div class="chart-details-panel" id="floodDetails"><div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected areas.</div></div></div></div>
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-road-barrier" style="color: var(--accent-orange);"></i> Roads & Bridges Status</h3><select id="infra-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-layout-flex"><div class="chart-layout-canvas"><canvas id="infraChart"></canvas></div><div class="chart-details-panel" id="infraDetails"><div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected areas.</div></div></div></div>
+            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-bolt" style="color: var(--accent-yellow);"></i> Power & Water Utilities</h3><select id="utility-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-layout-flex"><div class="chart-layout-canvas"><canvas id="utilityChart"></canvas></div><div class="chart-details-panel" id="utilityDetails"><div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected areas.</div></div></div></div>
+        </div>
+    </div>
+
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { initializeFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk",
+        authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com",
+        projectId: "tarlac-sitrep-backend-5000e",
+        storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app",
+        messagingSenderId: "575825350427",
+        appId: "1:575825350427:web:d4e336b580e44a29900dbe"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+
+    Chart.defaults.color = '#a0a0a0'; Chart.defaults.font.family = 'Inter'; Chart.defaults.plugins.tooltip.backgroundColor = '#181818'; Chart.defaults.plugins.tooltip.titleColor = '#ffffff'; Chart.defaults.plugins.tooltip.borderColor = '#2e2e2e'; Chart.defaults.plugins.tooltip.borderWidth = 1;
+    
+    Chart.register(ChartDataLabels);
+
+    const barLegendConfig = { display: true, position: 'bottom', align: 'start', labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 15, font: { size: 11 } } };
+    const noDataLabels = { datalabels: { display: false } };
+
+    const evacCtx = document.getElementById('evacChart').getContext('2d');
+    const evacChart = new Chart(evacCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Affected (Indv)', data: [], backgroundColor: '#ff8c00', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }, { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    
+    const financeCtx = document.getElementById('financeChart').getContext('2d');
+    const financeChart = new Chart(financeCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Damages', data: [], backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }, { label: 'Assistance', data: [], backgroundColor: '#10b981', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000) + 'k'; } } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    
+    const itemsCtx = document.getElementById('itemsChart').getContext('2d');
+    const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    
+    const casCtx = document.getElementById('casChart').getContext('2d');
+    const casChart = new Chart(casCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    
+    const resCtx = document.getElementById('resChart').getContext('2d');
+    const resChart = new Chart(resCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+
+    function createCircularChart(ctx, type) {
+        return new Chart(ctx, { 
+            type: type, 
+            data: { labels: [], datasets: [{ data: [], infoArray: [], borderWidth: 1, borderColor: '#1e1e1e' }] }, 
+            options: { 
+                responsive: true, maintainAspectRatio: false, cutout: type==='doughnut'?'70%':'0%', 
+                plugins: { 
+                    legend: { position: 'bottom', align: 'start', labels: { color: '#a0a0a0', padding: 15, usePointStyle: true, font: {size: 11} } },
+                    datalabels: { color: '#ffffff', font: { weight: 'bold', size: 12 }, formatter: (value) => { return value > 0 ? value : ''; } }
+                },
+                onClick: (e, elements) => {
+                    if (elements.length > 0) {
+                        const i = elements[0].index; const chart = e.chart;
+                        const status = chart.data.labels[i]; const arr = chart.data.datasets[0].infoArray[i] || []; const color = chart.data.datasets[0].backgroundColor[i];
+                        
+                        let html = `<div class="animate-reveal">
+                            <div style="display:flex; align-items:center; gap:8px; margin-bottom:15px;">
+                                <div style="width:10px; height:10px; border-radius:50%; background-color:${color};"></div>
+                                <h4 style="color:var(--text-main); margin:0; font-size:13px; font-weight:600; text-transform:uppercase; letter-spacing:0.5px;">${status}</h4>
+                            </div>`;
+                        
+                        if (arr.length === 0) {
+                            html += `<div style="color:var(--text-muted); font-size:12px; font-style:italic;">No specific areas listed.</div>`;
+                        } else {
+                            html += `<div style="display:flex; flex-direction:column; gap:6px;">`;
+                            arr.forEach(a => {
+                                html += `<div style="font-size:12px; color:#e2e8f0; padding:8px 0; border-bottom:1px solid var(--border-subtle); display:flex; align-items:flex-start;">
+                                    <i class="fa-solid fa-location-dot" style="color:var(--text-muted); font-size:10px; margin-top:2px; margin-right:8px;"></i>${a}
+                                </div>`;
+                            });
+                            html += `</div>`;
+                        }
+                        html += `</div>`;
+                        document.getElementById(ctx.canvas.id.replace('Chart', 'Details')).innerHTML = html;
+                    }
+                }
+            }
+        });
+    }
+
+    const floodChart = createCircularChart(document.getElementById('floodChart').getContext('2d'), 'pie');
+    const infraChart = createCircularChart(document.getElementById('infraChart').getContext('2d'), 'doughnut');
+    const utilityChart = createCircularChart(document.getElementById('utilityChart').getContext('2d'), 'doughnut');
+
+    function formatCurrency(amount) {
+        if(amount >= 1000000) return '₱' + (amount / 1000000).toFixed(2) + 'M';
+        if(amount >= 1000) return '₱' + (amount / 1000).toFixed(1) + 'k';
+        return '₱' + (amount || 0);
+    }
+
+    const dbData = { floods: [], evacs: [], lifelines: [], casualties: [], damages: [], assistance: [], resources: [], incidents: [] };
+
+    function filterBySitrep(rawArray) {
+        let activeSitrep = document.getElementById('globalSitrepFilter').value;
+        if (activeSitrep === 'ALL') return rawArray;
+        return rawArray.filter(d => String(d.sitrepNo) === String(activeSitrep));
+    }
+
+    function updateGlobalSitrepDropdown() {
+        let filterEl = document.getElementById('globalSitrepFilter');
+        let currentVal = filterEl.value;
+        let uniqueSitreps = new Set();
+        const allDocs = [...dbData.floods, ...dbData.evacs, ...dbData.lifelines, ...dbData.casualties, ...dbData.damages, ...dbData.assistance, ...dbData.resources, ...dbData.incidents];
+        allDocs.forEach(d => { if(d.sitrepNo) uniqueSitreps.add(String(d.sitrepNo)); });
+        let html = '<option value="ALL">ALL REPORTS (CUMULATIVE)</option>';
+        Array.from(uniqueSitreps).sort((a,b) => b - a).forEach(s => { html += `<option value="${s}">SITREP #${s}</option>`; });
+        filterEl.innerHTML = html;
+        if(Array.from(uniqueSitreps).includes(currentVal) || currentVal === 'ALL') filterEl.value = currentVal; else filterEl.value = 'ALL';
+    }
+
+    document.getElementById('globalSitrepFilter').addEventListener('change', updateCharts);
+
+    function updateFloodChart() {
+        let sel = document.getElementById('flood-muni-filter').value; let fMap = {}; let munis = new Set();
+        filterBySitrep(dbData.floods).forEach(d => {
+            if(d.municipality) munis.add(d.municipality);
+            if(sel !== 'ALL' && d.municipality !== sel) return;
+            let status = d.status || 'Unknown'; let label = sel === 'ALL' ? `${d.municipality} (${d.barangay || ''})` : (d.barangay || '');
+            if(!fMap[status]) fMap[status] = []; if(!fMap[status].includes(label)) fMap[status].push(label);
+        });
+        let fEl = document.getElementById('flood-muni-filter'); let cVal = fEl.value; let h = '<option value="ALL">All Municipalities</option>';
+        Array.from(munis).sort().forEach(m => h += `<option value="${m}">${m}</option>`); fEl.innerHTML = h; fEl.value = (Array.from(munis).includes(cVal)) ? cVal : 'ALL';
+        let cMap = { 'Still Flooded': '#ef4444', 'Rising': '#ef4444', 'Receding': '#fcd34d', 'Subsided': '#10b981', 'No Flood': '#10b981' };
+        floodChart.data.labels = Object.keys(fMap);
+        floodChart.data.datasets[0].data = Object.values(fMap).map(arr => arr.length);
+        floodChart.data.datasets[0].infoArray = Object.values(fMap); 
+        floodChart.data.datasets[0].backgroundColor = Object.keys(fMap).map(s => { for(let k in cMap) { if(s.toLowerCase().includes(k.toLowerCase())) return cMap[k]; } return '#3b82f6'; });
+        floodChart.update(); document.getElementById('floodDetails').innerHTML = '<div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected areas.</div>';
+    }
+
+    function updateInfraChart() {
+        let sel = document.getElementById('infra-muni-filter').value; let iMap = {}; let munis = new Set();
+        filterBySitrep(dbData.lifelines).forEach(d => { 
+            let stat = d.status || ''; let cat = d.category || '';
+            if(stat.includes("Passable") || stat.includes("Not Passable") || cat.includes('Road') || cat.includes('Bridge')) {
+                if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+                let loc = sel === 'ALL' ? `${d.municipality} (${d.specificArea || ''})` : (d.specificArea || '');
+                if(!iMap[stat]) iMap[stat] = []; if(!iMap[stat].includes(loc)) iMap[stat].push(loc);
+            }
+        });
+        let fEl = document.getElementById('infra-muni-filter'); let cVal = fEl.value; let h = '<option value="ALL">All Municipalities</option>';
+        Array.from(munis).sort().forEach(m => h += `<option value="${m}">${m}</option>`); fEl.innerHTML = h; fEl.value = (Array.from(munis).includes(cVal)) ? cVal : 'ALL';
+        let cMap = { 'Not Passable': '#ef4444', 'Light Vehicles': '#fcd34d', 'Passable': '#10b981' };
+        infraChart.data.labels = Object.keys(iMap);
+        infraChart.data.datasets[0].data = Object.values(iMap).map(arr => arr.length);
+        infraChart.data.datasets[0].infoArray = Object.values(iMap);
+        infraChart.data.datasets[0].backgroundColor = Object.keys(iMap).map(s => { for(let k in cMap) { if(s.toLowerCase().includes(k.toLowerCase())) return cMap[k]; } return '#ef4444'; });
+        infraChart.update(); document.getElementById('infraDetails').innerHTML = '<div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected areas.</div>';
+    }
+
+    function updateUtilityChart() {
+        let sel = document.getElementById('utility-muni-filter').value; let uMap = {}; let munis = new Set();
+        filterBySitrep(dbData.lifelines).forEach(d => { 
+            let stat = d.status || ''; let cat = d.category || '';
+            if(stat.includes("Outage") || stat.includes("Restored") || stat.includes("Interrupted") || cat.includes('Power') || cat.includes('Water')) {
+                if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+                let loc = sel === 'ALL' ? `${d.municipality} (${d.specificArea || ''}) - ${cat}` : `${d.specificArea || ''} (${cat})`;
+                if(!uMap[stat]) uMap[stat] = []; if(!uMap[stat].includes(loc)) uMap[stat].push(loc);
+            }
+        });
+        let fEl = document.getElementById('utility-muni-filter'); let cVal = fEl.value; let h = '<option value="ALL">All Municipalities</option>';
+        Array.from(munis).sort().forEach(m => h += `<option value="${m}">${m}</option>`); fEl.innerHTML = h; fEl.value = (Array.from(munis).includes(cVal)) ? cVal : 'ALL';
+        let cMap = { 'Outage': '#ef4444', 'Interrupted': '#fcd34d', 'Restored': '#10b981' };
+        utilityChart.data.labels = Object.keys(uMap);
+        utilityChart.data.datasets[0].data = Object.values(uMap).map(arr => arr.length);
+        utilityChart.data.datasets[0].infoArray = Object.values(uMap);
+        utilityChart.data.datasets[0].backgroundColor = Object.keys(uMap).map(s => { for(let k in cMap) { if(s.toLowerCase().includes(k.toLowerCase())) return cMap[k]; } return '#ef4444'; });
+        utilityChart.update(); document.getElementById('utilityDetails').innerHTML = '<div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected areas.</div>';
+    }
+
+    function updateResChart() {
+        let sel = document.getElementById('res-muni-filter').value; let rMap = {}; let ags = new Set(); let munis = new Set();
+        filterBySitrep(dbData.resources).forEach(d => {
+            if (!(d.status || '').toLowerCase().includes('deployed')) return;
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            let loc = sel === 'ALL' ? d.municipality : (d.barangay || 'Unspecified'); let ag = d.agency || 'Unknown';
+            if(!rMap[loc]) rMap[loc] = {}; if(!rMap[loc][ag]) rMap[loc][ag] = 0;
+            rMap[loc][ag] += 1; ags.add(ag);
+        });
+        let fEl = document.getElementById('res-muni-filter'); let cVal = fEl.value; let h = '<option value="ALL">All Municipalities</option>';
+        Array.from(munis).sort().forEach(m => h += `<option value="${m}">${m}</option>`); fEl.innerHTML = h; fEl.value = (Array.from(munis).includes(cVal)) ? cVal : 'ALL';
+        resChart.data.labels = Object.keys(rMap); let cols = ['#8b5cf6', '#3b82f6', '#10b981', '#fcd34d', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
+        Array.from(ags).forEach(ag => { 
+            let dArr = []; Object.keys(rMap).forEach(loc => dArr.push(rMap[loc][ag] || 0)); 
+            arrs.push({ label: ag, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }); 
+            idx++; 
+        });
+        resChart.data.datasets = arrs; resChart.update();
+    }
+
+    function updateCasChart() {
+        let sel = document.getElementById('cas-view-filter').value; let cMap = {}; let munis = new Set();
+        filterBySitrep(dbData.casualties).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cls = d.classification || ''; let cnt = d.count || 0;
+            if(!cMap[loc]) cMap[loc] = { 'Dead': 0, 'Missing': 0, 'Injured': 0 };
+            if (cls.includes('Dead')) cMap[loc]['Dead'] += cnt; else if (cls.includes('Missing')) cMap[loc]['Missing'] += cnt; else if (cls.includes('Injured')) cMap[loc]['Injured'] += cnt;
+        });
+        let fEl = document.getElementById('cas-view-filter'); let cVal = fEl.value; let h = '<option value="ALL">All Municipalities</option>';
+        Array.from(munis).sort().forEach(m => h += `<option value="${m}">${m}</option>`); fEl.innerHTML = h; fEl.value = (Array.from(munis).includes(cVal)) ? cVal : 'ALL';
+        casChart.data.labels = Object.keys(cMap);
+        casChart.data.datasets = [
+            { label: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 },
+            { label: 'Missing', data: Object.values(cMap).map(v => v['Missing']), backgroundColor: '#fcd34d', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 },
+            { label: 'Injured', data: Object.values(cMap).map(v => v['Injured']), backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }
+        ]; casChart.update();
+    }
+    
+    function updateItemsChart() {
+        let sel = document.getElementById('items-muni-filter').value; let iMap = {}; let itms = new Set(); let munis = new Set();
+        filterBySitrep(dbData.assistance).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; let item = d.reliefItem || 'Other'; let qty = d.quantity || 0;
+            if(!iMap[loc]) iMap[loc] = {}; if(!iMap[loc][item]) iMap[loc][item] = 0; iMap[loc][item] += qty; itms.add(item);
+        });
+        let fEl = document.getElementById('items-muni-filter'); let cVal = fEl.value; let h = '<option value="ALL">All Municipalities</option>';
+        Array.from(munis).sort().forEach(m => h += `<option value="${m}">${m}</option>`); fEl.innerHTML = h; fEl.value = (Array.from(munis).includes(cVal)) ? cVal : 'ALL';
+        itemsChart.data.labels = Object.keys(iMap); let cols = ['#14b8a6', '#fcd34d', '#3b82f6', '#8b5cf6', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
+        Array.from(itms).forEach(itm => { 
+            let dArr = []; Object.keys(iMap).forEach(loc => dArr.push(iMap[loc][itm] || 0)); 
+            arrs.push({ label: itm, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }); 
+            idx++; 
+        });
+        itemsChart.data.datasets = arrs; itemsChart.update();
+    }
+
+    document.getElementById('cas-view-filter').addEventListener('change', updateCasChart);
+    document.getElementById('items-muni-filter').addEventListener('change', updateItemsChart);
+    document.getElementById('res-muni-filter').addEventListener('change', updateResChart);
+    document.getElementById('flood-muni-filter').addEventListener('change', updateFloodChart);
+    document.getElementById('infra-muni-filter').addEventListener('change', updateInfraChart);
+    document.getElementById('utility-muni-filter').addEventListener('change', updateUtilityChart);
+
+    function updateCharts() {
+        updateGlobalSitrepDropdown();
+
+        let allDocs = [...dbData.floods, ...dbData.evacs, ...dbData.lifelines, ...dbData.casualties, ...dbData.damages, ...dbData.assistance, ...dbData.resources, ...dbData.incidents].filter(d => d.timeMonitored);
+        
+        let activeSitrep = document.getElementById('globalSitrepFilter').value;
+        let filteredAllDocs = activeSitrep === 'ALL' ? allDocs : allDocs.filter(d => String(d.sitrepNo) === String(activeSitrep));
+
+        if(filteredAllDocs.length > 0) {
+            filteredAllDocs.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
+            let latestDoc = filteredAllDocs[0];
+            
+            let asOfVal = latestDoc.asOfDate || latestDoc.timeMonitored;
+            let dateStrText = "--";
+            
+            if (asOfVal) {
+                let dateObj = (typeof asOfVal === 'string') ? new Date(asOfVal) : (asOfVal.toDate ? asOfVal.toDate() : new Date(asOfVal));
+                let month = (dateObj.getMonth() + 1).toString().padStart(2, '0');
+                let day = dateObj.getDate().toString().padStart(2, '0');
+                let year = dateObj.getFullYear();
+                let hours = dateObj.getHours();
+                let minutes = dateObj.getMinutes().toString().padStart(2, '0');
+                let ampm = hours >= 12 ? 'pm' : 'am';
+                hours = hours % 12; hours = hours ? hours : 12;
+                dateStrText = `${month}/${day}/${year} ${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`;
+            }
+
+            document.getElementById('incidentNameDisplay').innerHTML = `<i class="fa-solid fa-tower-broadcast fa-fade"></i> ACTIVE: ${latestDoc.incidentCause || 'UNKNOWN INCIDENT'}`;
+            document.getElementById('asOfDisplay').innerText = `AS OF: ${dateStrText}`;
+        } else {
+            document.getElementById('incidentNameDisplay').innerHTML = `<i class="fa-solid fa-tower-broadcast"></i> NO ACTIVE DATA`;
+            document.getElementById('asOfDisplay').innerText = `AS OF: --`;
+        }
+
+        let evacs = filterBySitrep(dbData.evacs);
+        let damages = filterBySitrep(dbData.damages);
+        let assistance = filterBySitrep(dbData.assistance);
+        let casualties = filterBySitrep(dbData.casualties);
+        let resources = filterBySitrep(dbData.resources);
+        let incidents = filterBySitrep(dbData.incidents);
+
+        let totalAffIndv = 0, totalAffFam = 0, totalEcIndv = 0, totalEcFam = 0;
+        evacs.forEach(curr => {
+            totalAffIndv += (curr.affectedIndividuals || 0);
+            totalAffFam += (curr.affectedFamilies || 0);
+            totalEcIndv += (curr.insideEcIndividuals || curr.individuals || 0);
+            totalEcFam += (curr.insideEcFamilies || curr.families || 0);
+        });
+
+        let totalAssist = assistance.reduce((sum, curr) => sum + (curr.cost || 0), 0);
+        let totalCas = casualties.reduce((sum, curr) => sum + (curr.count || 0), 0);
+        
+        let resTotal = 0, resDep = 0, resStb = 0, resRet = 0;
+        resources.forEach(d => {
+            resTotal++;
+            let status = (d.status || '').toLowerCase();
+            if(status.includes('deployed')) resDep++; else if(status.includes('standby')) resStb++; else if(status.includes('returned') || status.includes('demobilized')) resRet++;
+        });
+
+        let totalDamages = 0, dmgAgri = 0, dmgInfra = 0, dmgRes = 0;
+        damages.forEach(curr => {
+            let cost = curr.cost || 0;
+            totalDamages += cost;
+            if (curr.category.includes('Agriculture')) dmgAgri += cost; else if (curr.category.includes('Infrastructure')) dmgInfra += cost; else if (curr.category.includes('Residential')) dmgRes += cost;
+        });
+
+        let foodQty = 0, kitsQty = 0, otherQty = 0;
+        assistance.forEach(curr => {
+            let item = (curr.reliefItem || '').toLowerCase(); let qty = curr.quantity || 0;
+            if (item.includes('food') || item.includes('rice') || item.includes('water') || item.includes('meal')) foodQty += qty; else if (item.includes('kit') || item.includes('tent') || item.includes('sleeping') || item.includes('hygiene')) kitsQty += qty; else otherQty += qty;
+        });
+
+        document.getElementById('kpi-aff-indv').innerText = totalAffIndv.toLocaleString();
+        document.getElementById('kpi-aff-fam').innerText = totalAffFam.toLocaleString();
+        document.getElementById('kpi-ec-indv').innerText = totalEcIndv.toLocaleString();
+        document.getElementById('kpi-ec-fam').innerText = totalEcFam.toLocaleString();
+        
+        document.getElementById('kpi-casualties').innerText = totalCas.toLocaleString();
+        document.getElementById('kpi-res-total').innerText = resTotal.toLocaleString();
+        document.getElementById('kpi-res-dep').innerText = resDep.toLocaleString();
+        document.getElementById('kpi-res-stb').innerText = resStb.toLocaleString();
+        
+        document.getElementById('kpi-damages').innerText = formatCurrency(totalDamages);
+        document.getElementById('kpi-dmg-agri').innerText = formatCurrency(dmgAgri);
+        document.getElementById('kpi-dmg-infra').innerText = formatCurrency(dmgInfra);
+        
+        document.getElementById('kpi-assistance').innerText = formatCurrency(totalAssist);
+        document.getElementById('kpi-item-food').innerHTML = `${foodQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`;
+        document.getElementById('kpi-item-kits').innerHTML = `${kitsQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`;
+
+        let evacMap = {};
+        evacs.forEach(d => { 
+            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, ec: 0 }; 
+            evacMap[d.municipality].aff += (d.affectedIndividuals || 0); 
+            evacMap[d.municipality].ec += (d.insideEcIndividuals || d.individuals || 0);
+        });
+        evacChart.data.labels = Object.keys(evacMap);
+        evacChart.data.datasets[0].data = Object.values(evacMap).map(v => v.aff);
+        evacChart.data.datasets[1].data = Object.values(evacMap).map(v => v.ec);
+        evacChart.update();
+
+        let feedHtml = '';
+        if(incidents.length === 0) {
+            feedHtml = '<li class="empty-state">No related incidents or hazards reported for this SitRep.</li>';
+        } else {
+            incidents.forEach(inc => {
+                feedHtml += `<li class="incident-item">
+                    <div class="incident-loc"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-top:2px;"></i> ${inc.municipality || 'Unknown'}</div>
+                    <div class="incident-desc"><span class="incident-label">Reported Hazard</span>${inc.particulars || inc.incident || 'N/A'}</div>
+                    <div class="incident-act"><span class="incident-label">Action Taken</span>${inc.actionsTaken || 'Monitoring ongoing'}</div>
+                </li>`;
+            });
+        }
+        document.getElementById('incidentFeed').innerHTML = feedHtml;
+
+        let financeMap = {};
+        damages.forEach(d => { if(!financeMap[d.municipality]) financeMap[d.municipality] = {dmg: 0, ast: 0}; financeMap[d.municipality].dmg += d.cost; });
+        assistance.forEach(d => { if(!financeMap[d.municipality]) financeMap[d.municipality] = {dmg: 0, ast: 0}; financeMap[d.municipality].ast += d.cost; });
+        financeChart.data.labels = Object.keys(financeMap);
+        financeChart.data.datasets[0].data = Object.values(financeMap).map(v => v.dmg);
+        financeChart.data.datasets[1].data = Object.values(financeMap).map(v => v.ast);
+        financeChart.update();
+
+        updateItemsChart(); updateCasChart(); updateResChart(); 
+        updateFloodChart(); updateInfraChart(); updateUtilityChart();
+    }
+
+    onSnapshot(query(collection(db, "flooded_areas")), (snap) => { dbData.floods = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "evacuation_data")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "lifeline_data")), (snap) => { dbData.lifelines = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "casualties_data")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "damages_data")), (snap) => { dbData.damages = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "assistance_data")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "resource_data")), (snap) => { dbData.resources = snap.docs.map(d => d.data()); updateCharts(); });
+    onSnapshot(query(collection(db, "related_incidents")), (snap) => { dbData.incidents = snap.docs.map(d => d.data()); updateCharts(); });
+</script>
+</body>
+</html>
