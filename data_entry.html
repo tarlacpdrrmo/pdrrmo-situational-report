@@ -8,18 +8,19 @@
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     
-<!-- Hides body until Firebase verifies token -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
     <style> body { visibility: hidden; } </style>
 
-
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
 
         :root {
             --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e;
             --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff;
             --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981;
-            --accent-red: #ef4444; --accent-blue: #3b82f6; --border-subtle: #2e2e2e;
+            --accent-red: #ef4444; --accent-blue: #2563eb; --accent-teal: #14b8a6; --border-subtle: #2e2e2e;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
@@ -43,7 +44,8 @@
         .tab-btn:hover, .tab-btn.active { background-color: var(--bg-hover); color: var(--text-main); }
         .tab-btn.active { border-left-color: var(--accent-orange); }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px 250px 40px; }
+        
         .top-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px;}
         .top-header .avatar { width: 45px; height: 45px; border-radius: 50%; background-color: var(--bg-card); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-orange);}
         .top-header-text h2 { margin: 0; font-size: 18px; font-weight: 600; }
@@ -60,23 +62,27 @@
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
         
-        input, select, textarea { padding: 12px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); background-color: var(--bg-input); transition: all 0.2s; outline: none; resize: vertical;}
+        input, select, textarea { width: 100% !important; box-sizing: border-box !important; padding: 12px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); background-color: var(--bg-input); transition: all 0.2s; outline: none; resize: vertical; }
         input::placeholder, textarea::placeholder { color: #555; }
         input:focus, select:focus, textarea:focus { border-color: var(--accent-orange); }
         input:disabled, select:disabled, textarea:disabled { background-color: #1a1a1a; color: #666; cursor: not-allowed; border-color: #222;}
-        input::-webkit-calendar-picker-indicator { cursor: pointer; opacity: 0.6; filter: invert(1); }
+        optgroup { color: var(--accent-orange); font-weight: 700; font-style: normal; }
+        optgroup option { color: var(--text-main); font-weight: 400; }
 
-        .ts-wrapper { width: 100%; }
+        .ts-wrapper { width: 100%; position: relative; }
         .ts-control, .ts-control input { color: var(--text-main) !important; font-family: 'Inter', sans-serif; font-size: 13px; }
-        .ts-wrapper.single .ts-control { background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 15px; box-shadow: none; cursor: text; transition: 0.2s;}
-        .ts-wrapper.single.focus .ts-control { border-color: var(--accent-orange); }
-        .ts-dropdown { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 10px 25px rgba(0,0,0,0.5); margin-top: 5px; }
+        .ts-wrapper.single .ts-control, .ts-wrapper.multi .ts-control { background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 15px; box-shadow: none; cursor: text; transition: 0.2s; min-height: 42px;}
+        .ts-wrapper.single.focus .ts-control, .ts-wrapper.multi.focus .ts-control { border-color: var(--accent-orange); }
+        .ts-dropdown { position: absolute !important; z-index: 9999 !important; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); margin-top: 5px; }
         .ts-dropdown .option { padding: 12px 15px; color: var(--text-main); font-size: 13px; cursor: pointer; }
         .ts-dropdown .active { background-color: var(--bg-hover) !important; color: var(--accent-orange) !important; }
         .ts-wrapper.single .ts-control:after { border-color: var(--text-muted) transparent transparent transparent; }
         .ts-wrapper.focus .ts-control, .ts-control.focus, .ts-control.input-active { background-color: var(--bg-input) !important; color: var(--text-main) !important; }
-        .ts-wrapper .ts-control > input { color: var(--text-main) !important; background-color: transparent !important; }
-        
+        .ts-wrapper .ts-control > input { color: var(--text-main) !important; background-color: transparent !important; width: auto !important; min-width: 10px !important; padding: 0 !important; margin: 0 !important; }
+        .ts-wrapper.multi .ts-control > div { background: var(--bg-hover); color: var(--accent-orange); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 8px; margin: 2px 4px 2px 0; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;}
+        .ts-wrapper.multi .ts-control > div .remove { border-left: 1px solid var(--border-subtle); padding-left: 6px; margin-left: 6px; color: var(--text-muted); cursor: pointer;}
+        .ts-wrapper.multi .ts-control > div .remove:hover { color: var(--accent-red); }
+
         .lock-btn { background-color: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 12px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
         .lock-btn:hover { border-color: var(--text-muted); }
         .lock-btn.locked { color: var(--accent-green); border-color: var(--accent-green); background-color: rgba(16, 185, 129, 0.1); }
@@ -95,6 +101,39 @@
         .alert, .error-alert { font-weight: 500; font-size: 13px; margin-top: 20px; display: none; text-align: center; padding: 15px; border-radius: 8px; }
         .alert { color: var(--accent-green); border: 1px solid var(--accent-green); background: rgba(16, 185, 129, 0.1); }
         .error-alert { color: var(--accent-red); border: 1px solid var(--accent-red); background: rgba(239, 68, 68, 0.1); }
+
+        .flatpickr-wrapper { width: 100% !important; display: block !important; }
+        .flatpickr-calendar { background: #1e222b !important; border: 1px solid #2d323e !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important; padding: 8px !important; font-family: 'Inter', sans-serif !important; width: 230px !important; z-index: 999999 !important; }
+        .flatpickr-months { display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 4px !important; position: relative !important; height: 24px !important; }
+        .flatpickr-current-month { position: relative !important; left: 0 !important; width: auto !important; padding: 0 !important; font-size: 13px !important; font-weight: 800 !important; color: #ffffff !important; display: flex !important; align-items: center !important; }
+        .flatpickr-current-month .flatpickr-monthDropdown-months { background: transparent !important; font-weight: 800 !important; color: #ffffff !important; font-size: 13px !important; padding: 0 !important; margin: 0 !important; appearance: none !important; cursor: pointer !important; }
+        .flatpickr-current-month input.cur-year { font-weight: 800 !important; color: #ffffff !important; font-size: 13px !important; padding: 0 !important; width: 38px !important; }
+        .flatpickr-prev-month, .flatpickr-next-month { position: relative !important; top: auto !important; height: 20px !important; width: 20px !important; padding: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #3b82f6 !important; fill: #3b82f6 !important; border-radius: 4px !important; }
+        .flatpickr-prev-month svg, .flatpickr-next-month svg { width: 9px !important; height: 9px !important; fill: #3b82f6 !important; stroke: #3b82f6 !important; stroke-width: 2 !important; }
+        .flatpickr-prev-month:hover, .flatpickr-next-month:hover { background: rgba(59, 130, 246, 0.15) !important; }
+        
+        .flatpickr-weekdays { display: flex !important; margin-bottom: 2px !important; height: 16px !important; }
+        .flatpickr-weekdaycontainer { display: grid !important; grid-template-columns: repeat(7, 1fr) !important; width: 100% !important; }
+        span.flatpickr-weekday { color: #6b7280 !important; font-weight: 700 !important; font-size: 9px !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; text-align: center !important; }
+        
+        .flatpickr-days { width: 100% !important; }
+        .dayContainer { display: grid !important; grid-template-columns: repeat(7, 1fr) !important; width: 100% !important; min-width: 100% !important; max-width: 100% !important; }
+        
+        .flatpickr-day { color: #d1d5db !important; border-radius: 50% !important; font-weight: 600 !important; font-size: 11px !important; width: 26px !important; max-width: 26px !important; height: 26px !important; margin: 2px auto !important; border: none !important; transition: all 0.15s ease !important; display: flex !important; justify-content: center !important; align-items: center !important; }
+        .flatpickr-day.selected, .flatpickr-day.selected:hover { background: #2563eb !important; color: #ffffff !important; font-weight: 800 !important; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4) !important; }
+        .flatpickr-day.today:not(.selected) { color: #3b82f6 !important; font-weight: 800 !important; background: transparent !important; border: none !important; }
+        .flatpickr-day:hover:not(.selected) { background: #2d333f !important; }
+        .flatpickr-day.flatpickr-disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: #374151 !important; }
+        
+        .flatpickr-time { border-top: 1px solid #2d323e !important; margin-top: 4px !important; padding: 6px 8px 0 8px !important; height: 36px !important; display: flex !important; align-items: center !important; justify-content: flex-end !important; position: relative !important; overflow: hidden !important; box-sizing: border-box !important; }
+        .flatpickr-time::before { content: 'Time'; font-weight: 800; font-size: 11px; color: #ffffff; margin-right: auto !important; position: static !important; display: block !important; flex-shrink: 0 !important; }
+        .flatpickr-time .numInputWrapper { height: 26px !important; width: 40px !important; background: #282c35 !important; border-radius: 4px !important; padding: 0 !important; margin: 0 !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; }
+        .flatpickr-time .numInputWrapper span.arrowUp, .flatpickr-time .numInputWrapper span.arrowDown { display: none !important; }
+        .flatpickr-time input.numInput, .flatpickr-time input.flatpickr-hour, .flatpickr-time input.flatpickr-minute { background: transparent !important; color: #ffffff !important; font-weight: 800 !important; font-size: 12px !important; border-radius: 4px !important; border: 1px solid #353a47 !important; padding: 0 !important; margin: 0 !important; text-align: center !important; height: 100% !important; width: 100% !important; box-sizing: border-box !important; -moz-appearance: textfield !important; appearance: none !important; }
+        .flatpickr-time input:focus { border-color: #3b82f6 !important; background: #2d333f !important; }
+        .flatpickr-time .flatpickr-time-separator { color: #6b7280 !important; font-weight: 800 !important; width: 8px !important; height: 26px !important; line-height: 26px !important; text-align: center !important; display: inline-block !important; margin: 0 2px !important; flex-shrink: 0 !important; }
+        .flatpickr-time .flatpickr-am-pm { background: #282c35 !important; color: #3b82f6 !important; font-weight: 800 !important; font-size: 11px !important; border-radius: 4px !important; border: 1px solid #353a47 !important; height: 26px !important; padding: 0 6px !important; margin-left: 8px !important; width: 36px !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+        .flatpickr-time .flatpickr-am-pm:hover, .flatpickr-time .flatpickr-am-pm:focus { background: #353a47 !important; color: #ffffff !important; }
     </style>
 </head>
 <body>
@@ -112,10 +151,15 @@
 
         <div class="nav-section-title" style="margin-top: 20px;">MAIN ENCODERS</div>
         
-        <button class="tab-btn active" onclick="openTab('actions')"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
+        <button class="tab-btn active" onclick="openTab('weather')"><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather</button>
+        <button class="tab-btn" onclick="openTab('actions')"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
         <button class="tab-btn" onclick="openTab('flood')"><i class="fa-solid fa-water"></i> Flooded Areas</button>
-        <button class="tab-btn" onclick="openTab('evac')"><i class="fa-solid fa-person-shelter"></i> Evacuation Centers</button>
-        <button class="tab-btn" onclick="openTab('lifelines')"><i class="fa-solid fa-bridge-water"></i> Lifelines & Infra</button>
+        
+        <!-- NEW AFFECTED POPULATION SIDEBAR MENU -->
+        <button class="tab-btn" onclick="openTab('evac')"><i class="fa-solid fa-users-rays"></i> Affected Population</button>
+        
+        <button class="tab-btn" onclick="openTab('lifelines')"><i class="fa-solid fa-bolt"></i> Status of Lifelines</button>
+        <button class="tab-btn" onclick="openTab('infrastructure')"><i class="fa-solid fa-building-shield"></i> Public Infra (Dams/Dikes)</button>
         <button class="tab-btn" onclick="openTab('casualties')"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
         <button class="tab-btn" onclick="openTab('resources')"><i class="fa-solid fa-truck-fast"></i> Resources</button>
         <button class="tab-btn" onclick="openTab('suspensions')"><i class="fa-solid fa-school"></i> Suspensions</button>
@@ -133,7 +177,7 @@
                 <h2>Data Entry Portal</h2>
                 <p>Authorized Personnel Only <i class="fa-solid fa-lock" style="font-size:10px; margin-left:5px;"></i></p>
             </div>
-<button onclick="logoutUser()" class="lock-btn" style="margin-left: auto; height: 35px; background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
+            <button onclick="logoutUser()" class="lock-btn" style="margin-left: auto; height: 35px; background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
         </div>
 
         <div class="context-panel">
@@ -167,7 +211,48 @@
             </div>
         </div>
 
-        <div id="actions" class="form-section active">
+        <div id="weather" class="form-section active">
+            <h2><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather Conditions</h2>
+            <form id="form-weather">
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Municipality / Province</label>
+                        <select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select>
+                    </div>
+                    <div class="col form-group">
+                        <label>Weather Condition (Status)</label>
+                        <select class="f-weather-cond" required placeholder="Select or Type Condition...">
+                            <option value=""></option>
+                            <option value="Fair weather">Fair weather</option>
+                            <option value="Cloudy skies">Cloudy skies</option>
+                            <option value="Light rains">Light rains</option>
+                            <option value="Light to moderate rains">Light to moderate rains</option>
+                            <option value="Moderate to heavy rains">Moderate to heavy rains</option>
+                            <option value="Heavy rains">Heavy rains</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Reported Date & Time (LDRRMO As Of)</label>
+                        <input type="datetime-local" class="f-weather-time" required>
+                    </div>
+                    <div class="col form-group">
+                        <label>Information Source</label>
+                        <input type="text" class="f-weather-source" placeholder="e.g., LDRRMO" value="LDRRMO" required>
+                    </div>
+                </div>
+                <div class="form-group">
+                    <label>Remarks (Optional)</label>
+                    <input type="text" class="f-weather-remarks" placeholder="e.g., With occasional gusty winds">
+                </div>
+                <button type="submit" class="submit-btn" style="margin-top: 20px;"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Local Weather Data encoded to Firestore!</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
+
+        <div id="actions" class="form-section">
             <h2><i class="fa-solid fa-clipboard-list"></i> Preparedness & Actions Taken</h2>
             <form id="form-actions">
                 <div class="row">
@@ -176,7 +261,7 @@
                         <select class="f-action-agency" required placeholder="Type or Select Council..."><option value=""></option></select>
                     </div>
                     <div class="col form-group" id="ldrmmc-lgu-group" style="display: none;">
-                        <label>Specific LGU</label>
+                        <label>Specific LGU / Province</label>
                         <select class="f-action-lgu" placeholder="Select Municipality/City..."><option value=""></option></select>
                     </div>
                     <div class="col form-group">
@@ -185,7 +270,7 @@
                     </div>
                 </div>
                 <div class="form-group"><label>Action Category</label><select class="f-action-cat" required placeholder="Select Category...">
-                    <option value="">Select...</option>
+                    <option value=""></option>
                     <option value="Meetings / PDRA">Meetings / PDRA</option>
                     <option value="Issuance of Advisories/Memos">Issuance of Advisories / Memos</option>
                     <option value="Pre-emptive Evacuation">Pre-emptive Evacuation</option>
@@ -205,12 +290,22 @@
             <h2><i class="fa-solid fa-water"></i> Flooded Area Report</h2>
             <form id="form-flood">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Barangay / Area</label><input type="text" class="f-brgy" placeholder="e.g., Purok 1" required></div>
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Depth (ft)</label><input type="number" step="0.1" class="f-depth" placeholder="0.0" required></div>
-                    <div class="col form-group"><label>Status</label><select class="f-status" required><option value="Still Flooded">Still Flooded</option><option value="Rising">Rising</option><option value="Receding">Receding</option><option value="Subsided">Subsided</option><option value="No Flood reported">No Flood reported</option></select></div>
+                    <div class="col form-group"><label>Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <option value="Still Flooded">Still Flooded</option>
+                            <option value="Rising">Rising</option>
+                            <option value="Receding">Receding</option>
+                            <option value="Subsided">Subsided</option>
+                            <option value="No Flood reported">No Flood reported</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-flood-time" required></div>
                 </div>
                 <div class="row gps-row">
                     <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
@@ -224,24 +319,38 @@
         </div>
 
         <div id="evac" class="form-section">
-            <h2><i class="fa-solid fa-person-shelter"></i> Evacuation Center Report</h2>
+            <!-- NEW AFFECTED POPULATION HEADER -->
+            <h2><i class="fa-solid fa-users-rays"></i> Affected Population Report</h2>
             <form id="form-evac">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" placeholder="Enter Barangay" required></div>
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Evacuation Center Name</label><input type="text" class="f-center" placeholder="e.g., San Roque Covered Court" required></div>
-                    <div class="col form-group"><label>Center Status</label><select class="f-status" required><option value="Active">Active (Occupied)</option><option value="Closed">Closed (Decamped)</option><option value="Standby">Standby (Ready)</option></select></div>
+                    <div class="col form-group"><label>Center Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <option value="Active">Active (Occupied)</option>
+                            <option value="Closed">Closed (Decamped)</option>
+                            <option value="Standby">Standby (Ready)</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 
+                    <!-- NEW PRE-EMPTIVE VS EC 2x3 GRID -->
                 <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--border-subtle);">
                     <div style="font-size: 12px; font-weight: 700; color: var(--accent-orange); margin-bottom: 10px;"><i class="fa-solid fa-users-rays"></i> POPULATION SPLIT</div>
+                    <div class="row" style="margin-bottom: 10px;">
+                        <div class="col form-group"><label>Total Affected (Families)</label><input type="number" class="f-aff-fam" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs (Families)</label><input type="number" class="f-ec-fam" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Families)</label><input type="number" class="f-pre-fam" min="0"></div>
+                    </div>
                     <div class="row" style="margin-bottom: 0;">
-                        <div class="col form-group"><label>Total Affected (Families)</label><input type="number" class="f-aff-fam" min="0" required></div>
-                        <div class="col form-group"><label>Total Affected (Persons)</label><input type="number" class="f-aff-indv" min="0" required></div>
-                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs (Families)</label><input type="number" class="f-ec-fam" min="0" required></div>
-                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs (Persons)</label><input type="number" class="f-ec-indv" min="0" required></div>
+                        <div class="col form-group"><label>Total Affected (Persons)</label><input type="number" class="f-aff-indv" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs (Persons)</label><input type="number" class="f-ec-indv" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Persons)</label><input type="number" class="f-pre-indv" min="0"></div>
                     </div>
                 </div>
 
@@ -257,17 +366,83 @@
         </div>
 
         <div id="lifelines" class="form-section">
-            <h2><i class="fa-solid fa-bridge-water"></i> Lifelines & Infra Report</h2>
+            <h2><i class="fa-solid fa-bolt"></i> Status of Lifelines</h2>
             <form id="form-lifelines">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Specific Area/Asset</label><input type="text" class="f-area" placeholder="e.g., Romulo Highway" required></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Specific Area/Asset</label><input type="text" class="f-area" placeholder="e.g., TARELCO II, PrimeWater" required></div>
                 </div>
                 <div class="row">
-                    <div class="col form-group"><label>Infrastructure Category</label><select class="f-cat" required><option value="">Select Category...</option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Power">Power / Electricity</option><option value="Water">Water Supply</option><option value="Comms">Communications</option></select></div>
-                    <div class="col form-group"><label>Operational Status</label><select class="f-status" required><option value="Passable">Passable (All)</option><option value="Not Passable (Light)">Not Passable (Light)</option><option value="Not Passable (All)">Not Passable (All)</option><option value="Outage">Interrupted / Outage</option><option value="Restored">Restored / Operational</option></select></div>
+                    <div class="col form-group"><label>Lifeline Category</label>
+                        <select class="f-cat" required placeholder="Select Category...">
+                            <option value=""></option>
+                            <option value="Power">Power / Electricity</option>
+                            <option value="Water">Water Supply</option>
+                            <option value="Comms">Communications</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Operational Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <option value="Normal / Fully Operational">Normal / Fully Operational</option>
+                            <option value="Interrupted / Outage">Interrupted / Outage</option>
+                            <option value="Restored / Operational">Restored / Operational</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Flooded by 2ft, fallen electric post" required></div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Data encoded to Firestore!</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
+
+        <div id="infrastructure" class="form-section">
+            <h2><i class="fa-solid fa-building-shield"></i> Public Infrastructure Report</h2>
+            <form id="form-infrastructure">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" placeholder="e.g., Romulo Highway, Camiling River Dike" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Infrastructure Category</label>
+                        <select class="f-cat" required placeholder="Select Category...">
+                            <option value=""></option>
+                            <option value="Road">Road</option>
+                            <option value="Bridge">Bridge</option>
+                            <option value="Dam">Dam</option>
+                            <option value="Dike / Barricade">Dike / Barricade</option>
+                            <option value="Slope Protection">Slope Protection</option>
+                            <option value="Government Building">Government Building</option>
+                            <option value="Other Public Infra">Other Public Infra</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <optgroup label="Roads & Bridges">
+                                <option value="Passable">Passable (All)</option>
+                                <option value="Not Passable (Light)">Not Passable (Light)</option>
+                                <option value="Not Passable (All)">Not Passable (All)</option>
+                            </optgroup>
+                            <optgroup label="Dams, Dikes & Buildings">
+                                <option value="Intact / Monitored">Intact / Monitored</option>
+                                <option value="Partially Damaged">Partially Damaged</option>
+                                <option value="Totally Damaged">Totally Damaged</option>
+                                <option value="Breached / Collapsed">Breached / Collapsed</option>
+                                <option value="Ongoing Repair">Ongoing Repair</option>
+                            </optgroup>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Water level critical, 5 meters breached" required></div>
                 <div class="row gps-row">
                     <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
                     <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
@@ -283,12 +458,20 @@
             <h2><i class="fa-solid fa-truck-medical"></i> Casualties Report</h2>
             <form id="form-casualties">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div>
                 </div>
                 <div class="row">
-                    <div class="col form-group"><label>Classification</label><select class="f-class" required><option value="">Select Classification...</option><option value="Injured">Injured</option><option value="Missing">Missing</option><option value="Dead">Dead (Confirmed)</option></select></div>
+                    <div class="col form-group"><label>Classification</label>
+                        <select class="f-class" required placeholder="Select Classification...">
+                            <option value=""></option>
+                            <option value="Injured">Injured</option>
+                            <option value="Missing">Missing</option>
+                            <option value="Dead">Dead (Confirmed)</option>
+                        </select>
+                    </div>
                     <div class="col form-group"><label>Number of Individuals</label><input type="number" class="f-count" min="1" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="form-group"><label>Remarks (Identify if known)</label><input type="text" class="f-remarks" placeholder="e.g., 1 Male (45yo), swept by floodwaters" required></div>
                 <div class="row gps-row">
@@ -306,7 +489,7 @@
             <h2><i class="fa-solid fa-truck-fast"></i> Resource Deployment Report</h2>
             <form id="form-resources">
                 <div class="row">
-                    <div class="col form-group"><label>Deployed Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Deployed Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Specific Area / Barangay</label><input type="text" class="f-brgy" required></div>
                 </div>
                 <div class="row">
@@ -316,7 +499,15 @@
                 <div class="row">
                     <div class="col form-group"><label>Asset Quantity</label><input type="number" class="f-qty" min="0" required></div>
                     <div class="col form-group"><label>No. of Personnel (Pax)</label><input type="number" class="f-personnel" min="0" placeholder="e.g., 5" required></div>
-                    <div class="col form-group"><label>Deployment Status</label><select class="f-status" required><option value="Deployed">Active / Deployed</option><option value="Standby">On Standby</option><option value="Demobilized">Demobilized (Returned)</option></select></div>
+                    <div class="col form-group"><label>Deployment Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <option value="Deployed">Active / Deployed</option>
+                            <option value="Standby">On Standby</option>
+                            <option value="Demobilized">Demobilized (Returned)</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="row gps-row">
                     <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
@@ -333,13 +524,32 @@
             <h2><i class="fa-solid fa-school"></i> Work & Class Suspensions</h2>
             <form id="form-suspensions">
                 <div class="row">
-                    <div class="col form-group"><label>Coverage Area</label><select class="f-coverage" required placeholder="Select Coverage..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Suspension Type</label><select class="f-type" required><option value="">Select Type...</option><option value="Classes Only (All Levels)">Classes Only (All Levels)</option><option value="Work Only (Govt & Private)">Work Only (Govt & Private)</option><option value="Classes and Work">Both Classes and Work</option></select></div>
+                    <div class="col form-group">
+                        <label>Coverage Area</label>
+                        <select class="f-coverage" multiple required placeholder="Select Multiple Areas...">
+                            <option value=""></option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Suspension Type</label>
+                        <select class="f-type" required placeholder="Select Type...">
+                            <option value=""></option>
+                            <option value="Classes Only (All Levels)">Classes Only (All Levels)</option>
+                            <option value="Work Only (Govt & Private)">Work Only (Govt & Private)</option>
+                            <option value="Classes and Work">Both Classes and Work</option>
+                        </select>
+                    </div>
                 </div>
                 <div class="row">
-                    <div class="col form-group"><label>Status</label><select class="f-status" required><option value="Suspended">Suspended</option><option value="Lifted/Resumed">Lifted / Resumed</option></select></div>
-                    <div class="col form-group"><label>Remarks / Issuance Details</label><input type="text" class="f-remarks" placeholder="e.g., Declared via EO No. 15 s. 2026"></div>
+                    <div class="col form-group"><label>Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <option value="Suspended">Suspended</option>
+                            <option value="Lifted/Resumed">Lifted / Resumed</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
+                <div class="form-group"><label>Remarks / Issuance Details</label><input type="text" class="f-remarks" placeholder="e.g., Declared via EO No. 15 s. 2026"></div>
                 <button type="submit" class="submit-btn" style="margin-top: 20px;"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Data encoded to Firestore!</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
@@ -350,12 +560,22 @@
             <h2><i class="fa-solid fa-house-crack"></i> Damages (Agri & Homes)</h2>
             <form id="form-damages">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div>
                 </div>
                 <div class="row">
-                    <div class="col form-group"><label>Damage Category</label><select class="f-cat" required><option value="">Select Category...</option><option value="Agriculture (Crops)">Agriculture (Crops)</option><option value="Agriculture (Livestock)">Agriculture (Livestock)</option><option value="Residential (Totally)">Residential (Totally Damaged)</option><option value="Residential (Partially)">Residential (Partially Damaged)</option><option value="Public Infrastructure">Public Infrastructure</option></select></div>
+                    <div class="col form-group"><label>Damage Category</label>
+                        <select class="f-cat" required placeholder="Select Category...">
+                            <option value=""></option>
+                            <option value="Agriculture (Crops)">Agriculture (Crops)</option>
+                            <option value="Agriculture (Livestock)">Agriculture (Livestock)</option>
+                            <option value="Residential (Totally)">Residential (Totally Damaged)</option>
+                            <option value="Residential (Partially)">Residential (Partially Damaged)</option>
+                            <option value="Public Infrastructure">Public Infrastructure</option>
+                        </select>
+                    </div>
                     <div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" class="f-cost" min="0" placeholder="e.g., 50000" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="form-group"><label>Detailed Description</label><input type="text" class="f-desc" placeholder="e.g., 5 Hectares of Rice Crops destroyed" required></div>
                 <div class="row gps-row">
@@ -373,7 +593,7 @@
             <h2><i class="fa-solid fa-hand-holding-hand"></i> Cost of Assistance & Relief</h2>
             <form id="form-assistance">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div>
                 </div>
                 <div class="row">
@@ -383,6 +603,7 @@
                 <div class="row">
                     <div class="col form-group"><label>Quantity Distributed</label><input type="number" class="f-qty" min="1" required></div>
                     <div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" class="f-cost" min="0" placeholder="e.g., 15000" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Distributed to 50 families in evacuation center" required></div>
                 <button type="submit" class="submit-btn" style="margin-top: 40px;"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
@@ -395,8 +616,9 @@
             <h2><i class="fa-solid fa-triangle-exclamation"></i> Other Related Incidents & Hazards</h2>
             <form id="form-incidents">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Particulars / Hazard</label><input type="text" class="f-hazard" placeholder="e.g. Felled Tree, Broken Dike" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="form-group"><label>Actions Taken</label><textarea class="f-action" rows="3" placeholder="What was done to mitigate this hazard?" required></textarea></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-paper-plane"></i> Transmit Data</button>
@@ -425,29 +647,29 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    // SECURITY LISTENER: Kicks out unauthenticated users instantly
     onAuthStateChanged(auth, (user) => {
-        if (user) {
-            document.body.style.visibility = "visible"; // Show page
-        } else {
-            window.location.href = "login.html"; // Kick to login
-        }
+        if (user) { document.body.style.visibility = "visible"; } else { window.location.href = "login.html"; }
     });
 
-    // BIND LOGOUT BUTTON
     window.logoutUser = function() {
         signOut(auth).then(() => { window.location.href = "index.html"; });
     };
-    const municipalities = ["Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
+
+    const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
+    
     document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => {
         municipalities.forEach(m => el.add(new Option(m, m)));
-        new TomSelect(el, { create: false, sortField: {field: "text", direction: "asc"} });
+        new TomSelect(el, { create: false });
     });
 
     const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
+    
     document.querySelectorAll('.f-coverage').forEach(el => {
         coverages.forEach(c => el.add(new Option(c, c)));
-        new TomSelect(el, { create: false });
+        new TomSelect(el, { 
+            create: false,
+            plugins: ['remove_button'] 
+        });
     });
 
     const globalAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
@@ -496,6 +718,14 @@
     
     document.querySelectorAll('.f-action-cat').forEach(el => {
         new TomSelect(el, { create: true });
+    });
+
+    document.querySelectorAll('.f-weather-cond').forEach(el => {
+        new TomSelect(el, { create: true });
+    });
+
+    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => {
+        new TomSelect(el, { create: false });
     });
 
     window.openTab = function(tabId) {
@@ -595,11 +825,13 @@
             
             submitBtn.innerHTML = originalBtnText;
             submitBtn.disabled = false;
-            successMsg.style.display = 'block'; form.reset();
+            successMsg.style.display = 'block'; 
             
-            form.querySelectorAll('.ts-control input').forEach(input => {
-                const tsInstance = input.closest('.ts-wrapper').tomselect;
-                if(tsInstance) tsInstance.clear();
+            form.reset();
+            
+            form.querySelectorAll('select, input').forEach(el => {
+                if(el.tomselect) { el.tomselect.clear(); }
+                if(el._flatpickr) { el._flatpickr.clear(); }
             });
 
             setTimeout(() => successMsg.style.display = 'none', 3000);
@@ -608,6 +840,16 @@
             submitBtn.disabled = false;
         }
     }
+
+    document.getElementById('form-weather').addEventListener('submit', (e) => {
+        handleSubmission(e, "weather_conditions", (f) => ({
+            municipality: f.querySelector('.f-muni').value, 
+            weatherCondition: f.querySelector('.f-weather-cond').value,
+            dateReported: f.querySelector('.f-weather-time').value,
+            source: f.querySelector('.f-weather-source').value,
+            remarks: f.querySelector('.f-weather-remarks').value
+        }));
+    });
 
     document.getElementById('form-actions').addEventListener('submit', (e) => {
         handleSubmission(e, "actions_data", (f) => {
@@ -627,20 +869,44 @@
         handleSubmission(e, "flooded_areas", (f) => ({
             municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value,
             waterDepth_ft: parseFloat(f.querySelector('.f-depth').value), status: f.querySelector('.f-status').value,
-            latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value
+            latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-flood-time').value
         }));
     });
 
-    document.getElementById('form-evac').addEventListener('submit', (e) => {
-        handleSubmission(e, "evacuation_data", (f) => ({
-            municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value,
+document.getElementById('form-evac').addEventListener('submit', (e) => {
+        const f = e.target;
+        
+        // Safely extract the numbers, defaulting to 0 if left blank
+        const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0;
+        const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0;
+        const ecFam = parseInt(f.querySelector('.f-ec-fam').value) || 0;
+        const ecIndv = parseInt(f.querySelector('.f-ec-indv').value) || 0;
+        const preFam = parseInt(f.querySelector('.f-pre-fam').value) || 0;
+        const preIndv = parseInt(f.querySelector('.f-pre-indv').value) || 0;
+
+        // Smart Validation: Ensure at least ONE field has a number
+        const totalInputCount = affFam + affIndv + ecFam + ecIndv + preFam + preIndv;
+        if (totalInputCount === 0) {
+            e.preventDefault(); // Stop submission
+            alert("Please provide at least one count for Families or Persons across the Population Split categories.");
+            return;
+        }
+
+        handleSubmission(e, "evacuation_data", () => ({
+            municipality: f.querySelector('.f-muni').value, 
+            barangay: f.querySelector('.f-brgy').value,
             evacCenter: f.querySelector('.f-center').value, 
             status: f.querySelector('.f-status').value,
-            affectedFamilies: parseInt(f.querySelector('.f-aff-fam').value) || 0,
-            affectedIndividuals: parseInt(f.querySelector('.f-aff-indv').value) || 0,
-            insideEcFamilies: parseInt(f.querySelector('.f-ec-fam').value) || 0,
-            insideEcIndividuals: parseInt(f.querySelector('.f-ec-indv').value) || 0,
-            latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value
+            affectedFamilies: affFam,
+            affectedIndividuals: affIndv,
+            insideEcFamilies: ecFam,
+            insideEcIndividuals: ecIndv,
+            preEmptiveFamilies: preFam,
+            preEmptiveIndividuals: preIndv,
+            latitude: f.querySelector('.lat-input').value, 
+            longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
@@ -648,7 +914,17 @@
         handleSubmission(e, "lifeline_data", (f) => ({
             municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value,
             category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value,
-            remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value
+            remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-report-time').value
+        }));
+    });
+
+    document.getElementById('form-infrastructure').addEventListener('submit', (e) => {
+        handleSubmission(e, "infrastructure_data", (f) => ({
+            municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value,
+            category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value,
+            remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
@@ -656,7 +932,8 @@
         handleSubmission(e, "casualties_data", (f) => ({
             municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value,
             classification: f.querySelector('.f-class').value, count: parseInt(f.querySelector('.f-count').value),
-            remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value
+            remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
@@ -665,24 +942,32 @@
             municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value,
             agency: f.querySelector('.f-agency').value, assetType: f.querySelector('.f-asset').value,
             quantity: parseInt(f.querySelector('.f-qty').value), personnel: parseInt(f.querySelector('.f-personnel').value),
-            status: f.querySelector('.f-status').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value
+            status: f.querySelector('.f-status').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
     document.getElementById('form-suspensions').addEventListener('submit', (e) => {
-        handleSubmission(e, "suspensions_data", (f) => ({
-            coverage: f.querySelector('.f-coverage').value, 
-            type: f.querySelector('.f-type').value, 
-            status: f.querySelector('.f-status').value,
-            remarks: f.querySelector('.f-remarks').value
-        }));
+        handleSubmission(e, "suspensions_data", (f) => {
+            const coverageSelect = f.querySelector('.f-coverage');
+            const selectedCoverages = Array.from(coverageSelect.selectedOptions).map(opt => opt.value).join(', ');
+
+            return {
+                coverage: selectedCoverages, 
+                type: f.querySelector('.f-type').value, 
+                status: f.querySelector('.f-status').value,
+                remarks: f.querySelector('.f-remarks').value,
+                dateReported: f.querySelector('.f-report-time').value
+            };
+        });
     });
 
     document.getElementById('form-damages').addEventListener('submit', (e) => {
         handleSubmission(e, "damages_data", (f) => ({
             municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value,
             category: f.querySelector('.f-cat').value, cost: parseFloat(f.querySelector('.f-cost').value),
-            description: f.querySelector('.f-desc').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value
+            description: f.querySelector('.f-desc').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
@@ -691,7 +976,8 @@
             municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value,
             source: f.querySelector('.f-source').value, reliefItem: f.querySelector('.f-relief').value,
             quantity: parseInt(f.querySelector('.f-qty').value), cost: parseFloat(f.querySelector('.f-cost').value),
-            remarks: f.querySelector('.f-remarks').value
+            remarks: f.querySelector('.f-remarks').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
@@ -699,8 +985,22 @@
         handleSubmission(e, "related_incidents", (f) => ({
             municipality: f.querySelector('.f-muni').value, 
             particulars: f.querySelector('.f-hazard').value,
-            actionsTaken: f.querySelector('.f-action').value
+            actionsTaken: f.querySelector('.f-action').value,
+            dateReported: f.querySelector('.f-report-time').value
         }));
+    });
+
+    flatpickr("input[type='datetime-local']", {
+        enableTime: true,
+        dateFormat: "Y-m-d\\TH:i", 
+        altInput: true,
+        altFormat: "F j, Y - h:i K", 
+        time_24hr: false,
+        minuteIncrement: 1,
+        monthSelectorType: "dropdown",
+        prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`,
+        nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`,
+        position: "auto"
     });
 
 </script>
