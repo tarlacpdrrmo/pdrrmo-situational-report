@@ -6,6 +6,7 @@
     <title>PDRRMO Executive Analytics | Dark Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
+    <!-- Premium Dropdown Library (TomSelect) -->
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
@@ -75,16 +76,31 @@
         @keyframes slideInFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
         .animate-reveal { animation: slideInFade 0.3s ease-out forwards; padding-right: 5px; } 
 
+        /* --- PREMIUM TOMSELECT (CHARTS & GLOBAL) --- */
         .ts-wrapper.chart-filter { width: 170px !important; position: relative; }
-        .ts-wrapper.chart-filter .ts-control { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px 12px; min-height: 30px; cursor: pointer; color: var(--text-main) !important; font-size: 11px !important; font-weight: 600; box-shadow: none; transition: 0.2s;}
-        .ts-wrapper.chart-filter.focus .ts-control { border-color: var(--accent-orange); }
+        .ts-wrapper.chart-filter .ts-control { background: var(--bg-card) !important; border: 1px solid var(--border-subtle); border-radius: 6px; padding: 6px 12px; min-height: 30px; cursor: pointer; color: var(--text-main) !important; font-size: 11px !important; font-weight: 600; box-shadow: none; transition: 0.2s;}
+        
+        .ts-wrapper.chart-filter.focus .ts-control, 
+        .ts-wrapper.chart-filter.input-active .ts-control { 
+            border-color: var(--accent-orange) !important; 
+            background: var(--bg-card) !important; 
+            color: var(--text-main) !important; 
+        }
+        
         .ts-wrapper.chart-filter .ts-dropdown { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; position: absolute !important; z-index: 9999 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.8); margin-top: 4px; }
         .ts-wrapper.chart-filter .ts-dropdown .option { padding: 8px 12px; font-size: 11px; font-weight: 500; color: var(--text-main); cursor: pointer; }
         .ts-wrapper.chart-filter .ts-dropdown .active { background: var(--bg-hover) !important; color: var(--accent-orange) !important; font-weight: 700; }
 
         .ts-wrapper.global-sitrep-select { width: auto; min-width: 260px; position: relative; }
-        .ts-wrapper.global-sitrep-select .ts-control { background: #000; border: 2px solid #000; border-radius: 6px; padding: 6px 15px; min-height: 34px; cursor: pointer; color: var(--accent-orange) !important; font-size: 12px !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none; transition: 0.2s;}
-        .ts-wrapper.global-sitrep-select.focus .ts-control { background: #1a1a1a; border-color: #1a1a1a; }
+        .ts-wrapper.global-sitrep-select .ts-control { background: #000 !important; border: 2px solid #000; border-radius: 6px; padding: 6px 15px; min-height: 34px; cursor: pointer; color: var(--accent-orange) !important; font-size: 12px !important; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none; transition: 0.2s;}
+        
+        .ts-wrapper.global-sitrep-select.focus .ts-control,
+        .ts-wrapper.global-sitrep-select.input-active .ts-control { 
+            background: #1a1a1a !important; 
+            border-color: #1a1a1a !important; 
+            color: var(--accent-orange) !important;
+        }
+        
         .ts-wrapper.global-sitrep-select .ts-dropdown { background: #1a1a1a; border: 1px solid var(--border-subtle); border-radius: 6px; position: absolute !important; z-index: 9999 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.8); margin-top: 4px; }
         .ts-wrapper.global-sitrep-select .ts-dropdown .option { padding: 10px 15px; font-size: 12px; font-weight: 700; color: var(--accent-orange); cursor: pointer; text-transform: uppercase;}
         .ts-wrapper.global-sitrep-select .ts-dropdown .active { background: #000 !important; color: #fff !important; }
@@ -137,7 +153,6 @@
                 </div>
             </div>
             
-            <!-- REDESIGNED EVACUATION KPI CARD -->
             <div class="kpi-card">
                 <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); margin-top: 0;"><i class="fa-solid fa-person-shelter"></i></div>
                 <div class="kpi-details">
@@ -193,9 +208,40 @@
         <div class="chart-grid">
             <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-users-between-lines" style="color: var(--accent-orange);"></i> Affected vs. Evacuated</h3></div><div class="chart-container"><canvas id="evacChart"></canvas></div></div>
             <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-coins" style="color: var(--accent-green);"></i> Damages vs. Assistance (PHP)</h3></div><div class="chart-container"><canvas id="financeChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-boxes-packing" style="color: var(--accent-teal);"></i> Distributed Relief Items</h3><select id="items-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-container"><canvas id="itemsChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-truck-medical" style="color: var(--accent-red);"></i> Casualties by Location</h3><select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-container"><canvas id="casChart"></canvas></div></div>
-            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-purple);"></i> Resource Deployments</h3><select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select></div><div class="chart-container"><canvas id="resChart"></canvas></div></div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-boxes-packing" style="color: var(--accent-teal);"></i> Distributed Relief Items</h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-chart-reset" onclick="resetChart('items-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
+                        <select id="items-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                    </div>
+                </div>
+                <div class="chart-container"><canvas id="itemsChart"></canvas></div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-truck-medical" style="color: var(--accent-red);"></i> Casualties by Location</h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-chart-reset" onclick="resetChart('cas-view-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
+                        <select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                    </div>
+                </div>
+                <div class="chart-container"><canvas id="casChart"></canvas></div>
+            </div>
+            
+            <div class="chart-card">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-purple);"></i> Resource Deployments</h3>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-chart-reset" onclick="resetChart('res-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
+                        <select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                    </div>
+                </div>
+                <div class="chart-container"><canvas id="resChart"></canvas></div>
+            </div>
+            
             <div class="chart-card">
                 <div class="chart-header"><h3><i class="fa-solid fa-triangle-exclamation fa-beat" style="color: var(--accent-red);"></i> Active Hazards Feed</h3></div>
                 <div class="incident-feed-container"><ul id="incidentFeed" class="incident-list"><li class="empty-state">No related incidents or hazards reported.</li></ul></div>
@@ -209,7 +255,7 @@
                 <div class="chart-header">
                     <h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flood Status Overview</h3>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChartDetails('floodDetails', 'areas')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="btn-chart-reset" onclick="resetChart('flood-muni-filter', 'floodDetails', 'areas')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
                         <select id="flood-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
@@ -220,7 +266,7 @@
                 <div class="chart-header">
                     <h3><i class="fa-solid fa-road-barrier" style="color: var(--accent-orange);"></i> Roads & Bridges Status</h3>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChartDetails('infraDetails', 'areas')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="btn-chart-reset" onclick="resetChart('infra-muni-filter', 'infraDetails', 'areas')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
                         <select id="infra-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
@@ -231,7 +277,7 @@
                 <div class="chart-header">
                     <h3><i class="fa-solid fa-bolt" style="color: var(--accent-yellow);"></i> Power & Water Utilities</h3>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChartDetails('utilityDetails', 'areas')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="btn-chart-reset" onclick="resetChart('utility-muni-filter', 'utilityDetails', 'areas')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
                         <select id="utility-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
@@ -242,7 +288,7 @@
                 <div class="chart-header">
                     <h3><i class="fa-solid fa-building-shield" style="color: var(--accent-purple);"></i> Public Infra Status</h3>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChartDetails('pubInfraDetails', 'assets')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
+                        <button class="btn-chart-reset" onclick="resetChart('pub-infra-muni-filter', 'pubInfraDetails', 'assets')" title="Reset Chart Focus"><i class="fa-solid fa-rotate-left"></i></button>
                         <select id="pub-infra-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
@@ -252,7 +298,10 @@
             <div class="chart-card" style="grid-column: 1 / -1;">
                 <div class="chart-header">
                     <h3><i class="fa-solid fa-cloud-sun-rain" style="color: var(--accent-teal);"></i> Local Weather Conditions</h3>
-                    <select id="weather-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                    <div style="display: flex; gap: 10px; align-items: center;">
+                        <button class="btn-chart-reset" onclick="resetChart('weather-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
+                        <select id="weather-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                    </div>
                 </div>
                 <div class="incident-feed-container">
                     <ul id="weatherFeed" class="incident-list"><li class="empty-state">No weather reports available.</li></ul>
@@ -314,20 +363,19 @@
     const barLegendConfig = { display: true, position: 'bottom', align: 'start', labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 15, font: { size: 11 } } };
     const noDataLabels = { datalabels: { display: false } };
 
-    // UPGRADED TO 3 DATASETS (Affected, Inside ECs, Pre-emptive)
     const evacCtx = document.getElementById('evacChart').getContext('2d');
     const evacChart = new Chart(evacCtx, { 
         type: 'bar', 
         data: { labels: [], datasets: [
-            { label: 'Affected (Indv)', data: [], backgroundColor: '#ff8c00', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }, 
-            { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 },
-            { label: 'Pre-emptive (Indv)', data: [], backgroundColor: '#14b8a6', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }
+            { label: 'Affected (Indv)', data: [], backgroundColor: '#ff8c00', borderRadius: 4, maxBarThickness: 50 }, 
+            { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 50 },
+            { label: 'Pre-emptive (Indv)', data: [], backgroundColor: '#14b8a6', borderRadius: 4, maxBarThickness: 50 }
         ] }, 
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }
     });
     
     const financeCtx = document.getElementById('financeChart').getContext('2d');
-    const financeChart = new Chart(financeCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Damages', data: [], backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }, { label: 'Assistance', data: [], backgroundColor: '#10b981', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000) + 'k'; } } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    const financeChart = new Chart(financeCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Damages', data: [], backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 50 }, { label: 'Assistance', data: [], backgroundColor: '#10b981', borderRadius: 4, maxBarThickness: 50 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000) + 'k'; } } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
     
     const itemsCtx = document.getElementById('itemsChart').getContext('2d');
     const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
@@ -383,13 +431,33 @@
     const utilityChart = createCircularChart(document.getElementById('utilityChart').getContext('2d'), 'doughnut');
     const pubInfraChart = createCircularChart(document.getElementById('pubInfraChart').getContext('2d'), 'doughnut');
 
+    // UNIFIED RESET FUNCTION: Clears dropdown filters AND side-panels
+    window.resetChart = function(selectId, targetId, typeLabel) {
+        if (selectId && tsInstances[selectId]) {
+            tsInstances[selectId].setValue('ALL'); 
+        }
+        if (targetId && typeLabel) {
+            document.getElementById(targetId).innerHTML = `<div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected ${typeLabel}.</div>`;
+        }
+    };
+
+    // Helper for internal chart updates to reset the side panel text
     window.resetChartDetails = function(targetId, typeLabel) {
         document.getElementById(targetId).innerHTML = `<div class="empty-state animate-reveal" style="font-size: 12px;">Click a slice to view affected ${typeLabel}.</div>`;
     };
 
+    function formatCurrency(amount) {
+        if(amount >= 1000000) return '₱' + (amount / 1000000).toFixed(2) + 'M';
+        if(amount >= 1000) return '₱' + (amount / 1000).toFixed(1) + 'k';
+        return '₱' + (amount || 0);
+    }
+
     function updateClock() {
-        const now = new Date();
-        document.getElementById('digitalClock').textContent = now.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour12: true });
+        const clockEl = document.getElementById('digitalClock');
+        if (clockEl) {
+            const now = new Date();
+            clockEl.textContent = now.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour12: true });
+        }
     }
     setInterval(updateClock, 1000);
     updateClock();
@@ -471,7 +539,7 @@
         if(!tsInstances['infra-muni-filter']) return;
         let sel = tsInstances['infra-muni-filter'].getValue() || 'ALL'; 
         let iMap = {}; let munis = new Set();
-        filterBySitrep(dbData.lifelines).forEach(d => { 
+        filterBySitrep(dbData.infrastructure).forEach(d => { 
             let stat = d.status || ''; let cat = d.category || '';
             if(stat.includes("Passable") || stat.includes("Not Passable") || cat.includes('Road') || cat.includes('Bridge')) {
                 if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
@@ -552,7 +620,7 @@
         resChart.data.labels = Object.keys(rMap); let cols = ['#8b5cf6', '#3b82f6', '#10b981', '#fcd34d', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
         Array.from(ags).forEach(ag => { 
             let dArr = []; Object.keys(rMap).forEach(loc => dArr.push(rMap[loc][ag] || 0)); 
-            arrs.push({ label: ag, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }); 
+            arrs.push({ label: ag, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 50 }); 
             idx++; 
         });
         resChart.data.datasets = arrs; resChart.update();
@@ -573,9 +641,9 @@
         
         casChart.data.labels = Object.keys(cMap);
         casChart.data.datasets = [
-            { label: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 },
-            { label: 'Missing', data: Object.values(cMap).map(v => v['Missing']), backgroundColor: '#fcd34d', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 },
-            { label: 'Injured', data: Object.values(cMap).map(v => v['Injured']), backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }
+            { label: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4, maxBarThickness: 50 },
+            { label: 'Missing', data: Object.values(cMap).map(v => v['Missing']), backgroundColor: '#fcd34d', borderRadius: 4, maxBarThickness: 50 },
+            { label: 'Injured', data: Object.values(cMap).map(v => v['Injured']), backgroundColor: '#3b82f6', borderRadius: 4, maxBarThickness: 50 }
         ]; casChart.update();
     }
     
@@ -594,7 +662,7 @@
         itemsChart.data.labels = Object.keys(iMap); let cols = ['#14b8a6', '#fcd34d', '#3b82f6', '#8b5cf6', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
         Array.from(itms).forEach(itm => { 
             let dArr = []; Object.keys(iMap).forEach(loc => dArr.push(iMap[loc][itm] || 0)); 
-            arrs.push({ label: itm, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 50, minBarLength: 6 }); 
+            arrs.push({ label: itm, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 50 }); 
             idx++; 
         });
         itemsChart.data.datasets = arrs; itemsChart.update();
