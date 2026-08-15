@@ -16,7 +16,7 @@
             --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e;
             --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff;
             --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981;
-            --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-teal: #14b8a6; --accent-purple: #8b5cf6; --border-subtle: #2e2e2e;
+            --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-teal: #14b8a6; --accent-purple: #8b5cf6; --accent-yellow: #fcd34d; --border-subtle: #2e2e2e;
         }
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
@@ -130,7 +130,11 @@
             <a href="dashboard.html" class="dashboard-link active-tab"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
             <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
             <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
+            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
         </div>
+
+        <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
+        <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
     </div>
 
     <div class="main-content">
@@ -362,7 +366,6 @@
                 </table>
             </div>
 
-            <!-- UPDATED RESIDENTIAL TABLE (ESTIMATED COST REMOVED, DAMAGED UNITS ADDED) -->
             <h2 class="section-title"><i class="fa-solid fa-house-chimney-crack" style="color: var(--accent-red);"></i> 7b. Residential Damages & Infrastructure</h2>
             <div class="table-container" id="sec-residential">
                 <table style="table-layout: auto;">
@@ -730,7 +733,6 @@
         });
     }
 
-    // UPDATED RESIDENTIAL RENDER SCRIPT (SHOWS COUNT INSTEAD OF COST)
     function renderResidential() {
         const tb = document.getElementById('residential-tbody'); tb.innerHTML = '';
         const filtered = dbData.residential.filter(matchesFilter);
@@ -812,21 +814,21 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     });
 
-    onSnapshot(query(collection(db, "weather_conditions"), orderBy("timeMonitored", "desc")), (snap) => { dbData.weather = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "actions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.actions = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "flooded_areas"), orderBy("timeMonitored", "desc")), (snap) => { dbData.floods = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "evacuation_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "preemptive_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.preemptives = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "complement_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.complements = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "lifeline_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.lifelines = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.infrastructure = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "casualties_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "resource_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.resources = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "suspensions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.suspensions = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "agri_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.agri = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "residential_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.residential = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "assistance_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()); renderAll(); });
-    onSnapshot(query(collection(db, "related_incidents"), orderBy("timeMonitored", "desc")), (snap) => { dbData.incidents = snap.docs.map(d => d.data()); renderAll(); });
+    onSnapshot(query(collection(db, "weather_conditions"), orderBy("timeMonitored", "desc")), (snap) => { dbData.weather = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "actions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.actions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "flooded_areas"), orderBy("timeMonitored", "desc")), (snap) => { dbData.floods = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "evacuation_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "preemptive_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.preemptives = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "complement_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.complements = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "lifeline_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.lifelines = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.infrastructure = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "casualties_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "resource_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.resources = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "suspensions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.suspensions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "agri_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.agri = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "residential_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.residential = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "assistance_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "related_incidents"), orderBy("timeMonitored", "desc")), (snap) => { dbData.incidents = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
 </script>
 </body>
 </html>
