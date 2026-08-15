@@ -120,6 +120,7 @@
             <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
             <a href="data_entry.html" class="dashboard-link active-tab"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
             <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
+            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
         </div>
 
         <div class="nav-section-title" style="margin-top: 20px;">MAIN ENCODERS</div>
@@ -139,6 +140,9 @@
         <button class="tab-btn" onclick="openTab('residential')"><i class="fa-solid fa-house-chimney-crack"></i> Residential Damages</button>
         <button class="tab-btn" onclick="openTab('assistance')"><i class="fa-solid fa-hand-holding-hand"></i> Assistance</button>
         <button class="tab-btn" onclick="openTab('incidents')"><i class="fa-solid fa-triangle-exclamation"></i> Related Incidents</button>
+        
+        <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
+        <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
     </div>
 
     <div class="main-content">
@@ -487,8 +491,10 @@
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                    <div class="col form-group"></div>
+                    <div class="col form-group"></div>
                 </div>
-                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Agriculture Report</button>
+                <button type="submit" class="submit-btn" style="background-color: var(--accent-yellow); color: #000;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Agriculture Report</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
             </form>
@@ -514,7 +520,7 @@
                     <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
                     <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
                 </div>
-                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Residential Report</button>
+                <button type="submit" class="submit-btn" style="background-color: var(--accent-red); color: #fff;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Residential Report</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
             </form>
@@ -579,10 +585,16 @@
     const auth = getAuth(app);
 
     onAuthStateChanged(auth, (user) => {
-        if (user) { document.body.style.visibility = "visible"; } else { window.location.href = "login.html"; }
+        if (user) { 
+            document.body.style.visibility = "visible"; 
+        } else { 
+            window.location.href = "login.html?redirect=data_entry.html"; 
+        }
     });
 
-    window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
+    window.logoutUser = function() { 
+        signOut(auth).then(() => { window.location.href = "index.html"; }); 
+    };
 
     const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
     document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false }); });
