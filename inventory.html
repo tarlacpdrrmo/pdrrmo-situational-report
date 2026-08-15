@@ -7,6 +7,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
         :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --border-subtle: #2e2e2e; }
@@ -81,18 +82,24 @@
         <div style="margin-top: 10px;">
             <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
             <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
-            <a href="login.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
             <a href="inventory.html" class="dashboard-link active-tab"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
+            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
         </div>
+
+        <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
+        <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
     </div>
 
     <div class="main-content">
         
         <div class="top-header">
-            <div class="avatar"><i class="fa-solid fa-boxes-packing"></i></div>
-            <div class="top-header-text">
-                <h2>Relief Logistics & Inventory System</h2>
-                <p><i class="fa-solid fa-circle-dot fa-fade" style="font-size: 10px;"></i> Tracking live warehouse balances and deployments</p>
+            <div class="header-left">
+                <div class="avatar"><i class="fa-solid fa-boxes-packing"></i></div>
+                <div class="top-header-text">
+                    <h2>Relief Logistics & Inventory System</h2>
+                    <p><i class="fa-solid fa-circle-dot fa-fade" style="font-size: 10px;"></i> Tracking live warehouse balances and deployments</p>
+                </div>
             </div>
         </div>
 
@@ -178,7 +185,6 @@
         </div>
 
     </div>
-
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
