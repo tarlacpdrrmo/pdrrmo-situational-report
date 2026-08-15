@@ -61,9 +61,13 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // If already logged in, redirect immediately
+    // DYNAMIC ROUTER: Reads the URL to check for a specific redirect target
+    const urlParams = new URLSearchParams(window.location.search);
+    const redirectTarget = urlParams.get('redirect') || 'data_entry.html';
+
+    // If already logged in, redirect immediately to the target
     onAuthStateChanged(auth, (user) => {
-        if (user) { window.location.href = "data_entry.html"; }
+        if (user) { window.location.href = redirectTarget; }
     });
 
     document.getElementById('loginForm').addEventListener('submit', (e) => {
@@ -78,7 +82,10 @@
         err.style.display = 'none';
 
         signInWithEmailAndPassword(auth, email, password)
-            .then(() => { window.location.href = "data_entry.html"; })
+            .then(() => { 
+                // Sends the user to their intended destination instead of forcing data_entry.html
+                window.location.href = redirectTarget; 
+            })
             .catch((error) => {
                 err.style.display = 'block';
                 btn.innerHTML = '<i class="fa-solid fa-right-to-bracket"></i> Authenticate';
