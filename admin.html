@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDRRMO System Admin | Dark Pro</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <!-- SECURITY: Hides page until authenticated -->
+    <style> body { visibility: hidden; } </style>
+
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
+        :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --border-subtle: #2e2e2e; }
+        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
+        
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
+        .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
+        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
+        
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;}
+        .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
+        .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
+        .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
+        .dashboard-link:active { transform: translateX(4px) scale(0.98); }
+        .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--accent-red); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(239, 68, 68, 0.2); }
+        .active-tab i { color: var(--accent-red); transform: scale(1.1); }
+
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
+        
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;}
+        .header-left { display: flex; align-items: center; gap: 15px;}
+        .header-left .avatar { width: 45px; height: 45px; border-radius: 10px; background-color: rgba(239, 68, 68, 0.1); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-red); border: 1px solid rgba(239,68,68,0.2);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
+
+        .lock-btn { background-color: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px;}
+        .lock-btn:hover { background-color: var(--accent-red); color: #fff; }
+
+        .admin-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 800px; margin: 0 auto; margin-top: 20px;}
+        .admin-card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;}
+        .admin-card-header i { font-size: 28px; color: var(--accent-orange); }
+        .admin-card-header h3 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700;}
+        .admin-card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;}
+        
+        .input-group { margin-bottom: 25px; }
+        .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .input-group input { width: 100%; padding: 14px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-main); background-color: var(--bg-input); box-sizing: border-box; outline: none; transition: 0.2s;}
+        .input-group input:focus { border-color: var(--accent-orange); }
+
+        .btn-archive { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 16px 25px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; letter-spacing: 0.5px; }
+        .btn-archive:hover { background: var(--accent-red); color: #fff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transform: translateY(-2px); }
+        .btn-archive:active { transform: translateY(0); }
+
+        /* OVERLAY AND ANIMATION STYLES */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
+        .loading-overlay.active { opacity: 1; visibility: visible; }
+        
+        .terminal-box { background: #0a0a0a; border: 1px solid #333; border-radius: 12px; width: 500px; max-width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.8); overflow: hidden; transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .loading-overlay.active .terminal-box { transform: translateY(0); }
+        
+        .terminal-header { background: #1a1a1a; padding: 12px 20px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
+        .terminal-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;}
+        .terminal-dots { display: flex; gap: 6px; }
+        .dot { width: 10px; height: 10px; border-radius: 50%; }
+        .dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
+        
+        .terminal-body { padding: 25px; }
+        
+        .progress-wrapper { margin-bottom: 25px; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-orange); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        .progress-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-orange); width: 0%; box-shadow: 0 0 10px var(--accent-orange); transition: width 0.3s ease; }
+        
+        .console-logs { background: #000; border-radius: 6px; padding: 15px; height: 180px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 12px; color: #10b981; line-height: 1.6; border: 1px solid #222; }
+        .console-logs::-webkit-scrollbar { width: 4px; }
+        .console-logs::-webkit-scrollbar-track { background: #000; }
+        .console-logs::-webkit-scrollbar-thumb { background: #333; border-radius: 4px;}
+        
+        .log-line { margin: 0; opacity: 0; animation: slideUpFade 0.3s forwards; }
+        .log-highlight { color: #fcd34d; font-weight: 600; }
+        .log-error { color: #ef4444; }
+        .log-system { color: #3b82f6; }
+        
+        @keyframes slideUpFade {
+            from { opacity: 0; transform: translateY(5px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+
+        .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
+        .success-icon { font-size: 60px; color: var(--accent-green); margin-bottom: 15px; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .success-text { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px;}
+        .success-subtext { font-size: 13px; color: var(--text-muted); margin-bottom: 25px;}
+        .btn-done { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s;}
+        .btn-done:hover { background: #333; }
+
+        @keyframes scaleIn { 0% { transform: scale(0); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
+
+    </style>
+</head>
+<body>
+
+    <div class="sidebar">
+        <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
+        <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
+        
+        <div style="margin-top: 10px;">
+            <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
+            <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
+            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
+            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
+        </div>
+
+        <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
+        <a href="admin.html" class="dashboard-link active-tab"><i class="fa-solid fa-server"></i> System Admin</a>
+    </div>
+
+    <div class="main-content">
+        <div class="top-header">
+            <div class="header-left">
+                <div class="avatar"><i class="fa-solid fa-shield-halved"></i></div>
+                <div class="top-header-text">
+                    <h2>System Administration Center</h2>
+                    <p>Database Management & Historical Logging</p>
+                </div>
+            </div>
+            <button onclick="logoutUser()" class="lock-btn"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
+        </div>
+
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <i class="fa-solid fa-box-archive"></i>
+                <h3>Archive Active Incident Data</h3>
+            </div>
+            
+            <p class="admin-card-desc">
+                Executing this protocol will finalize the current disaster response logs. All active data entries currently populating the live dashboards will be securely compiled, time-stamped, and transferred to the Historical Logs. 
+                <br><br>
+                <strong style="color: var(--accent-orange);"><i class="fa-solid fa-triangle-exclamation"></i> Notice:</strong> The live monitoring dashboards will be cleared and reset to await the next operational incident. This action cannot be easily undone.
+            </p>
+
+            <div class="input-group">
+                <label>Confirm Incident / Event Name to Archive</label>
+                <input type="text" id="archiveIncidentName" placeholder="e.g., SW Monsoon & Typhon Luis" required>
+            </div>
+
+            <button class="btn-archive" onclick="triggerArchiveProtocol()"><i class="fa-solid fa-power-off"></i> Execute Archiving Protocol</button>
+        </div>
+    </div>
+
+    <!-- DATA TRANSFER OVERLAY ANIMATION -->
+    <div class="loading-overlay" id="loadingOverlay">
+        <div class="terminal-box" id="terminalBox">
+            <div class="terminal-header">
+                <div class="terminal-title"><i class="fa-solid fa-microchip fa-fade"></i> Secure System Link</div>
+                <div class="terminal-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
+            </div>
+            
+            <div class="terminal-body" id="processingUI">
+                <div class="progress-wrapper">
+                    <div class="progress-label">
+                        <span>Compiling Records</span>
+                        <span id="progressPercent">0%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill" id="progressFill"></div>
+                    </div>
+                </div>
+                
+                <div class="console-logs" id="consoleLogs">
+                    <p class="log-line log-system">> INITIALIZING ARCHIVE PROTOCOL...</p>
+                    <p class="log-line">> Establishing secure connection to system database...</p>
+                </div>
+            </div>
+
+            <div class="terminal-body success-overlay" id="successUI">
+                <i class="fa-solid fa-circle-check success-icon"></i>
+                <div class="success-text">Archiving Complete</div>
+                <div class="success-subtext">All records successfully secured in Historical Logs.</div>
+                <button class="btn-done" onclick="closeOverlay()">Acknowledge & Return</button>
+            </div>
+        </div>
+    </div>
+
+<script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { initializeFirestore, collection, getDocs, writeBatch, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+
+    const firebaseConfig = {
+        apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk",
+        authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com",
+        projectId: "tarlac-sitrep-backend-5000e",
+        storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app",
+        messagingSenderId: "575825350427",
+        appId: "1:575825350427:web:d4e336b580e44a29900dbe"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+    const auth = getAuth(app);
+
+    // SECURITY CHECK: Bounces unauthenticated users to login page
+    onAuthStateChanged(auth, (user) => {
+        if (user) { 
+            document.body.style.visibility = "visible"; 
+        } else { 
+            window.location.href = "login.html?redirect=admin.html"; 
+        }
+    });
+
+    window.logoutUser = function() { 
+        signOut(auth).then(() => { window.location.href = "index.html"; }); 
+    };
+
+    // Internal mapping of all active collections used in the system
+    const systemCollections = [
+        { id: "weather_conditions", name: "Weather Observations" },
+        { id: "actions_data", name: "Preparedness Actions" },
+        { id: "flooded_areas", name: "Flooded Area Vectors" },
+        { id: "evacuation_data", name: "Evacuation Center Logs" },
+        { id: "preemptive_data", name: "Pre-Emptive Evac Logs" },
+        { id: "complement_data", name: "OpCen Complement Logs" },
+        { id: "lifeline_data", name: "Utility Lifeline Status" },
+        { id: "infrastructure_data", name: "Public Infrastructure" },
+        { id: "casualties_data", name: "Reported Casualties" },
+        { id: "resource_data", name: "Deployed Asset Tracking" },
+        { id: "suspensions_data", name: "Official Suspensions" },
+        { id: "agri_damages", name: "Agricultural Damages" },
+        { id: "residential_damages", name: "Residential Damages" },
+        { id: "assistance_data", name: "Relief Assistance Value" },
+        { id: "related_incidents", name: "Hazard Monitoring Logs" }
+    ];
+
+    window.triggerArchiveProtocol = async function() {
+        const incidentName = document.getElementById('archiveIncidentName').value.trim();
+        
+        if (!incidentName) {
+            alert("Please input the Incident Name to confirm the archive process.");
+            return;
+        }
+
+        const confirmMsg = `WARNING: You are about to archive all live data for "${incidentName}".\n\nThis will clear the live dashboards and move records to the Historical Logs. Do you wish to proceed?`;
+        if (!confirm(confirmMsg)) return;
+
+        // UI Setup
+        const overlay = document.getElementById('loadingOverlay');
+        const consoleLogs = document.getElementById('consoleLogs');
+        const progressFill = document.getElementById('progressFill');
+        const progressPercent = document.getElementById('progressPercent');
+        const processingUI = document.getElementById('processingUI');
+        const successUI = document.getElementById('successUI');
+
+        processingUI.style.display = 'block';
+        successUI.style.display = 'none';
+        progressFill.style.width = '0%';
+        progressPercent.innerText = '0%';
+        consoleLogs.innerHTML = `
+            <p class="log-line log-system">> INITIATING ARCHIVE PROTOCOL FOR: ${incidentName.toUpperCase()}</p>
+            <p class="log-line">> Establishing secure connection to system database...</p>
+        `;
+        
+        overlay.classList.add('active');
+
+        // Function to smoothly add lines to the terminal
+        const addLog = (msg, styleClass = '') => {
+            const p = document.createElement('p');
+            p.className = `log-line ${styleClass}`;
+            p.innerHTML = `> ${msg}`;
+            consoleLogs.appendChild(p);
+            consoleLogs.scrollTop = consoleLogs.scrollHeight;
+        };
+
+        try {
+            const batch = writeBatch(db);
+            let totalRecordsProcessed = 0;
+
+            await new Promise(r => setTimeout(r, 1000));
+            addLog(`Connection established. Scanning ${systemCollections.length} active data pathways...`);
+
+            // Loop through collections, artificially pacing it for the visual feedback
+            for (let i = 0; i < systemCollections.length; i++) {
+                const colInfo = systemCollections[i];
+                
+                const querySnapshot = await getDocs(collection(db, colInfo.id));
+                let colRecordCount = 0;
+                
+                querySnapshot.forEach((docSnap) => {
+                    const data = docSnap.data();
+                    if (data.isArchived !== true) { 
+                        const docRef = doc(db, colInfo.id, docSnap.id);
+                        batch.update(docRef, { isArchived: true, archiveTag: incidentName });
+                        colRecordCount++;
+                        totalRecordsProcessed++;
+                    }
+                });
+
+                // Visual Animation Pacing
+                await new Promise(r => setTimeout(r, 400 + Math.random() * 400)); 
+                
+                addLog(`Compressing <span class="log-highlight">${colInfo.name}</span>... [Found ${colRecordCount} records]`);
+                
+                const percent = Math.round(((i + 1) / systemCollections.length) * 90); // Go up to 90%
+                progressFill.style.width = `${percent}%`;
+                progressPercent.innerText = `${percent}%`;
+            }
+
+            await new Promise(r => setTimeout(r, 800));
+            addLog(`All pathways scanned. Total records ready for transfer: <span class="log-highlight">${totalRecordsProcessed}</span>`);
+            addLog(`Committing batch update to system archive...`, 'log-system');
+
+            // EXECUTE FIRESTORE BATCH
+            if (totalRecordsProcessed > 0) {
+                await batch.commit();
+            }
+
+            await new Promise(r => setTimeout(r, 1000));
+            
+            // Finish Animation
+            progressFill.style.width = `100%`;
+            progressPercent.innerText = `100%`;
+            addLog(`Batch commit successful. Data securely logged.`, 'log-highlight');
+            
+            // Wait a second, then show success screen
+            setTimeout(() => {
+                processingUI.style.display = 'none';
+                successUI.style.display = 'flex';
+                document.getElementById('archiveIncidentName').value = '';
+                localStorage.setItem('sitrepContextLocked', 'false'); // Unlock Data Entry Context automatically
+            }, 1200);
+
+        } catch (error) {
+            console.error("Archive Error:", error);
+            addLog(`SYSTEM ERROR: Sequence failed.`, 'log-error');
+            addLog(`${error.message}`, 'log-error');
+            progressFill.style.backgroundColor = '#ef4444';
+            progressFill.style.boxShadow = '0 0 10px #ef4444';
+        }
+    };
+
+    window.closeOverlay = function() {
+        document.getElementById('loadingOverlay').classList.remove('active');
+    };
+
+</script>
+</body>
+</html>
