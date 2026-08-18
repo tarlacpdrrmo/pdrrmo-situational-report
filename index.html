@@ -10,7 +10,7 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
-    
+
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-yellow: #fcd34d; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; --accent-teal: #14b8a6; --border-subtle: #2e2e2e; }
@@ -35,6 +35,9 @@
         .sitrep-info-col { display: flex; flex-direction: column; gap: 2px; }
         .sitrep-info-col span { font-size: 14px; font-weight: 800; text-transform: uppercase; letter-spacing: 0.5px; display: flex; align-items: center; gap: 8px; }
         .as-of-text { font-size: 10px !important; font-weight: 700 !important; opacity: 0.75; letter-spacing: 0.5px; }
+
+        .lock-btn { background-color: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 12px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .lock-btn:hover { border-color: var(--text-muted); }
         
         .kpi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; margin-bottom: 30px; }
         .kpi-card { background: var(--bg-card); padding: 15px; border-radius: 12px; border: 1px solid var(--border-subtle); display: flex; align-items: flex-start; gap: 12px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
@@ -148,12 +151,25 @@
         <div class="kpi-grid">
             <div class="kpi-card span-2" style="align-items: center; justify-content: center; background: linear-gradient(135deg, var(--bg-card) 0%, #151515 100%);">
                 <div class="kpi-icon" style="background: rgba(239, 68, 68, 0.1); color: var(--accent-red); margin-top: 0; width: 60px; height: 60px; font-size: 24px;"><i class="fa-solid fa-users-rays"></i></div>
-                <div class="kpi-details" style="align-items: center;">
-                    <span class="kpi-title" style="font-size: 12px;">Total Affected Population</span>
-                    <div style="display: flex; align-items: baseline; gap: 15px; margin-top: 5px;">
-                        <div><span class="kpi-value" id="kpi-aff-indv" style="font-size: 28px;">0</span><span style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-left: 5px;">INDV</span></div>
-                        <div><span class="kpi-value" id="kpi-aff-fam" style="font-size: 22px; color: var(--accent-yellow);">0</span><span style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-left: 5px;">FAM</span></div>
-                        <div><span class="kpi-value" id="kpi-aff-brgy" style="font-size: 22px; color: var(--accent-purple);">0</span><span style="font-size: 11px; color: var(--text-muted); font-weight: 600; margin-left: 5px;">BRGYS</span></div>
+                <div class="kpi-details" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; border-bottom: 1px solid var(--border-subtle); padding-bottom: 8px; margin-bottom: 8px;">
+                        <div>
+                            <span class="kpi-title" style="font-size: 11px;">Total Affected</span>
+                            <div style="display: flex; align-items: baseline; gap: 12px; margin-top: 5px;">
+                                <div><span class="kpi-value" id="kpi-aff-indv" style="font-size: 24px;">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-left: 4px;">PAX</span></div>
+                                <div><span class="kpi-value" id="kpi-aff-fam" style="font-size: 16px; color: var(--accent-yellow);">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-left: 4px;">FAM</span></div>
+                            </div>
+                        </div>
+                        <div style="text-align: right;">
+                            <span class="kpi-title" style="font-size: 11px; color: var(--accent-green);">Total Served</span>
+                            <div style="display: flex; align-items: baseline; justify-content: flex-end; gap: 12px; margin-top: 5px;">
+                                <div><span class="kpi-value" id="kpi-served-indv" style="font-size: 24px; color: var(--accent-green);">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-left: 4px;">PAX</span></div>
+                                <div><span class="kpi-value" id="kpi-served-fam" style="font-size: 16px; color: var(--accent-yellow);">0</span><span style="font-size: 10px; color: var(--text-muted); font-weight: 600; margin-left: 4px;">FAM</span></div>
+                            </div>
+                        </div>
+                    </div>
+                    <div>
+                        <span style="font-size: 11px; color: var(--text-muted); font-weight: 600;"><span id="kpi-aff-brgy" style="font-size: 14px; color: var(--accent-purple);">0</span> BRGYS AFFECTED</span>
                     </div>
                 </div>
             </div>
@@ -237,17 +253,6 @@
                     </div>
                 </div>
                 <div class="chart-container"><canvas id="assistanceChart"></canvas></div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-wheat-awn" style="color: var(--accent-yellow);"></i> Agriculture Damages (PHP)</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('agri-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="agri-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container"><canvas id="agriChart"></canvas></div>
             </div>
 
             <div class="chart-card">
@@ -363,6 +368,15 @@
                 </div>
             </div>
 
+            <div class="chart-card" style="grid-column: 1 / -1;">
+                <div class="chart-header">
+                    <h3><i class="fa-solid fa-wheat-awn" style="color: var(--accent-yellow);"></i> Agriculture Damages Feed</h3>
+                </div>
+                <div class="incident-feed-container" style="height: 180px;">
+                    <ul id="agriFeed" class="incident-list"><li class="empty-state">No agriculture damages reported.</li></ul>
+                </div>
+            </div>
+
         </div>
     </div>
 
@@ -388,7 +402,8 @@
     const tsGlobal = new TomSelect("#globalSitrepFilter", { create: false, controlInput: null, onChange: function() { updateCharts(); } });
     const tsInstances = {};
     
-    const chartFilterIds = ['items-muni-filter', 'cas-view-filter', 'res-muni-filter', 'flood-muni-filter', 'infra-muni-filter', 'utility-muni-filter', 'pub-infra-muni-filter', 'weather-muni-filter', 'ast-muni-filter', 'agri-muni-filter', 'res-dam-muni-filter'];
+    // Removed agri-muni-filter from array
+    const chartFilterIds = ['items-muni-filter', 'cas-view-filter', 'res-muni-filter', 'flood-muni-filter', 'infra-muni-filter', 'utility-muni-filter', 'pub-infra-muni-filter', 'weather-muni-filter', 'ast-muni-filter', 'res-dam-muni-filter'];
     
     chartFilterIds.forEach(id => {
         tsInstances[id] = new TomSelect(`#${id}`, { 
@@ -403,7 +418,6 @@
                 if(id === 'pub-infra-muni-filter') updatePubInfraChart();
                 if(id === 'weather-muni-filter') updateWeatherFeed();
                 if(id === 'ast-muni-filter') updateAssistanceChart();
-                if(id === 'agri-muni-filter') updateAgriChart();
                 if(id === 'res-dam-muni-filter') updateResidentialChart();
             }
         });
@@ -431,6 +445,7 @@
         type: 'bar', 
         data: { labels: [], datasets: [
             { label: 'Affected (Indv)', data: [], backgroundColor: '#ff8c00', borderRadius: 4 }, 
+            { label: 'Served (Indv)', data: [], backgroundColor: '#10b981', borderRadius: 4 },
             { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4 },
             { label: 'Pre-emptive (Indv)', data: [], backgroundColor: '#14b8a6', borderRadius: 4 }
         ] }, 
@@ -439,9 +454,6 @@
     
     const assistanceCtx = document.getElementById('assistanceChart').getContext('2d');
     const assistanceChart = new Chart(assistanceCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Assistance Provided', data: [], backgroundColor: '#10b981', borderRadius: 4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10000, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000) + 'k'; } } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
-    
-    const agriCtx = document.getElementById('agriChart').getContext('2d');
-    const agriChart = new Chart(agriCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Agri Damages', data: [], backgroundColor: '#fcd34d', borderRadius: 4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10000, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000) + 'k'; } } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
     
     const resDamCtx = document.getElementById('residentialChart').getContext('2d');
     const residentialChart = new Chart(resDamCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Damaged Units', data: [], backgroundColor: '#ef4444', borderRadius: 4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
@@ -675,6 +687,26 @@
         document.getElementById('weatherFeed').innerHTML = feedHtml;
     }
 
+    function updateAgriFeed() {
+        let agriData = filterBySitrep(dbData.agri);
+        let feedHtml = '';
+        if(agriData.length === 0) {
+            feedHtml = '<li class="empty-state">No agriculture damages reported for this SitRep.</li>';
+        } else {
+            agriData.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            agriData.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                let lguCount = d.lguCount || d.municipality || 0; 
+                feedHtml += `<li class="incident-item">
+                    <div class="incident-loc" style="width: 140px;"><i class="fa-solid fa-tractor" style="color:var(--text-muted); margin-top:2px;"></i> ${lguCount} Cities/Muns</div>
+                    <div class="incident-desc"><span class="incident-label">Commodity / Impact</span><span style="color: var(--accent-yellow); font-weight: 600; text-transform: uppercase;">${d.commodity || 'N/A'}</span> - ${(d.farmersAffected||0).toLocaleString()} Farmers</div>
+                    <div class="incident-act"><span class="incident-label">Estimated Value Loss</span><span style="color: var(--accent-green); font-weight: 700;">${formatCurrency(d.cost || 0)}</span><br><span style="font-size:10px; color:var(--text-muted);">As of ${dateStr}</span></div>
+                </li>`;
+            });
+        }
+        document.getElementById('agriFeed').innerHTML = feedHtml;
+    }
+
     function updateFloodChart() {
         if(!tsInstances['flood-muni-filter']) return;
         let sel = tsInstances['flood-muni-filter'].getValue() || 'ALL'; 
@@ -870,22 +902,6 @@
         assistanceChart.update();
     }
 
-    function updateAgriChart() {
-        if(!tsInstances['agri-muni-filter']) return;
-        let sel = tsInstances['agri-muni-filter'].getValue() || 'ALL'; 
-        let agriMap = {}; let munis = new Set();
-        filterBySitrep(dbData.agri).forEach(d => {
-            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.commodity;
-            if(!agriMap[loc]) agriMap[loc] = 0;
-            agriMap[loc] += (d.cost || 0);
-        });
-        syncTomSelect('agri-muni-filter', munis);
-        agriChart.data.labels = Object.keys(agriMap);
-        agriChart.data.datasets[0].data = Object.values(agriMap);
-        agriChart.update();
-    }
-
     function updateResidentialChart() {
         if(!tsInstances['res-dam-muni-filter']) return;
         let sel = tsInstances['res-dam-muni-filter'].getValue() || 'ALL'; 
@@ -946,11 +962,13 @@
         let resources = filterBySitrep(dbData.resources);
         let incidents = filterBySitrep(dbData.incidents);
 
-        let totalAffIndv = 0, totalAffFam = 0, totalAffBrgy = 0, totalActiveEcs = 0, totalEcIndv = 0, totalEcFam = 0, totalPreIndv = 0, totalPreFam = 0;
+        let totalAffIndv = 0, totalAffFam = 0, totalAffBrgy = 0, totalServedIndv = 0, totalServedFam = 0, totalActiveEcs = 0, totalEcIndv = 0, totalEcFam = 0, totalPreIndv = 0, totalPreFam = 0;
         
         evacs.forEach(curr => {
             totalAffIndv += (curr.affectedIndividuals || 0);
             totalAffFam += (curr.affectedFamilies || 0);
+            totalServedIndv += (curr.servedIndividuals || 0);
+            totalServedFam += (curr.servedFamilies || 0);
             totalAffBrgy += (curr.affectedBarangays || 0);
             totalActiveEcs += (curr.evacCenterCount || 0);
             
@@ -995,8 +1013,11 @@
             if (item.includes('food') || item.includes('rice') || item.includes('water') || item.includes('meal')) foodQty += qty; else if (item.includes('kit') || item.includes('tent') || item.includes('sleeping') || item.includes('hygiene')) kitsQty += qty; else otherQty += qty;
         });
 
+        // Updating the new macro population split
         document.getElementById('kpi-aff-indv').innerText = totalAffIndv.toLocaleString();
         document.getElementById('kpi-aff-fam').innerText = totalAffFam.toLocaleString();
+        document.getElementById('kpi-served-indv').innerText = totalServedIndv.toLocaleString();
+        document.getElementById('kpi-served-fam').innerText = totalServedFam.toLocaleString();
         document.getElementById('kpi-aff-brgy').innerText = totalAffBrgy.toLocaleString();
         
         document.getElementById('kpi-ec-indv').innerText = totalEcIndv.toLocaleString();
@@ -1023,20 +1044,22 @@
 
         let evacMap = {};
         evacs.forEach(d => { 
-            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, ec: 0, pre: 0 }; 
+            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0, pre: 0 }; 
             let ecNowMap = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0);
             evacMap[d.municipality].aff += (d.affectedIndividuals || 0); 
+            evacMap[d.municipality].served += (d.servedIndividuals || 0); 
             evacMap[d.municipality].ec += ecNowMap;
         });
         preemptives.forEach(d => {
-            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, ec: 0, pre: 0 };
+            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0, pre: 0 };
             evacMap[d.municipality].pre += (d.preEmptiveIndividuals || 0);
         });
 
         evacChart.data.labels = Object.keys(evacMap);
         evacChart.data.datasets[0].data = Object.values(evacMap).map(v => v.aff);
-        evacChart.data.datasets[1].data = Object.values(evacMap).map(v => v.ec);
-        evacChart.data.datasets[2].data = Object.values(evacMap).map(v => v.pre);
+        evacChart.data.datasets[1].data = Object.values(evacMap).map(v => v.served);
+        evacChart.data.datasets[2].data = Object.values(evacMap).map(v => v.ec);
+        evacChart.data.datasets[3].data = Object.values(evacMap).map(v => v.pre);
         evacChart.update();
 
         let feedHtml = '';
@@ -1054,7 +1077,7 @@
         document.getElementById('incidentFeed').innerHTML = feedHtml;
 
         updateAssistanceChart(); 
-        updateAgriChart(); 
+        updateAgriFeed(); 
         updateResidentialChart();
         updateItemsChart(); 
         updateCasChart(); 
@@ -1067,6 +1090,7 @@
     }
 
     onSnapshot(query(collection(db, "weather_conditions"), orderBy("timeMonitored", "desc")), (snap) => { dbData.weather = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); updateCharts(); });
+    onSnapshot(query(collection(db, "actions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.actions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); updateCharts(); });
     onSnapshot(query(collection(db, "flooded_areas"), orderBy("timeMonitored", "desc")), (snap) => { dbData.floods = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); updateCharts(); });
     onSnapshot(query(collection(db, "evacuation_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); updateCharts(); });
     onSnapshot(query(collection(db, "preemptive_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.preemptives = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); updateCharts(); });
