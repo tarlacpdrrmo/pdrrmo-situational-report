@@ -74,7 +74,7 @@
         .gps-row { align-items: end; padding: 15px; background-color: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-subtle); margin-top: 10px;}
         .gps-btn { background-color: var(--bg-hover); color: var(--text-main); padding: 12px; border: 1px solid var(--border-subtle); border-radius: 8px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
         .gps-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange);}
-        .submit-btn { background-color: var(--accent-orange); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; margin-top: 30px; width: 100%; font-size: 14px; font-weight: 700; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .submit-btn { background-color: var(--accent-orange); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: margin-top: 30px; width: 100%; font-size: 14px; font-weight: 700; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
         .submit-btn:hover { background-color: #e67e00; }
         .alert, .error-alert { font-weight: 500; font-size: 13px; margin-top: 20px; display: none; text-align: center; padding: 15px; border-radius: 8px; }
         .alert { color: var(--accent-green); border: 1px solid var(--accent-green); background: rgba(16, 185, 129, 0.1); }
@@ -264,12 +264,14 @@
                 <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--border-subtle);">
                     <div style="font-size: 12px; font-weight: 700; color: var(--accent-orange); margin-bottom: 10px;"><i class="fa-solid fa-users-rays"></i> MACRO POPULATION SPLIT</div>
                     <div class="row" style="margin-bottom: 10px;">
-                        <div class="col form-group"><label>Total Affected (Fam)</label><input type="number" class="f-aff-fam" min="0"></div>
+                        <div class="col form-group"><label>Affected (Fam)</label><input type="number" class="f-aff-fam" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-green);">Served (Fam)</label><input type="number" class="f-served-fam" min="0"></div>
                         <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs CUM (Fam)</label><input type="number" class="f-ec-fam-cum" min="0"></div>
                         <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs NOW (Fam)</label><input type="number" class="f-ec-fam-now" min="0"></div>
                     </div>
                     <div class="row" style="margin-bottom: 0;">
-                        <div class="col form-group"><label>Total Affected (Pax)</label><input type="number" class="f-aff-indv" min="0"></div>
+                        <div class="col form-group"><label>Affected (Pax)</label><input type="number" class="f-aff-indv" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-green);">Served (Pax)</label><input type="number" class="f-served-indv" min="0"></div>
                         <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs CUM (Pax)</label><input type="number" class="f-ec-indv-cum" min="0"></div>
                         <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs NOW (Pax)</label><input type="number" class="f-ec-indv-now" min="0"></div>
                     </div>
@@ -315,6 +317,7 @@
             <h2><i class="fa-solid fa-clipboard-user"></i> Manpower / Resources Complement</h2>
             <form id="form-complement">
                 <div class="row">
+                    <!-- FIXED BUG: Class changed from .f-action-agency back to .f-agency -->
                     <div class="col form-group"><label>Agency / Office</label><select class="f-agency" required placeholder="Type or Select Agency..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Status</label>
                         <select class="f-status" required placeholder="Select Status...">
@@ -341,6 +344,7 @@
                     <div class="col form-group"><label>Specific Area / Barangay</label><input type="text" class="f-brgy" required></div>
                 </div>
                 <div class="row">
+                    <!-- FIXED BUG: Class changed from .f-action-agency back to .f-agency -->
                     <div class="col form-group"><label>Responding Agency</label><select class="f-agency" required placeholder="Type or Select Agency..."><option value=""></option></select></div>
                     <div class="col form-group"><label>Asset Type</label><select class="f-asset" multiple required placeholder="Type or Select Assets..."><option value=""></option></select></div>
                 </div>
@@ -480,14 +484,17 @@
             <h2><i class="fa-solid fa-wheat-awn"></i> Agriculture Damages</h2>
             <form id="form-agri">
                 <div class="row">
-                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group">
+                        <label>No. of Affected City/Mun</label>
+                        <input type="number" class="f-lgu-count" min="0" placeholder="e.g., 16" required>
+                    </div>
                     <div class="col form-group"><label>Commodity</label><input type="text" class="f-commodity" placeholder="e.g., RICE, CORN, LIVESTOCK" required></div>
                     <div class="col form-group"><label>No. of Farmers Affected</label><input type="number" class="f-farmers" min="0" placeholder="e.g., 50" required></div>
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Partially Damaged (ha)</label><input type="number" step="0.01" class="f-partial-ha" min="0" placeholder="0.00" required></div>
                     <div class="col form-group"><label>Totally Damaged (ha)</label><input type="number" step="0.01" class="f-total-ha" min="0" placeholder="0.00" required></div>
-                    <div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" class="f-cost" min="0" placeholder="e.g., 50000" required></div>
+                    <div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" step="0.01" class="f-cost" min="0" placeholder="e.g., 50000.50" required></div>
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
@@ -531,7 +538,7 @@
             <form id="form-assistance">
                 <div class="row">
                     <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div>
+                    <div class="col form-group"><label>Barangay (Optional)</label><input type="text" class="f-brgy" placeholder="e.g., Poblacion"></div>
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Source of Assistance</label><select class="f-source" required placeholder="Type or Select Source..."><option value=""></option></select></div>
@@ -539,7 +546,7 @@
                 </div>
                 <div class="row">
                     <div class="col form-group"><label>Quantity Distributed</label><input type="number" class="f-qty" min="1" required></div>
-                    <div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" class="f-cost" min="0" placeholder="e.g., 15000" required></div>
+                    <div class="col form-group"><label>Estimated Cost (PHP - Optional)</label><input type="number" step="0.01" class="f-cost" min="0" placeholder="e.g., 15000.50"></div>
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Distributed to 50 families in evacuation center" required></div>
@@ -597,19 +604,21 @@
     };
 
     const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
-    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false }); });
+    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|' }); });
 
     const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
-    document.querySelectorAll('.f-coverage').forEach(el => { coverages.forEach(c => el.add(new Option(c, c))); new TomSelect(el, { create: false, plugins: ['remove_button'] }); });
+    document.querySelectorAll('.f-coverage').forEach(el => { coverages.forEach(c => el.add(new Option(c, c))); new TomSelect(el, { create: false, delimiter: '|', plugins: ['remove_button'] }); });
 
+    // FIXED BUG: Kept f-agency and f-action-agency correctly separated
     const globalAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
-    document.querySelectorAll('.f-agency').forEach(el => { globalAgencies.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true }); });
+    document.querySelectorAll('.f-agency').forEach(el => { globalAgencies.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true, delimiter: '|' }); });
 
     const actionAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
     document.querySelectorAll('.f-action-agency').forEach(el => {
         actionAgencies.forEach(a => el.add(new Option(a, a)));
         new TomSelect(el, { 
             create: true,
+            delimiter: '|',
             onChange: function(value) {
                 const lguGroup = document.getElementById('ldrmmc-lgu-group'); const lguInput = document.querySelector('.f-action-lgu');
                 if (value === 'LDRRMC') { lguGroup.style.display = 'flex'; lguInput.setAttribute('required', 'required'); } 
@@ -621,18 +630,21 @@
     const assets = ["Search & Rescue Personnel", "Rescue Boat", "Ambulance", "Fire Truck", "Relief/Supply Truck", "Heavy Equipment (Backhoe/Loader)", "Dump Truck"];
     document.querySelectorAll('.f-asset').forEach(el => { 
         assets.forEach(a => el.add(new Option(a, a))); 
-        new TomSelect(el, { create: true, plugins: ['remove_button'] }); 
+        new TomSelect(el, { create: true, delimiter: '|', plugins: ['remove_button'] }); 
     });
 
     const sources = ["DSWD", "Provincial LGU (PDRRMO/PSWDO)", "Municipal/City LGU", "Barangay LGU", "NGO / Private Sector", "OCD / NDRRMC", "Red Cross"];
-    document.querySelectorAll('.f-source').forEach(el => { sources.forEach(s => el.add(new Option(s, s))); new TomSelect(el, { create: true }); });
+    document.querySelectorAll('.f-source').forEach(el => { sources.forEach(s => el.add(new Option(s, s))); new TomSelect(el, { create: true, delimiter: '|' }); });
 
-    const reliefs = ["Family Food Packs (FFP)", "Hygiene Kits", "Sleeping Kits", "Bottled Water", "Hot Meals", "Financial Assistance (AICS)"];
-    document.querySelectorAll('.f-relief').forEach(el => { reliefs.forEach(r => el.add(new Option(r, r))); new TomSelect(el, { create: true }); });
+    const reliefs = ["Family Food Packs (FFP)", "Hygiene Kits", "Sleeping Kits", "Bottled Water", "Hot Meals", "Financial Assistance"];
+    document.querySelectorAll('.f-relief').forEach(el => { reliefs.forEach(r => el.add(new Option(r, r))); new TomSelect(el, { create: true, delimiter: '|' }); });
     
-    document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true }); });
-    document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true }); });
-    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false }); });
+    document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|' }); });
+
+    // FLATPICKR ENGINE INITIALIZATION
+    flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K", time_24hr: false, minuteIncrement: 1, monthSelectorType: "dropdown", prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`, nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`, position: "auto" });
 
     window.openTab = function(tabId) {
         document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
@@ -641,25 +653,55 @@
         event.currentTarget.classList.add('active');
     };
 
+    // SECURE CONTEXT LOCK & LOCAL STORAGE ENGINE
     const lockBtn = document.getElementById('lockCtxBtn');
     const inputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-synopsis', 'ctx-source'];
     let isLocked = false;
 
+    // Load saved context data if user accidentally refreshed the page
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        const savedVal = localStorage.getItem(id);
+        if(savedVal) {
+            el.value = savedVal;
+            // Force Flatpickr to read the saved data
+            if(el._flatpickr) el._flatpickr.setDate(savedVal);
+        }
+    });
+
+    // Re-lock the UI if it was previously locked
     if(localStorage.getItem('sitrepContextLocked') === 'true') {
-        inputs.forEach(id => { document.getElementById(id).value = localStorage.getItem(id); document.getElementById(id).disabled = true; });
+        inputs.forEach(id => { 
+            const el = document.getElementById(id);
+            el.disabled = true; 
+            // Specifically disable the visual flatpickr calendar input
+            if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true;
+        });
         lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked'; lockBtn.classList.add('locked'); isLocked = true;
     }
 
+    // Toggle Lock / Unlock
     lockBtn.addEventListener('click', () => {
         if (!isLocked) {
             if(!document.getElementById('ctx-cause').value || !document.getElementById('ctx-sitrep').value || !document.getElementById('ctx-synopsis').value) {
                 alert("Please fill out Incident Cause, SitRep #, and Weather Synopsis before locking."); return;
             }
-            inputs.forEach(id => { localStorage.setItem(id, document.getElementById(id).value); document.getElementById(id).disabled = true; });
+            inputs.forEach(id => { 
+                const el = document.getElementById(id);
+                localStorage.setItem(id, el.value); 
+                el.disabled = true; 
+                // Specifically disable the visual flatpickr calendar input
+                if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true;
+            });
             localStorage.setItem('sitrepContextLocked', 'true');
             lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked'; lockBtn.classList.add('locked'); isLocked = true;
         } else {
-            inputs.forEach(id => document.getElementById(id).disabled = false);
+            inputs.forEach(id => { 
+                const el = document.getElementById(id);
+                el.disabled = false; 
+                // Specifically enable the visual flatpickr calendar input
+                if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = false;
+            });
             localStorage.setItem('sitrepContextLocked', 'false');
             lockBtn.innerHTML = '<i class="fa-solid fa-unlock"></i> Lock Context & Synopsis'; lockBtn.classList.remove('locked'); isLocked = false;
         }
@@ -726,12 +768,14 @@
         handleSubmission(e, "evacuation_data", (f) => {
             const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0;
             const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0;
+            const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0;
+            const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0;
             const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0;
             const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0;
             const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0;
             const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0;
 
-            const totalInputCount = affFam + affIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow;
+            const totalInputCount = affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow;
 
             return {
                 validationFailed: totalInputCount === 0, 
@@ -740,6 +784,7 @@
                 evacCenterCount: parseInt(f.querySelector('.f-ec-count').value) || 0,
                 status: f.querySelector('.f-status').value,
                 affectedFamilies: affFam, affectedIndividuals: affIndv,
+                servedFamilies: servedFam, servedIndividuals: servedIndv,
                 insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow,
                 insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow,
                 latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
@@ -789,7 +834,13 @@
 
     document.getElementById('form-agri').addEventListener('submit', (e) => {
         handleSubmission(e, "agri_damages", (f) => ({
-            municipality: f.querySelector('.f-muni').value, commodity: f.querySelector('.f-commodity').value, farmersAffected: parseInt(f.querySelector('.f-farmers').value) || 0, partialHa: parseFloat(f.querySelector('.f-partial-ha').value) || 0.0, totalHa: parseFloat(f.querySelector('.f-total-ha').value) || 0.0, cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, dateReported: f.querySelector('.f-report-time').value
+            lguCount: parseInt(f.querySelector('.f-lgu-count').value) || 0,
+            commodity: f.querySelector('.f-commodity').value, 
+            farmersAffected: parseInt(f.querySelector('.f-farmers').value) || 0, 
+            partialHa: parseFloat(f.querySelector('.f-partial-ha').value) || 0.0, 
+            totalHa: parseFloat(f.querySelector('.f-total-ha').value) || 0.0, 
+            cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, 
+            dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
@@ -807,14 +858,21 @@
     });
 
     document.getElementById('form-assistance').addEventListener('submit', (e) => {
-        handleSubmission(e, "assistance_data", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, source: f.querySelector('.f-source').value, reliefItem: f.querySelector('.f-relief').value, quantity: parseInt(f.querySelector('.f-qty').value), cost: parseFloat(f.querySelector('.f-cost').value), remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value }));
+        handleSubmission(e, "assistance_data", (f) => ({ 
+            municipality: f.querySelector('.f-muni').value, 
+            barangay: f.querySelector('.f-brgy').value || "", 
+            source: f.querySelector('.f-source').value, 
+            reliefItem: f.querySelector('.f-relief').value, 
+            quantity: parseInt(f.querySelector('.f-qty').value), 
+            cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, 
+            remarks: f.querySelector('.f-remarks').value, 
+            dateReported: f.querySelector('.f-report-time').value 
+        }));
     });
 
     document.getElementById('form-incidents').addEventListener('submit', (e) => {
         handleSubmission(e, "related_incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value, actionsTaken: f.querySelector('.f-action').value, dateReported: f.querySelector('.f-report-time').value }));
     });
-
-    flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K", time_24hr: false, minuteIncrement: 1, monthSelectorType: "dropdown", prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`, nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`, position: "auto" });
 
 </script>
 </body>
