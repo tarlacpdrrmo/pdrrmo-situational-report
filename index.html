@@ -49,10 +49,13 @@
         
         .dashboard-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
         .chart-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 20px; margin-bottom: 40px;}
-        .chart-card { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle); box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; }
+        .chart-card { background: var(--bg-card); padding: 20px; border-radius: 12px; border: 1px solid var(--border-subtle); box-shadow: 0 4px 15px rgba(0,0,0,0.2); display: flex; flex-direction: column; position: relative;}
         .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
         .chart-header h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-main);}
         .chart-container { position: relative; height: 220px; width: 100%; }
+        
+        .chart-empty-message { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted); font-size: 11px; font-weight: 600; background: var(--bg-card); z-index: 10; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        
         .incident-feed-container { position: relative; height: 220px; width: 100%; overflow-y: auto; overflow-x: hidden; padding-right: 5px; box-sizing: border-box; }
         .incident-feed-container::-webkit-scrollbar { width: 6px; }
         .incident-feed-container::-webkit-scrollbar-track { background: transparent; }
@@ -208,14 +211,18 @@
                     </div>
                 </div>
             </div>
+            
             <div class="kpi-card">
                 <div class="kpi-icon" style="background: rgba(245, 158, 11, 0.1); color: var(--accent-orange); margin-top: 0;"><i class="fa-solid fa-hand-holding-dollar"></i></div>
-                <div class="kpi-details">
-                    <span class="kpi-title">Relief Assistance</span>
+                <div class="kpi-details" style="width: 100%;">
+                    <div style="display: flex; justify-content: space-between; align-items: baseline;">
+                        <span class="kpi-title">Relief Assistance</span>
+                    </div>
                     <span class="kpi-value" id="kpi-assistance">₱0</span>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
                         <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">FOOD/WTR</span><span id="kpi-item-food" style="font-size: 11px; font-weight: 700; color: var(--accent-yellow);">0 <span style="font-size:8px;">QTY</span></span></div>
-                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">KITS</span><span id="kpi-item-kits" style="font-size: 11px; font-weight: 700; color: var(--accent-teal);">0 <span style="font-size:8px;">QTY</span></span></div>
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">KITS/OTHER</span><span id="kpi-item-kits" style="font-size: 11px; font-weight: 700; color: var(--accent-teal);">0 <span style="font-size:8px;">QTY</span></span></div>
+                        <div style="display: flex; flex-direction: column; text-align: right;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">CASH ASST</span><span id="kpi-item-cash" style="font-size: 11px; font-weight: 700; color: var(--accent-green);">₱0</span></div>
                     </div>
                 </div>
             </div>
@@ -242,17 +249,26 @@
         <div class="dashboard-section-title"><i class="fa-solid fa-chart-column" style="color: var(--accent-blue);"></i> Quantitative Analytics</div>
         
         <div class="chart-grid">
-            <div class="chart-card"><div class="chart-header"><h3><i class="fa-solid fa-users-between-lines" style="color: var(--accent-orange);"></i> Affected vs. Evacuated</h3></div><div class="chart-container"><canvas id="evacChart"></canvas></div></div>
+            <div class="chart-card">
+                <div class="chart-header"><h3><i class="fa-solid fa-users-between-lines" style="color: var(--accent-orange);"></i> Affected vs. Evacuated</h3></div>
+                <div class="chart-container">
+                    <canvas id="evacChart"></canvas>
+                    <div id="evacChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-users-slash" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No affected population reported</span></div>
+                </div>
+            </div>
             
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3><i class="fa-solid fa-hand-holding-hand" style="color: var(--accent-green);"></i> Relief Assistance (PHP)</h3>
+                    <h3><i class="fa-solid fa-person-walking-arrow-right" style="color: var(--accent-teal);"></i> Pre-Emptive Evacuations</h3>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('ast-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="ast-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                        <button class="btn-chart-reset" onclick="resetChart('preemptive-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
+                        <select id="preemptive-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
-                <div class="chart-container"><canvas id="assistanceChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="preemptiveChart"></canvas>
+                    <div id="preemptiveChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-person-walking-dashed-line-arrow-right" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No pre-emptive evacuations reported</span></div>
+                </div>
             </div>
 
             <div class="chart-card">
@@ -263,7 +279,10 @@
                         <select id="res-dam-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
-                <div class="chart-container"><canvas id="residentialChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="residentialChart"></canvas>
+                    <div id="residentialChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-house-circle-xmark" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No residential damages reported</span></div>
+                </div>
             </div>
             
             <div class="chart-card">
@@ -274,7 +293,10 @@
                         <select id="items-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
-                <div class="chart-container"><canvas id="itemsChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="itemsChart"></canvas>
+                    <div id="itemsChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-box-open" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No relief items distributed yet</span></div>
+                </div>
             </div>
             
             <div class="chart-card">
@@ -285,7 +307,10 @@
                         <select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
-                <div class="chart-container"><canvas id="casChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="casChart"></canvas>
+                    <div id="casChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-truck-medical" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px; opacity: 0.5;"></i><span>No casualties reported</span></div>
+                </div>
             </div>
             
             <div class="chart-card">
@@ -296,7 +321,10 @@
                         <select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
-                <div class="chart-container"><canvas id="resChart"></canvas></div>
+                <div class="chart-container">
+                    <canvas id="resChart"></canvas>
+                    <div id="resChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-truck-ramp-box" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No deployed assets reported</span></div>
+                </div>
             </div>
             
         </div>
@@ -402,8 +430,7 @@
     const tsGlobal = new TomSelect("#globalSitrepFilter", { create: false, controlInput: null, onChange: function() { updateCharts(); } });
     const tsInstances = {};
     
-    // Removed agri-muni-filter from array
-    const chartFilterIds = ['items-muni-filter', 'cas-view-filter', 'res-muni-filter', 'flood-muni-filter', 'infra-muni-filter', 'utility-muni-filter', 'pub-infra-muni-filter', 'weather-muni-filter', 'ast-muni-filter', 'res-dam-muni-filter'];
+    const chartFilterIds = ['items-muni-filter', 'cas-view-filter', 'res-muni-filter', 'flood-muni-filter', 'infra-muni-filter', 'utility-muni-filter', 'pub-infra-muni-filter', 'weather-muni-filter', 'res-dam-muni-filter', 'preemptive-muni-filter'];
     
     chartFilterIds.forEach(id => {
         tsInstances[id] = new TomSelect(`#${id}`, { 
@@ -417,8 +444,8 @@
                 if(id === 'utility-muni-filter') updateUtilityChart();
                 if(id === 'pub-infra-muni-filter') updatePubInfraChart();
                 if(id === 'weather-muni-filter') updateWeatherFeed();
-                if(id === 'ast-muni-filter') updateAssistanceChart();
                 if(id === 'res-dam-muni-filter') updateResidentialChart();
+                if(id === 'preemptive-muni-filter') updatePreemptiveChart();
             }
         });
     });
@@ -437,7 +464,6 @@
     Chart.register(ChartDataLabels);
 
     const barLegendConfig = { display: true, position: 'bottom', align: 'start', labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 15, font: { size: 11 } } };
-    
     const noDataLabels = { datalabels: { display: false } };
 
     const evacCtx = document.getElementById('evacChart').getContext('2d');
@@ -446,26 +472,29 @@
         data: { labels: [], datasets: [
             { label: 'Affected (Indv)', data: [], backgroundColor: '#ff8c00', borderRadius: 4 }, 
             { label: 'Served (Indv)', data: [], backgroundColor: '#10b981', borderRadius: 4 },
-            { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4 },
-            { label: 'Pre-emptive (Indv)', data: [], backgroundColor: '#14b8a6', borderRadius: 4 }
+            { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4 }
         ] }, 
         options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }
     });
     
-    const assistanceCtx = document.getElementById('assistanceChart').getContext('2d');
-    const assistanceChart = new Chart(assistanceCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Assistance Provided', data: [], backgroundColor: '#10b981', borderRadius: 4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10000, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000) + 'k'; } } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
-    
+    const preemptiveCtx = document.getElementById('preemptiveChart').getContext('2d');
+    const preemptiveChart = new Chart(preemptiveCtx, { 
+        type: 'bar', 
+        data: { labels: [], datasets: [{ label: 'Pre-emptive (Indv)', data: [], backgroundColor: '#14b8a6', borderRadius: 4 }]}, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }
+    });
+
     const resDamCtx = document.getElementById('residentialChart').getContext('2d');
     const residentialChart = new Chart(resDamCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Damaged Units', data: [], backgroundColor: '#ef4444', borderRadius: 4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
     
     const itemsCtx = document.getElementById('itemsChart').getContext('2d');
-    const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: barLegendConfig, datalabels: { display: false }, tooltip: { callbacks: { label: function(context) { let label = context.dataset.fullLabel || context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += context.parsed.y; } return label; } } } } }});
     
     const casCtx = document.getElementById('casChart').getContext('2d');
     const casChart = new Chart(casCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
     
     const resCtx = document.getElementById('resChart').getContext('2d');
-    const resChart = new Chart(resCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    const resChart = new Chart(resCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: barLegendConfig, datalabels: { display: false }, tooltip: { callbacks: { label: function(context) { let label = context.dataset.fullLabel || context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += context.parsed.y; } return label; } } } } }});
 
     function createCircularChart(ctx, type) {
         return new Chart(ctx, { 
@@ -838,9 +867,16 @@
         resChart.data.labels = Object.keys(rMap); let cols = ['#8b5cf6', '#3b82f6', '#10b981', '#fcd34d', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
         Array.from(ags).forEach(ag => { 
             let dArr = []; Object.keys(rMap).forEach(loc => dArr.push(rMap[loc][ag] || 0)); 
-            arrs.push({ label: ag, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4 }); 
+            
+            let shortLabel = ag.length > 25 ? ag.substring(0, 25) + '...' : ag;
+            arrs.push({ label: shortLabel, fullLabel: ag, data: dArr, backgroundColor: cols[idx % cols.length] }); 
             idx++; 
         });
+
+        let hasData = arrs.some(dataset => dataset.data.some(v => v > 0));
+        document.getElementById('resChart-empty').style.display = hasData ? 'none' : 'flex';
+        document.getElementById('resChart').style.display = hasData ? 'block' : 'none';
+
         resChart.data.datasets = arrs; resChart.update();
     }
 
@@ -857,6 +893,10 @@
         
         syncTomSelect('cas-view-filter', munis);
         
+        let hasData = Object.values(cMap).some(v => v.Dead > 0 || v.Missing > 0 || v.Injured > 0);
+        document.getElementById('casChart-empty').style.display = hasData ? 'none' : 'flex';
+        document.getElementById('casChart').style.display = hasData ? 'block' : 'none';
+
         casChart.data.labels = Object.keys(cMap);
         casChart.data.datasets = [
             { label: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4 },
@@ -871,7 +911,9 @@
         let iMap = {}; let itms = new Set(); let munis = new Set();
         filterBySitrep(dbData.assistance).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.barangay; let item = d.reliefItem || 'Other'; let qty = d.quantity || 0;
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; 
+            let item = d.reliefItem || 'Other'; 
+            let qty = d.quantity || 0;
             if(!iMap[loc]) iMap[loc] = {}; if(!iMap[loc][item]) iMap[loc][item] = 0; iMap[loc][item] += qty; itms.add(item);
         });
         
@@ -880,26 +922,41 @@
         itemsChart.data.labels = Object.keys(iMap); let cols = ['#14b8a6', '#fcd34d', '#3b82f6', '#8b5cf6', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
         Array.from(itms).forEach(itm => { 
             let dArr = []; Object.keys(iMap).forEach(loc => dArr.push(iMap[loc][itm] || 0)); 
-            arrs.push({ label: itm, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4 }); 
+            
+            let shortLabel = itm.length > 25 ? itm.substring(0, 25) + '...' : itm;
+            arrs.push({ label: shortLabel, fullLabel: itm, data: dArr, backgroundColor: cols[idx % cols.length] }); 
             idx++; 
         });
+
+        let hasData = arrs.some(dataset => dataset.data.some(v => v > 0));
+        document.getElementById('itemsChart-empty').style.display = hasData ? 'none' : 'flex';
+        document.getElementById('itemsChart').style.display = hasData ? 'block' : 'none';
+
         itemsChart.data.datasets = arrs; itemsChart.update();
     }
 
-    function updateAssistanceChart() {
-        if(!tsInstances['ast-muni-filter']) return;
-        let sel = tsInstances['ast-muni-filter'].getValue() || 'ALL'; 
-        let astMap = {}; let munis = new Set();
-        filterBySitrep(dbData.assistance).forEach(d => {
-            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.barangay;
-            if(!astMap[loc]) astMap[loc] = 0;
-            astMap[loc] += (d.cost || 0);
+    function updatePreemptiveChart() {
+        if(!tsInstances['preemptive-muni-filter']) return;
+        let sel = tsInstances['preemptive-muni-filter'].getValue() || 'ALL'; 
+        let preMap = {}; let munis = new Set();
+        filterBySitrep(dbData.preemptives).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); 
+            if (sel !== 'ALL' && d.municipality !== sel) return;
+            let loc = sel === 'ALL' ? d.municipality : d.barangayOrigin || d.municipality;
+            if(!preMap[loc]) preMap[loc] = 0;
+            preMap[loc] += (d.preEmptiveIndividuals || 0);
         });
-        syncTomSelect('ast-muni-filter', munis);
-        assistanceChart.data.labels = Object.keys(astMap);
-        assistanceChart.data.datasets[0].data = Object.values(astMap);
-        assistanceChart.update();
+        
+        syncTomSelect('preemptive-muni-filter', munis);
+        
+        let dataValues = Object.values(preMap);
+        let hasData = dataValues.some(v => v > 0);
+        document.getElementById('preemptiveChart-empty').style.display = hasData ? 'none' : 'flex';
+        document.getElementById('preemptiveChart').style.display = hasData ? 'block' : 'none';
+
+        preemptiveChart.data.labels = Object.keys(preMap);
+        preemptiveChart.data.datasets[0].data = dataValues;
+        preemptiveChart.update();
     }
 
     function updateResidentialChart() {
@@ -913,8 +970,14 @@
             resDamMap[loc] += (d.count || 0);
         });
         syncTomSelect('res-dam-muni-filter', munis);
+        
+        let dataValues = Object.values(resDamMap);
+        let hasData = dataValues.some(v => v > 0);
+        document.getElementById('residentialChart-empty').style.display = hasData ? 'none' : 'flex';
+        document.getElementById('residentialChart').style.display = hasData ? 'block' : 'none';
+
         residentialChart.data.labels = Object.keys(resDamMap);
-        residentialChart.data.datasets[0].data = Object.values(resDamMap);
+        residentialChart.data.datasets[0].data = dataValues;
         residentialChart.update();
     }
 
@@ -984,7 +1047,30 @@
             totalPreFam += (curr.preEmptiveFamilies || 0);
         });
 
-        let totalAssist = assistance.reduce((sum, curr) => sum + (curr.cost || 0), 0);
+        let totalAssist = 0;
+        let foodQty = 0, kitsQty = 0, cashAmount = 0;
+        
+        assistance.forEach(curr => {
+            let item = (curr.reliefItem || '').toLowerCase(); 
+            let qty = curr.quantity || 0;
+            let cost = curr.cost || 0;
+            
+            if (item.includes('financial') || item.includes('cash') || item.includes('aics') || item.includes('peso')) {
+                if (cost === 0 && qty > 0) {
+                    cost = qty;
+                }
+                cashAmount += cost;
+            } else {
+                if (item.includes('food') || item.includes('rice') || item.includes('water') || item.includes('meal')) {
+                    foodQty += qty;
+                } else {
+                    kitsQty += qty;
+                }
+            }
+            
+            totalAssist += cost;
+        });
+        
         let totalCas = casualties.reduce((sum, curr) => sum + (curr.count || 0), 0);
         
         let opcenPax = 0, depPax = 0, totalAssets = 0;
@@ -1007,13 +1093,6 @@
         agri.forEach(curr => { let cost = curr.cost || 0; totalDamages += cost; dmgAgri += cost; });
         residential.forEach(curr => { let count = curr.count || 0; dmgRes += count; });
 
-        let foodQty = 0, kitsQty = 0, otherQty = 0;
-        assistance.forEach(curr => {
-            let item = (curr.reliefItem || '').toLowerCase(); let qty = curr.quantity || 0;
-            if (item.includes('food') || item.includes('rice') || item.includes('water') || item.includes('meal')) foodQty += qty; else if (item.includes('kit') || item.includes('tent') || item.includes('sleeping') || item.includes('hygiene')) kitsQty += qty; else otherQty += qty;
-        });
-
-        // Updating the new macro population split
         document.getElementById('kpi-aff-indv').innerText = totalAffIndv.toLocaleString();
         document.getElementById('kpi-aff-fam').innerText = totalAffFam.toLocaleString();
         document.getElementById('kpi-served-indv').innerText = totalServedIndv.toLocaleString();
@@ -1041,25 +1120,25 @@
         document.getElementById('kpi-assistance').innerText = formatCurrency(totalAssist);
         document.getElementById('kpi-item-food').innerHTML = `${foodQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`;
         document.getElementById('kpi-item-kits').innerHTML = `${kitsQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`;
+        document.getElementById('kpi-item-cash').innerText = formatCurrency(cashAmount);
 
         let evacMap = {};
         evacs.forEach(d => { 
-            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0, pre: 0 }; 
+            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0 }; 
             let ecNowMap = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0);
             evacMap[d.municipality].aff += (d.affectedIndividuals || 0); 
             evacMap[d.municipality].served += (d.servedIndividuals || 0); 
             evacMap[d.municipality].ec += ecNowMap;
         });
-        preemptives.forEach(d => {
-            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0, pre: 0 };
-            evacMap[d.municipality].pre += (d.preEmptiveIndividuals || 0);
-        });
+
+        let evacHasData = Object.values(evacMap).some(v => v.aff > 0 || v.served > 0 || v.ec > 0);
+        document.getElementById('evacChart-empty').style.display = evacHasData ? 'none' : 'flex';
+        document.getElementById('evacChart').style.display = evacHasData ? 'block' : 'none';
 
         evacChart.data.labels = Object.keys(evacMap);
         evacChart.data.datasets[0].data = Object.values(evacMap).map(v => v.aff);
         evacChart.data.datasets[1].data = Object.values(evacMap).map(v => v.served);
         evacChart.data.datasets[2].data = Object.values(evacMap).map(v => v.ec);
-        evacChart.data.datasets[3].data = Object.values(evacMap).map(v => v.pre);
         evacChart.update();
 
         let feedHtml = '';
@@ -1076,7 +1155,7 @@
         }
         document.getElementById('incidentFeed').innerHTML = feedHtml;
 
-        updateAssistanceChart(); 
+        updatePreemptiveChart(); 
         updateAgriFeed(); 
         updateResidentialChart();
         updateItemsChart(); 
