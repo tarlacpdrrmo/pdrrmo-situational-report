@@ -125,9 +125,9 @@
        <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
         <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
         
-        <div style="margin-top: 10px;">
+       <div style="margin-top: 10px;">
             <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
-            <a href="trend_analysis.html" class="dashboard-link active-tab"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
+            <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
             <a href="dashboard.html" class="dashboard-link active-tab"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
             <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
             <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
@@ -309,7 +309,7 @@
             <h2 class="section-title"><i class="fa-solid fa-truck-medical"></i> 4. Casualties & Human Impact</h2>
             <div class="table-container" id="sec-cas">
                 <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 15%;">Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="width: 25%;">Remarks</th><th>Report Info</th></tr></thead>
+                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 15%;">Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="width: 25%;">Particulars & Actions</th><th>Report Info</th></tr></thead>
                     <tbody id="cas-tbody"><tr><td colspan="7" class="empty-state">Loading data...</td></tr></tbody>
                 </table>
             </div>
@@ -669,7 +669,13 @@
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => {
             let badgeClass = (data.classification.includes("Dead")) ? "bg-secondary" : "bg-danger";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
+            
+            let narrative = data.remarks || '';
+            if (data.actionsTaken) {
+                narrative += `<br><br><span style="color:var(--accent-green); font-size:10px; font-weight:700; text-transform:uppercase;">Actions Taken:</span><br>${data.actionsTaken}`;
+            }
+
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(narrative)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
         });
     }
 
