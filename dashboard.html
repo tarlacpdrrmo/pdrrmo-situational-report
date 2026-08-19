@@ -3,137 +3,145 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDRRMO Live Dashboard | Dark Pro</title>
+    <title>PDRRMO Data Entry | Dark Pro</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
-
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
+    <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+    <style> body { visibility: hidden; } </style>
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        :root {
-            --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e;
-            --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff;
-            --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981;
-            --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-teal: #14b8a6; --accent-purple: #8b5cf6; --accent-yellow: #fcd34d; --border-subtle: #2e2e2e;
-        }
-
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-yellow: #fcd34d; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #2563eb; --accent-teal: #14b8a6; --accent-purple: #8b5cf6; --border-subtle: #2e2e2e; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
-        
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; overflow-y: auto;}
+        .sidebar::-webkit-scrollbar { width: 4px; }
+        .sidebar::-webkit-scrollbar-thumb { background: var(--border-subtle); }
         .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
         .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
-        
-        .dashboard-link { 
-            display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;
-        }
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;}
         .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
         .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
         .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
         .dashboard-link:active { transform: translateX(4px) scale(0.98); }
         .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--accent-orange); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(255, 140, 0, 0.2); }
         .active-tab i { color: var(--accent-orange); transform: scale(1.1); }
-
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
-        
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;}
-        .header-left { display: flex; align-items: center; gap: 15px;}
-        .header-left .avatar { width: 45px; height: 45px; border-radius: 10px; background-color: rgba(255, 140, 0, 0.1); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-orange); border: 1px solid rgba(255,140,0,0.2);}
-        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; }
-        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--accent-green); font-weight: 500;}
-
-        .header-right { display: flex; flex-direction: column; align-items: flex-end; gap: 8px; }
-        .latest-sitrep-badge { font-size: 12px; font-weight: 700; color: var(--text-muted); background-color: var(--bg-hover); padding: 6px 12px; border-radius: 6px; display: inline-flex; align-items: center; box-shadow: 0 2px 10px rgba(0,0,0,0.1); transition: 0.3s;}
-        .digital-clock { font-family: monospace; font-size: 22px; font-weight: 700; color: var(--text-main); letter-spacing: 2px; background: var(--bg-card); padding: 8px 15px; border-radius: 8px; border: 1px solid var(--border-subtle); box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
-
-        .weather-bulletin { background: linear-gradient(135deg, #1e293b 0%, #0f172a 100%); border-left: 4px solid var(--accent-blue); padding: 20px 25px; border-radius: 12px; border-top: 1px solid var(--border-subtle); border-right: 1px solid var(--border-subtle); border-bottom: 1px solid var(--border-subtle); margin-bottom: 25px; display: flex; align-items: flex-start; gap: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
-        .bulletin-icon { font-size: 28px; color: var(--accent-blue); background: rgba(59, 130, 246, 0.1); width: 60px; height: 60px; border-radius: 50%; display: flex; justify-content: center; align-items: center; flex-shrink: 0;}
-        .bulletin-content { flex: 1; }
-        .bulletin-content h3 { margin: 0 0 8px 0; font-size: 16px; color: var(--text-main); font-weight: 700;}
-        .bulletin-text { margin: 0 0 10px 0; font-size: 13px; color: #e2e8f0; line-height: 1.6; word-wrap: break-word;}
-        .bulletin-source { display: inline-flex; align-items: center; gap: 6px; font-size: 11px; font-weight: 600; color: var(--accent-orange); background: rgba(255, 140, 0, 0.1); padding: 4px 10px; border-radius: 6px; border: 1px solid rgba(255, 140, 0, 0.2);}
-
-        .filter-panel { background: var(--bg-card); padding: 20px 25px; border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 30px; display: flex; align-items: flex-end; gap: 15px;}
-        .filter-group { display: flex; flex-direction: column; flex: 1;}
-        .filter-group label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .filter-group input, .filter-group select { padding: 10px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); background-color: var(--bg-input); outline: none; width: 100%; box-sizing: border-box;}
-        .filter-group input:focus { border-color: var(--accent-orange); }
-
-        .ts-wrapper { width: 100%; position: relative; } 
+        .tab-btn { background: none; color: var(--text-muted); border: none; padding: 10px 25px; text-align: left; font-size: 13px; font-weight: 500; cursor: pointer; transition: all 0.2s ease-in-out; border-left: 3px solid transparent; display: flex; align-items: center; gap: 12px; width: 100%;}
+        .tab-btn i { font-size: 14px; width: 20px; text-align: center;}
+        .tab-btn:hover, .tab-btn.active { background-color: var(--bg-hover); color: var(--text-main); }
+        .tab-btn.active { border-left-color: var(--accent-orange); }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px 250px 40px; }
+        .top-header { display: flex; align-items: center; gap: 15px; margin-bottom: 30px;}
+        .top-header .avatar { width: 45px; height: 45px; border-radius: 50%; background-color: var(--bg-card); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-orange);}
+        .top-header-text h2 { margin: 0; font-size: 18px; font-weight: 600; }
+        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); }
+        .context-panel, .form-section { background: var(--bg-card); padding: 25px 30px; border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 25px; }
+        .context-panel-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; }
+        .context-panel h3, .form-section h2 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px;}
+        .form-section h2 { font-size: 18px; margin-bottom: 25px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px;}
+        .context-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 15px; width: 100%;}
+        label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.3px;}
+        input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
+        input[type=number] { -moz-appearance: textfield; }
+        input, select, textarea { width: 100% !important; box-sizing: border-box !important; padding: 12px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 13px; color: var(--text-main); background-color: var(--bg-input); transition: all 0.2s; outline: none; resize: vertical; }
+        input::placeholder, textarea::placeholder { color: #555; }
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-orange); }
+        input:disabled, select:disabled, textarea:disabled { background-color: #1a1a1a; color: #666; cursor: not-allowed; border-color: #222;}
+        optgroup { color: var(--accent-orange); font-weight: 700; font-style: normal; }
+        optgroup option { color: var(--text-main); font-weight: 400; }
+        .ts-wrapper { width: 100%; position: relative; }
         .ts-control, .ts-control input { color: var(--text-main) !important; font-family: 'Inter', sans-serif; font-size: 13px; }
-        .ts-wrapper.single .ts-control { background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 15px; box-shadow: none; cursor: text; transition: 0.2s;}
-        .ts-wrapper.single.focus .ts-control { border-color: var(--accent-orange); }
+        .ts-wrapper.single .ts-control, .ts-wrapper.multi .ts-control { background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 10px 15px; box-shadow: none; cursor: text; transition: 0.2s; min-height: 42px;}
+        .ts-wrapper.single.focus .ts-control, .ts-wrapper.multi.focus .ts-control { border-color: var(--accent-orange); }
         .ts-dropdown { position: absolute !important; z-index: 9999 !important; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.6); margin-top: 5px; }
         .ts-dropdown .option { padding: 12px 15px; color: var(--text-main); font-size: 13px; cursor: pointer; }
         .ts-dropdown .active { background-color: var(--bg-hover) !important; color: var(--accent-orange) !important; }
         .ts-wrapper.single .ts-control:after { border-color: var(--text-muted) transparent transparent transparent; }
         .ts-wrapper.focus .ts-control, .ts-control.focus, .ts-control.input-active { background-color: var(--bg-input) !important; color: var(--text-main) !important; }
         .ts-wrapper .ts-control > input { color: var(--text-main) !important; background-color: transparent !important; width: auto !important; min-width: 10px !important; padding: 0 !important; margin: 0 !important; }
-        
-        .btn-apply { background: linear-gradient(135deg, var(--accent-blue) 0%, #1d4ed8 100%); color: #ffffff; border: none; padding: 11px 24px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 13px; box-shadow: 0 4px 12px rgba(59, 130, 246, 0.25); }
-        .btn-apply:hover { transform: translateY(-2px); box-shadow: 0 6px 16px rgba(59, 130, 246, 0.4); }
-        .btn-apply:active { transform: translateY(0); }
-
-        .btn-clear { background-color: transparent; color: var(--text-muted); border: 1px solid var(--border-subtle); padding: 11px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .btn-clear:hover { background-color: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.3); }
-        .btn-clear:active { transform: scale(0.97); }
-
-        .btn-export { background-color: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); padding: 11px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .btn-export:hover { background-color: var(--accent-green); color: #000; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transform: translateY(-1px); }
-
-        .section-title { color: var(--text-main); margin-top: 10px; margin-bottom: 15px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        
-        .table-container { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 400px; overflow-y: auto; overflow-x: hidden; }
-        .table-container::-webkit-scrollbar { width: 6px; }
-        .table-container::-webkit-scrollbar-track { background: var(--bg-card); border-radius: 12px; }
-        .table-container::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 12px; }
-        .table-container::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-        
-        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
-        
-        th { background-color: #1a1a1a; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; }
-        td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: #e2e8f0; vertical-align: top; word-wrap: break-word; word-break: break-word; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: rgba(255, 255, 255, 0.02); }
-        
-        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.3s ease; white-space: pre-wrap; font-size: 12px; color: var(--text-main); }
-        .truncate-box.expanded { -webkit-line-clamp: unset; }
-        .read-more-btn { background: none; border: none; padding: 0; color: var(--accent-orange); font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 5px; text-transform: uppercase; transition: 0.2s;}
-        .read-more-btn:hover { color: var(--accent-green); text-decoration: underline; }
-
-        .strong-text { font-weight: 600; color: white; display: block; }
-        .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-        .gps-text { font-family: monospace; color: var(--accent-blue); font-size: 11px; background: rgba(59, 130, 246, 0.1); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2);}
-        .sitrep-tag { font-size: 10px; font-weight: 700; color: var(--accent-orange); background: rgba(255, 140, 0, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255, 140, 0, 0.2); display: inline-block; margin-top: 6px;}
-        .action-time { font-family: monospace; color: var(--accent-green); font-size: 12px;}
-        
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; text-align: center; border: 1px solid transparent;}
-        
-        .bg-danger { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2); }
-        .bg-warning { background: rgba(245, 158, 11, 0.1); color: #fcd34d; border-color: rgba(245, 158, 11, 0.2); }
-        .bg-success { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.2); }
-        .bg-secondary { background: rgba(160, 160, 160, 0.1); color: var(--text-muted); border-color: rgba(160, 160, 160, 0.2); }
-        .bg-primary { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border-color: rgba(59, 130, 246, 0.2); }
-
-        .empty-state { text-align: center; padding: 30px !important; color: var(--text-muted); font-style: italic; }
+        .ts-wrapper.multi .ts-control > div { background: var(--bg-hover); color: var(--accent-orange); border: 1px solid var(--border-subtle); border-radius: 4px; padding: 2px 8px; margin: 2px 4px 2px 0; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;}
+        .ts-wrapper.multi .ts-control > div .remove { border-left: 1px solid var(--border-subtle); padding-left: 6px; margin-left: 6px; color: var(--text-muted); cursor: pointer;}
+        .ts-wrapper.multi .ts-control > div .remove:hover { color: var(--accent-red); }
+        .lock-btn { background-color: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 12px 20px; border-radius: 8px; font-weight: 500; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px;}
+        .lock-btn:hover { border-color: var(--text-muted); }
+        .lock-btn.locked { color: var(--accent-green); border-color: var(--accent-green); background-color: rgba(16, 185, 129, 0.1); }
+        .form-section { display: none; }
+        .form-section.active { display: block; animation: fadeIn 0.3s ease-in-out; }
+        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .row { display: flex; gap: 20px; align-items: flex-start; }
+        .col { flex: 1; }
+        .gps-row { align-items: end; padding: 15px; background-color: var(--bg-input); border-radius: 8px; border: 1px solid var(--border-subtle); margin-top: 10px;}
+        .gps-btn { background-color: var(--bg-hover); color: var(--text-main); padding: 12px; border: 1px solid var(--border-subtle); border-radius: 8px; cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .gps-btn:hover { border-color: var(--accent-orange); color: var(--accent-orange);}
+        .submit-btn { background-color: var(--accent-orange); color: #000; padding: 14px 20px; border: none; border-radius: 8px; cursor: pointer; margin-top: 30px; width: 100%; font-size: 14px; font-weight: 700; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .submit-btn:hover { background-color: #e67e00; }
+        .alert, .error-alert { font-weight: 500; font-size: 13px; margin-top: 20px; display: none; text-align: center; padding: 15px; border-radius: 8px; }
+        .alert { color: var(--accent-green); border: 1px solid var(--accent-green); background: rgba(16, 185, 129, 0.1); }
+        .error-alert { color: var(--accent-red); border: 1px solid var(--accent-red); background: rgba(239, 68, 68, 0.1); }
+        .flatpickr-wrapper { width: 100% !important; display: block !important; }
+        .flatpickr-calendar { background: #1e222b !important; border: 1px solid #2d323e !important; border-radius: 10px !important; box-shadow: 0 10px 30px rgba(0,0,0,0.8) !important; padding: 8px !important; font-family: 'Inter', sans-serif !important; width: 230px !important; z-index: 999999 !important; }
+        .flatpickr-months { display: flex !important; align-items: center !important; justify-content: space-between !important; margin-bottom: 4px !important; position: relative !important; height: 24px !important; }
+        .flatpickr-current-month { position: relative !important; left: 0 !important; width: auto !important; padding: 0 !important; font-size: 13px !important; font-weight: 800 !important; color: #ffffff !important; display: flex !important; align-items: center !important; }
+        .flatpickr-current-month .flatpickr-monthDropdown-months { background: transparent !important; font-weight: 800 !important; color: #ffffff !important; font-size: 13px !important; padding: 0 !important; margin: 0 !important; appearance: none !important; cursor: pointer !important; }
+        .flatpickr-current-month input.cur-year { font-weight: 800 !important; color: #ffffff !important; font-size: 13px !important; padding: 0 !important; width: 38px !important; }
+        .flatpickr-prev-month, .flatpickr-next-month { position: relative !important; top: auto !important; height: 20px !important; width: 20px !important; padding: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; color: #3b82f6 !important; fill: #3b82f6 !important; border-radius: 4px !important; }
+        .flatpickr-prev-month svg, .flatpickr-next-month svg { width: 9px !important; height: 9px !important; fill: #3b82f6 !important; stroke: #3b82f6 !important; stroke-width: 2 !important; }
+        .flatpickr-prev-month:hover, .flatpickr-next-month:hover { background: rgba(59, 130, 246, 0.15) !important; }
+        .flatpickr-weekdays { display: flex !important; margin-bottom: 2px !important; height: 16px !important; }
+        .flatpickr-weekdaycontainer { display: grid !important; grid-template-columns: repeat(7, 1fr) !important; width: 100% !important; }
+        span.flatpickr-weekday { color: #6b7280 !important; font-weight: 700 !important; font-size: 9px !important; text-transform: uppercase !important; letter-spacing: 0.5px !important; text-align: center !important; }
+        .flatpickr-days { width: 100% !important; }
+        .dayContainer { display: grid !important; grid-template-columns: repeat(7, 1fr) !important; width: 100% !important; min-width: 100% !important; max-width: 100% !important; }
+        .flatpickr-day { color: #d1d5db !important; border-radius: 50% !important; font-weight: 600 !important; font-size: 11px !important; width: 26px !important; max-width: 26px !important; height: 26px !important; margin: 2px auto !important; border: none !important; transition: all 0.15s ease !important; display: flex !important; justify-content: center !important; align-items: center !important; }
+        .flatpickr-day.selected, .flatpickr-day.selected:hover { background: #2563eb !important; color: #ffffff !important; font-weight: 800 !important; box-shadow: 0 2px 6px rgba(37, 99, 235, 0.4) !important; }
+        .flatpickr-day.today:not(.selected) { color: #3b82f6 !important; font-weight: 800 !important; background: transparent !important; border: none !important; }
+        .flatpickr-day:hover:not(.selected) { background: #2d333f !important; }
+        .flatpickr-day.flatpickr-disabled, .flatpickr-day.prevMonthDay, .flatpickr-day.nextMonthDay { color: #374151 !important; }
+        .flatpickr-time { border-top: 1px solid #2d323e !important; margin-top: 4px !important; padding: 6px 8px 0 8px !important; height: 36px !important; display: flex !important; align-items: center !important; justify-content: flex-end !important; position: relative !important; overflow: hidden !important; box-sizing: border-box !important; }
+        .flatpickr-time::before { content: 'Time'; font-weight: 800; font-size: 11px; color: #ffffff; margin-right: auto !important; position: static !important; display: block !important; flex-shrink: 0 !important; }
+        .flatpickr-time .numInputWrapper { height: 26px !important; width: 40px !important; background: #282c35 !important; border-radius: 4px !important; padding: 0 !important; margin: 0 !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; }
+        .flatpickr-time .numInputWrapper span.arrowUp, .flatpickr-time .numInputWrapper span.arrowDown { display: none !important; }
+        .flatpickr-time input.numInput, .flatpickr-time input.flatpickr-hour, .flatpickr-time input.flatpickr-minute { background: transparent !important; color: #ffffff !important; font-weight: 800 !important; font-size: 12px !important; border-radius: 4px !important; border: 1px solid #353a47 !important; padding: 0 !important; margin: 0 !important; text-align: center !important; height: 100% !important; width: 100% !important; box-sizing: border-box !important; -moz-appearance: textfield !important; appearance: none !important; }
+        .flatpickr-time input:focus { border-color: #3b82f6 !important; background: #2d333f !important; }
+        .flatpickr-time .flatpickr-time-separator { color: #6b7280 !important; font-weight: 800 !important; width: 8px !important; height: 26px !important; line-height: 26px !important; text-align: center !important; display: inline-block !important; margin: 0 2px !important; flex-shrink: 0 !important; }
+        .flatpickr-time .flatpickr-am-pm { background: #282c35 !important; color: #3b82f6 !important; font-weight: 800 !important; font-size: 11px !important; border-radius: 4px !important; border: 1px solid #353a47 !important; height: 26px !important; padding: 0 6px !important; margin-left: 8px !important; width: 36px !important; flex-shrink: 0 !important; display: flex !important; align-items: center !important; justify-content: center !important; }
+        .flatpickr-time .flatpickr-am-pm:hover, .flatpickr-time .flatpickr-am-pm:focus { background: #353a47 !important; color: #ffffff !important; }
     </style>
 </head>
 <body>
 
     <div class="sidebar">
-       <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
+        <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
         <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
-        
+
         <div style="margin-top: 10px;">
             <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
             <a href="trend_analysis.html" class="dashboard-link active-tab"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
-            <a href="dashboard.html" class="dashboard-link active-tab"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
-            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
+            <a href="data_entry.html" class="dashboard-link active-tab"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
             <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
             <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
         </div>
 
+        <div class="nav-section-title" style="margin-top: 20px;">MAIN ENCODERS</div>
+        
+        <button class="tab-btn active" onclick="openTab('weather')"><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather</button>
+        <button class="tab-btn" onclick="openTab('actions')"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
+        <button class="tab-btn" onclick="openTab('flood')"><i class="fa-solid fa-water"></i> Flooded Areas</button>
+        <button class="tab-btn" onclick="openTab('evac')"><i class="fa-solid fa-users-rays"></i> Affected Pop & ECs</button>
+        <button class="tab-btn" onclick="openTab('preemptive')"><i class="fa-solid fa-person-walking-arrow-right"></i> Pre-Emptive Evacs</button>
+        <button class="tab-btn" onclick="openTab('complement')"><i class="fa-solid fa-clipboard-user"></i> OpCen Complement</button>
+        <button class="tab-btn" onclick="openTab('deployed')"><i class="fa-solid fa-truck-fast"></i> Deployed Assets</button>
+        <button class="tab-btn" onclick="openTab('lifelines')"><i class="fa-solid fa-bolt"></i> Status of Lifelines</button>
+        <button class="tab-btn" onclick="openTab('infrastructure')"><i class="fa-solid fa-building-shield"></i> Public Infra (Dams/Dikes)</button>
+        <button class="tab-btn" onclick="openTab('casualties')"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
+        <button class="tab-btn" onclick="openTab('suspensions')"><i class="fa-solid fa-school"></i> Suspensions</button>
+        <button class="tab-btn" onclick="openTab('agri')"><i class="fa-solid fa-wheat-awn"></i> Agriculture Damages</button>
+        <button class="tab-btn" onclick="openTab('residential')"><i class="fa-solid fa-house-chimney-crack"></i> Residential Damages</button>
+        <button class="tab-btn" onclick="openTab('assistance')"><i class="fa-solid fa-hand-holding-hand"></i> Assistance</button>
+        <button class="tab-btn" onclick="openTab('incidents')"><i class="fa-solid fa-triangle-exclamation"></i> Related Incidents</button>
+        
         <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
         <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
     </div>
@@ -141,272 +149,445 @@
     <div class="main-content">
         
         <div class="top-header">
-            <div class="header-left">
-                <div class="avatar"><i class="fa-solid fa-satellite-dish"></i></div>
-                <div class="top-header-text">
-                    <h2>Provincial SitRep Monitor</h2>
-                    <p><i class="fa-solid fa-circle-dot fa-fade" style="font-size: 10px;"></i> Live Cloud Database Sync Active</p>
+            <div class="avatar"><i class="fa-solid fa-user-shield"></i></div>
+            <div class="top-header-text">
+                <h2>Data Entry Portal</h2>
+                <p>Authorized Personnel Only <i class="fa-solid fa-lock" style="font-size:10px; margin-left:5px;"></i></p>
+            </div>
+            <button onclick="logoutUser()" class="lock-btn" style="margin-left: auto; height: 35px; background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2);"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
+        </div>
+
+        <div class="context-panel">
+            <div class="context-panel-header">
+                <h3><i class="fa-solid fa-sliders"></i> Active Incident Context & Synopsis</h3>
+            </div>
+            <div class="context-grid">
+                <div class="form-group"><label>Cause / Incident</label><input type="text" id="ctx-cause" placeholder="e.g., SW Monsoon (Habagat)"></div>
+                <div class="form-group"><label>SitRep #</label><input type="number" id="ctx-sitrep" placeholder="e.g., 2"></div>
+                <div class="form-group"><label>Advisory #</label><input type="number" id="ctx-advisory" placeholder="e.g., 5"></div>
+                <div class="form-group"><label>As of Date & Time</label><input type="datetime-local" id="ctx-datetime"></div>
+            </div>
+            <div class="row" style="margin-top: 5px;">
+                <div class="col form-group" style="flex: 3;">
+                    <label>Situation Overview / Weather Synopsis</label>
+                    <textarea id="ctx-synopsis" rows="2" placeholder="e.g., Light to moderate rains are expected over Tarlac (San Clemente, Mayantoc...)" required></textarea>
+                </div>
+                <div class="col form-group" style="flex: 1;">
+                    <label>Information Source</label>
+                    <input type="text" id="ctx-source" list="source-list" placeholder="e.g., DOST-PAGASA" required>
+                    <datalist id="source-list">
+                        <option value="DOST-PAGASA">
+                        <option value="NDRRMC">
+                        <option value="OCD Region III">
+                        <option value="PDRRMO Field Assessment">
+                    </datalist>
                 </div>
             </div>
-            <div class="header-right">
-                <div class="latest-sitrep-badge" id="latestSitrepDisplay">
-                    <i class="fa-solid fa-satellite"></i> Scanning Network...
+            <div class="form-group" style="margin-top: 10px; margin-bottom: 0;">
+                <button class="lock-btn" id="lockCtxBtn" style="width: 100%;"><i class="fa-solid fa-unlock"></i> Lock Context & Synopsis</button>
+            </div>
+        </div>
+
+        <div id="weather" class="form-section active">
+            <h2><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather Conditions</h2>
+            <form id="form-weather">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Weather Condition (Status)</label>
+                        <select class="f-weather-cond" required placeholder="Select or Type Condition...">
+                            <option value=""></option><option value="Fair weather">Fair weather</option><option value="Cloudy skies">Cloudy skies</option><option value="Light rains">Light rains</option><option value="Light to moderate rains">Light to moderate rains</option><option value="Moderate to heavy rains">Moderate to heavy rains</option><option value="Heavy rains">Heavy rains</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="digital-clock" id="digitalClock">00:00:00</div>
-            </div>
+                <div class="row">
+                    <div class="col form-group"><label>Reported Date & Time (LDRRMO As Of)</label><input type="datetime-local" class="f-weather-time" required></div>
+                    <div class="col form-group"><label>Information Source</label><input type="text" class="f-weather-source" placeholder="e.g., LDRRMO" value="LDRRMO" required></div>
+                </div>
+                <div class="form-group"><label>Remarks (Optional)</label><input type="text" class="f-weather-remarks" placeholder="e.g., With occasional gusty winds"></div>
+                <button type="submit" class="submit-btn" style="margin-top: 20px;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Weather Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
         </div>
 
-        <div class="weather-bulletin" id="weatherBanner" style="display: none;">
-            <div class="bulletin-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
-            <div class="bulletin-content">
-                <h3>Situation Overview / Weather Synopsis</h3>
-                <p class="bulletin-text" id="synopsisText">Awaiting synopsis data...</p>
-                <div class="bulletin-source"><i class="fa-solid fa-tower-broadcast"></i> Source: <span id="synopsisSource">N/A</span></div>
-            </div>
+        <div id="actions" class="form-section">
+            <h2><i class="fa-solid fa-clipboard-list"></i> Preparedness & Actions Taken</h2>
+            <form id="form-actions">
+                <div class="row">
+                    <div class="col form-group"><label>Acting Council / Agency</label><select class="f-action-agency" required placeholder="Type or Select Council..."><option value=""></option></select></div>
+                    <div class="col form-group" id="ldrmmc-lgu-group" style="display: none;"><label>Specific LGU / Province</label><select class="f-action-lgu" placeholder="Select Municipality/City..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Date & Time of Action</label><input type="datetime-local" class="f-action-time" required></div>
+                </div>
+                <div class="form-group"><label>Action Category</label><select class="f-action-cat" required placeholder="Select Category..."><option value=""></option><option value="Meetings / PDRA">Meetings / PDRA</option><option value="Issuance of Advisories/Memos">Issuance of Advisories / Memos</option><option value="Pre-emptive Evacuation">Pre-emptive Evacuation</option><option value="Resource Pre-positioning">Resource Pre-positioning</option><option value="Clearing Operations">Clearing Operations</option><option value="Relief Distribution">Relief Distribution Ops</option><option value="Other Operations">Other Operations</option></select></div>
+                <div class="form-group"><label>Narrative / Details</label><textarea class="f-action-desc" rows="4" placeholder="e.g., Convened Pre-Disaster Risk Assessment (PDRA) Core Group to discuss proactive measures..." required></textarea></div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Actions Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
         </div>
 
-        <div class="filter-panel" style="display: flex; flex-wrap: wrap; gap: 15px; align-items: end;">
-            <div class="filter-group" style="flex: 1; min-width: 150px;">
-                <label>Incident / Cause</label>
-                <input type="text" id="filterCause" placeholder="e.g., SW Monsoon">
-            </div>
-            <div class="filter-group" style="width: 80px;">
-                <label>SitRep #</label>
-                <input type="number" id="filterSitrep" placeholder="e.g., 2">
-            </div>
-            <div class="filter-group" style="flex: 1.5; min-width: 200px;">
-                <label>Report Section (Isolate View)</label>
-                <select id="filterSection">
-                    <option value="ALL">View All Report Sections</option>
-                    <option value="sec-weather">Local Weather Conditions</option>
-                    <option value="sec-actions">Preparedness & Actions Taken</option>
-                    <option value="sec-flood">1. Flooded Areas</option>
-                    <option value="sec-evac">2a. Affected Population & ECs</option>
-                    <option value="sec-preemptive">2b. Pre-Emptive Evacuations</option>
-                    <option value="sec-lifeline">3. Status of Lifelines</option>
-                    <option value="sec-infra">Public Infrastructure Report</option>
-                    <option value="sec-cas">4. Casualties & Human Impact</option>
-                    <option value="sec-complement">5a. Manpower / Resources Complement</option>
-                    <option value="sec-deployed">5b. Deployed Assets & Personnel</option>
-                    <option value="sec-sus">6. Class & Work Suspensions</option>
-                    <option value="sec-agri">7a. Agriculture Damages</option>
-                    <option value="sec-residential">7b. Residential Damages</option>
-                    <option value="sec-ast">8. Cost of Assistance & Relief</option>
-                    <option value="sec-inc">9. Related Incidents & Hazards</option>
-                </select>
-            </div>
-            <div class="filter-group" style="flex: 1; min-width: 150px;">
-                <label>Municipality / Area</label>
-                <select id="filterMuni">
-                    <option value="ALL">All Municipalities</option>
-                    <option value="Province of Tarlac">Province-Wide (Tarlac)</option>
-                    <option value="Anao">Anao</option>
-                    <option value="Bamban">Bamban</option>
-                    <option value="Camiling">Camiling</option>
-                    <option value="Capas">Capas</option>
-                    <option value="Concepcion">Concepcion</option>
-                    <option value="Gerona">Gerona</option>
-                    <option value="La Paz">La Paz</option>
-                    <option value="Mayantoc">Mayantoc</option>
-                    <option value="Moncada">Moncada</option>
-                    <option value="Paniqui">Paniqui</option>
-                    <option value="Pura">Pura</option>
-                    <option value="Ramos">Ramos</option>
-                    <option value="San Clemente">San Clemente</option>
-                    <option value="San Jose">San Jose</option>
-                    <option value="San Manuel">San Manuel</option>
-                    <option value="Santa Ignacia">Santa Ignacia</option>
-                    <option value="Tarlac City">Tarlac City</option>
-                    <option value="Victoria">Victoria</option>
-                </select>
-            </div>
-            <div class="filter-group" style="flex: 1; min-width: 150px;">
-                <label>Keyword / Status Search</label>
-                <input type="text" id="filterKeyword" placeholder="e.g., Deployed, Rising...">
-            </div>
-            
-            <div style="display: flex; gap: 12px; width: 100%; align-items: center; margin-top: 5px;">
-                <button class="btn-apply" id="applyFilterBtn" style="height: 42px;"><i class="fa-solid fa-filter"></i> Apply Filter</button>
-                <button class="btn-clear" id="clearFilterBtn" style="height: 42px; margin-right: auto;"><i class="fa-solid fa-rotate-left"></i> Clear</button>
-                <button class="btn-export" id="exportCsvBtn" style="height: 42px;"><i class="fa-solid fa-file-csv"></i> Export Data</button>
-            </div>
+        <div id="flood" class="form-section">
+            <h2><i class="fa-solid fa-water"></i> Flooded Area Report</h2>
+            <form id="form-flood">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Barangay / Area</label><input type="text" class="f-brgy" placeholder="e.g., Purok 1" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Depth (ft)</label><input type="number" step="0.1" class="f-depth" placeholder="0.0" required></div>
+                    <div class="col form-group"><label>Status</label><select class="f-status" required placeholder="Select Status..."><option value=""></option><option value="Still Flooded">Still Flooded</option><option value="Rising">Rising</option><option value="Receding">Receding</option><option value="Subsided">Subsided</option><option value="No Flood reported">No Flood reported</option></select></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-flood-time" required></div>
+                </div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Flooded Area Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
         </div>
-        
-        <div id="tables-wrapper">
 
-            <h2 class="section-title"><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather Conditions</h2>
-            <div class="table-container" id="sec-weather">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Municipality</th><th>Weather Condition</th><th>Reported Date/Time</th><th>Information Source</th><th style="width: 25%;">Remarks</th><th>System Info</th></tr></thead>
-                    <tbody id="weather-tbody"><tr><td colspan="6" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
-            
-            <h2 class="section-title"><i class="fa-solid fa-clipboard-list"></i> Preparedness & Actions Taken</h2>
-            <div class="table-container" id="sec-actions">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 20%;">Agency / Office</th><th style="width: 20%;">Action Category</th><th style="width: 35%;">Narrative / Details</th><th>Date/Time of Action</th><th>Report Info</th></tr></thead>
-                    <tbody id="act-tbody"><tr><td colspan="5" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="evac" class="form-section">
+            <h2><i class="fa-solid fa-users-rays"></i> Affected Population & ECs</h2>
+            <form id="form-evac">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>No. of Affected Brgys</label><input type="number" class="f-brgy-count" min="0" placeholder="e.g., 5" required></div>
+                    <div class="col form-group"><label>No. of Active ECs</label><input type="number" class="f-ec-count" min="0" placeholder="e.g., 2" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group" style="flex: 1;"><label>Center Status</label><select class="f-status" placeholder="Select Status..."><option value=""></option><option value="Active">Active (Occupied)</option><option value="Closed">Closed (Decamped)</option><option value="Standby">Standby (Ready)</option></select></div>
+                    <div class="col form-group" style="flex: 1;"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                
+                <div style="background: rgba(255,255,255,0.02); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed var(--border-subtle);">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--accent-orange); margin-bottom: 10px;"><i class="fa-solid fa-users-rays"></i> MACRO POPULATION SPLIT</div>
+                    <div class="row" style="margin-bottom: 10px;">
+                        <div class="col form-group"><label>Affected (Fam)</label><input type="number" class="f-aff-fam" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-green);">Served (Fam)</label><input type="number" class="f-served-fam" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs CUM (Fam)</label><input type="number" class="f-ec-fam-cum" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs NOW (Fam)</label><input type="number" class="f-ec-fam-now" min="0"></div>
+                    </div>
+                    <div class="row" style="margin-bottom: 0;">
+                        <div class="col form-group"><label>Affected (Pax)</label><input type="number" class="f-aff-indv" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-green);">Served (Pax)</label><input type="number" class="f-served-indv" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs CUM (Pax)</label><input type="number" class="f-ec-indv-cum" min="0"></div>
+                        <div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs NOW (Pax)</label><input type="number" class="f-ec-indv-now" min="0"></div>
+                    </div>
+                </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-water"></i> 1. Flooded Areas</h2>
-            <div class="table-container" id="sec-flood">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Municipality</th><th>Barangay / Area</th><th>Depth (ft)</th><th>Reported Date/Time</th><th>Coordinates</th><th>Status</th><th>Report Info</th></tr></thead>
-                    <tbody id="flood-tbody"><tr><td colspan="7" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Evacuation Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-users-rays"></i> 2a. Affected Population & ECs</h2>
-            <div class="table-container" id="sec-evac">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th>Affected Brgys</th>
-                        <th>Active ECs</th>
-                        <th>Total Affected</th>
-                        <th>Total Served</th>
-                        <th>Inside ECs<br><span style="font-size:9px; font-weight:800; color:var(--accent-blue);">CUM | NOW</span></th>
-                        <th>Status</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="evac-tbody"><tr><td colspan="8" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="preemptive" class="form-section">
+            <h2><i class="fa-solid fa-person-walking-arrow-right"></i> Pre-Emptive Evacuations</h2>
+            <form id="form-preemptive">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" placeholder="Enter Barangay (Optional)"></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                
+                <div style="background: rgba(20, 184, 166, 0.05); padding: 15px; border-radius: 8px; margin-bottom: 20px; border: 1px dashed rgba(20, 184, 166, 0.3);">
+                    <div style="font-size: 12px; font-weight: 700; color: var(--accent-teal); margin-bottom: 10px;"><i class="fa-solid fa-person-walking-arrow-right"></i> PRE-EMPTIVE COUNTS</div>
+                    <div class="row" style="margin-bottom: 0;">
+                        <div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Families)</label><input type="number" class="f-pre-fam" min="1" required></div>
+                        <div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Persons)</label><input type="number" class="f-pre-indv" min="1" required></div>
+                    </div>
+                </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-person-walking-arrow-right"></i> 2b. Pre-Emptive Evacuations</h2>
-            <div class="table-container" id="sec-preemptive">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th style="width: 15%;">Barangay</th>
-                        <th>Families</th>
-                        <th>Persons</th>
-                        <th style="width: 25%;">Destination / Remarks</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="preemptive-tbody"><tr><td colspan="6" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+                <div class="form-group"><label>Destination / Remarks</label><input type="text" class="f-remarks" placeholder="e.g., Moved to relatives in higher ground, Evacuated to Brgy Hall" required></div>
 
-            <h2 class="section-title"><i class="fa-solid fa-bolt"></i> 3. Status of Lifelines</h2>
-            <div class="table-container" id="sec-lifeline">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 20%;">Specific Area / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="width: 20%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="lifeline-tbody"><tr><td colspan="8" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Pre-Emptive Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-building-shield"></i> Public Infrastructure Report</h2>
-            <div class="table-container" id="sec-infra">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 20%;">Specific Infra / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="width: 20%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="infra-tbody"><tr><td colspan="8" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="complement" class="form-section">
+            <h2><i class="fa-solid fa-clipboard-user"></i> Manpower / Resources Complement</h2>
+            <form id="form-complement">
+                <div class="row">
+                    <div class="col form-group"><label>Agency / Office</label><select class="f-agency" required placeholder="Type or Select Agency..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option><option value="Checked-In">Checked-In</option><option value="On Standby at HQ">On Standby at HQ</option><option value="Demobilized">Demobilized</option>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Date & Time Check-In</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>No. of Personnel (Pax)</label><input type="number" class="f-personnel" min="0" placeholder="e.g., 20" required></div>
+                    <div class="col form-group" style="flex: 2;"><label>Assets Summary / Details</label><input type="text" class="f-asset-details" placeholder="e.g., 3 units Ambulance, 2 units Rescue Trucks" required></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Complement Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-truck-medical"></i> 4. Casualties & Human Impact</h2>
-            <div class="table-container" id="sec-cas">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 15%;">Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="width: 25%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="cas-tbody"><tr><td colspan="7" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="deployed" class="form-section">
+            <h2><i class="fa-solid fa-truck-fast"></i> Deployed Assets & Personnel</h2>
+            <form id="form-deployed">
+                <div class="row">
+                    <div class="col form-group"><label>Deployed Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Specific Area / Barangay</label><input type="text" class="f-brgy" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Responding Agency</label><select class="f-agency" required placeholder="Type or Select Agency..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Asset Type</label><select class="f-asset" multiple required placeholder="Type or Select Assets..."><option value=""></option></select></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Asset Quantity</label><input type="number" class="f-qty" min="0" required></div>
+                    <div class="col form-group"><label>No. of Personnel (Pax)</label><input type="number" class="f-personnel" min="0" placeholder="e.g., 5" required></div>
+                    <div class="col form-group"><label>Deployment Status</label>
+                        <select class="f-status" required placeholder="Select Status..."><option value=""></option><option value="Deployed">Active / Deployed</option><option value="Standby">On Standby</option><option value="Demobilized">Demobilized (Returned)</option></select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                
+                <div class="form-group">
+                    <label>Remarks / Action Taken</label>
+                    <input type="text" class="f-remarks" placeholder="e.g., Delivery of 500pcs of sacks, Clearing of uprooted trees..." required>
+                </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-clipboard-user"></i> 5a. Manpower / Resources Complement</h2>
-            <div class="table-container" id="sec-complement">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 20%;">Agency / Office</th>
-                        <th>Personnel</th>
-                        <th style="width: 30%;">Assets Details</th>
-                        <th>Status</th>
-                        <th>Date/Time Check-In</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="complement-tbody"><tr><td colspan="6" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Deployment Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-truck-fast"></i> 5b. Deployed Assets & Personnel</h2>
-            <div class="table-container" id="sec-deployed">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Deployed Area</th>
-                        <th style="width: 20%;">Agency & Assets</th>
-                        <th>Status</th>
-                        <th>Reported Date/Time</th>
-                        <th style="width: 25%;">Remarks / Action Taken</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="deployed-tbody"><tr><td colspan="6" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="lifelines" class="form-section">
+            <h2><i class="fa-solid fa-bolt"></i> Status of Lifelines</h2>
+            <form id="form-lifelines">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Specific Area/Asset</label><input type="text" class="f-area" placeholder="e.g., TARELCO II, PrimeWater" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Lifeline Category</label>
+                        <select class="f-cat" required placeholder="Select Category..."><option value=""></option><option value="Power">Power / Electricity</option><option value="Water">Water Supply</option><option value="Comms">Communications</option></select>
+                    </div>
+                    <div class="col form-group"><label>Operational Status</label>
+                        <select class="f-status" required placeholder="Select Status..."><option value=""></option><option value="Normal / Fully Operational">Normal / Fully Operational</option><option value="Interrupted / Outage">Interrupted / Outage</option><option value="Restored / Operational">Restored / Operational</option></select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Flooded by 2ft, fallen electric post" required></div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Lifelines Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-school"></i> 6. Class & Work Suspensions</h2>
-            <div class="table-container" id="sec-sus">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Coverage Area</th><th>Suspension Type</th><th>Status</th><th>Reported Date/Time</th><th style="width: 25%;">Remarks / Details</th><th>Report Info</th></tr></thead>
-                    <tbody id="sus-tbody"><tr><td colspan="6" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="infrastructure" class="form-section">
+            <h2><i class="fa-solid fa-building-shield"></i> Public Infrastructure Report</h2>
+            <form id="form-infrastructure">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" placeholder="e.g., Romulo Highway, Camiling River Dike" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Infrastructure Category</label>
+                        <select class="f-cat" required placeholder="Select Category..."><option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Dam">Dam</option><option value="Dike / Barricade">Dike / Barricade</option><option value="Slope Protection">Slope Protection</option><option value="Government Building">Government Building</option><option value="Other Public Infra">Other Public Infra</option></select>
+                    </div>
+                    <div class="col form-group"><label>Status</label>
+                        <select class="f-status" required placeholder="Select Status...">
+                            <option value=""></option>
+                            <optgroup label="Roads & Bridges"><option value="Passable">Passable (All)</option><option value="Not Passable (Light)">Not Passable (Light)</option><option value="Not Passable (All)">Not Passable (All)</option></optgroup>
+                            <optgroup label="Dams, Dikes & Buildings"><option value="Intact / Monitored">Intact / Monitored</option><option value="Partially Damaged">Partially Damaged</option><option value="Totally Damaged">Totally Damaged</option><option value="Breached / Collapsed">Breached / Collapsed</option><option value="Ongoing Repair">Ongoing Repair</option></optgroup>
+                        </select>
+                    </div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Water level critical, 5 meters breached" required></div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Infrastructure Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-wheat-awn" style="color: var(--accent-yellow);"></i> 7a. Damage & Losses to Agriculture</h2>
-            <div class="table-container" id="sec-agri">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">No. of Affected City/Mun</th>
-                        <th>Commodity</th>
-                        <th>Farmers Affected</th>
-                        <th>Partially Damaged (ha)</th>
-                        <th>Totally Damaged (ha)</th>
-                        <th>Total Value Losses (PHP)</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="agri-tbody"><tr><td colspan="7" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="casualties" class="form-section">
+            <h2><i class="fa-solid fa-truck-medical"></i> Casualties Report</h2>
+            <form id="form-casualties">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Classification</label>
+                        <select class="f-class" required placeholder="Select Classification..."><option value=""></option><option value="Injured">Injured</option><option value="Missing">Missing</option><option value="Dead">Dead (Confirmed)</option></select>
+                    </div>
+                    <div class="col form-group"><label>Number of Individuals</label><input type="number" class="f-count" min="1" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                
+                <!-- NEW UI: Redesigned Casualties input to match official narrative format -->
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Particulars / Narrative</label>
+                        <textarea class="f-remarks" rows="2" placeholder="e.g., Aug 13, 01:00PM Missing 55 year old man from Sitio Palang... swept by floodwaters" required></textarea>
+                    </div>
+                    <div class="col form-group">
+                        <label>Actions Taken</label>
+                        <textarea class="f-action" rows="2" placeholder="e.g., Search and Rescue (SAR) operations conducted by PDRRMO..."></textarea>
+                    </div>
+                </div>
+                
+                <div class="row gps-row" style="margin-top: 0;">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Casualties Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-house-chimney-crack" style="color: var(--accent-red);"></i> 7b. Residential Damages & Infrastructure</h2>
-            <div class="table-container" id="sec-residential">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th style="width: 15%;">Barangay</th>
-                        <th>Classification</th>
-                        <th>Number of Damaged Units</th>
-                        <th>Reported Date/Time</th>
-                        <th style="width: 25%;">Description</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="residential-tbody"><tr><td colspan="7" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="suspensions" class="form-section">
+            <h2><i class="fa-solid fa-school"></i> Work & Class Suspensions</h2>
+            <form id="form-suspensions">
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Coverage Area</label>
+                        <select class="f-coverage" multiple required placeholder="Select Multiple Areas..."><option value=""></option></select>
+                    </div>
+                    <div class="col form-group"><label>Suspension Type</label><select class="f-type" required placeholder="Select Type..."><option value=""></option><option value="Classes Only (All Levels)">Classes Only (All Levels)</option><option value="Work Only (Govt & Private)">Work Only (Govt & Private)</option><option value="Classes and Work">Both Classes and Work</option></select></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Status</label><select class="f-status" required placeholder="Select Status..."><option value=""></option><option value="Suspended">Suspended</option><option value="Lifted/Resumed">Lifted / Resumed</option></select></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Remarks / Issuance Details</label><input type="text" class="f-remarks" placeholder="e.g., Declared via EO No. 15 s. 2026"></div>
+                <button type="submit" class="submit-btn" style="margin-top: 20px;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Suspensions Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-hand-holding-hand"></i> 8. Cost of Assistance & Relief</h2>
-            <div class="table-container" id="sec-ast">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Municipality</th><th>Barangay</th><th>Source</th><th>Relief Item & Qty</th><th>Total Cost (PHP)</th><th>Reported Date/Time</th><th>Report Info</th></tr></thead>
-                    <tbody id="ast-tbody"><tr><td colspan="7" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="agri" class="form-section">
+            <h2><i class="fa-solid fa-wheat-awn"></i> Agriculture Damages</h2>
+            <form id="form-agri">
+                <div class="row">
+                    <div class="col form-group">
+                        <label>No. of Affected City/Mun</label>
+                        <input type="number" class="f-lgu-count" min="0" placeholder="e.g., 16" required>
+                    </div>
+                    <div class="col form-group"><label>Commodity</label><input type="text" class="f-commodity" placeholder="e.g., RICE, CORN, LIVESTOCK" required></div>
+                    <div class="col form-group"><label>No. of Farmers Affected</label><input type="number" class="f-farmers" min="0" placeholder="e.g., 50" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Partially Damaged (ha)</label><input type="number" step="0.01" class="f-partial-ha" min="0" placeholder="0.00" required></div>
+                    <div class="col form-group"><label>Totally Damaged (ha)</label><input type="number" step="0.01" class="f-total-ha" min="0" placeholder="0.00" required></div>
+                    <div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" step="0.01" class="f-cost" min="0" placeholder="e.g., 50000.50" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                    <div class="col form-group"></div>
+                    <div class="col form-group"></div>
+                </div>
+                <button type="submit" class="submit-btn" style="background-color: var(--accent-yellow); color: #000;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Agriculture Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-red);"></i> 9. Related Incidents & Hazards</h2>
-            <div class="table-container" id="sec-inc">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 30%;">Particulars / Hazard</th><th style="width: 35%;">Actions Taken</th><th>Reported Date/Time</th><th>Report Info</th></tr></thead>
-                    <tbody id="inc-tbody"><tr><td colspan="5" class="empty-state">Loading data...</td></tr></tbody>
-                </table>
-            </div>
+        <div id="residential" class="form-section">
+            <h2><i class="fa-solid fa-house-chimney-crack"></i> Residential Damages</h2>
+            <form id="form-residential">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Damage Category</label>
+                        <select class="f-cat" required placeholder="Select Category..."><option value=""></option><option value="Totally Damaged">Totally Damaged</option><option value="Partially Damaged">Partially Damaged</option></select>
+                    </div>
+                    <div class="col form-group"><label>Number of Damaged Units</label><input type="number" class="f-count" min="0" placeholder="e.g., 5" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Detailed Description / Remarks</label><input type="text" class="f-desc" placeholder="e.g., 5 Houses totally destroyed due to flooding" required></div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn" style="background-color: var(--accent-red); color: #fff;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Residential Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
 
+        <div id="assistance" class="form-section">
+            <h2><i class="fa-solid fa-hand-holding-hand"></i> Cost of Assistance & Relief</h2>
+            <form id="form-assistance">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Barangay (Optional)</label><input type="text" class="f-brgy" placeholder="e.g., Poblacion"></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Source of Assistance</label><select class="f-source" required placeholder="Type or Select Source..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Relief Item Provided</label><select class="f-relief" required placeholder="Type or Select Item..."><option value=""></option></select></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Quantity Distributed</label><input type="number" class="f-qty" min="1" required></div>
+                    <div class="col form-group"><label>Estimated Cost (PHP - Optional)</label><input type="number" step="0.01" class="f-cost" min="0" placeholder="e.g., 15000.50"></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Distributed to 50 families in evacuation center" required></div>
+                <button type="submit" class="submit-btn" style="margin-top: 40px;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Assistance Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
+
+        <div id="incidents" class="form-section">
+            <h2><i class="fa-solid fa-triangle-exclamation"></i> Other Related Incidents & Hazards</h2>
+            <form id="form-incidents">
+                <div class="row">
+                    <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Particulars / Hazard</label><input type="text" class="f-hazard" placeholder="e.g. Felled Tree, Broken Dike" required></div>
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="form-group"><label>Actions Taken</label><textarea class="f-action" rows="3" placeholder="What was done to mitigate this hazard?" required></textarea></div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Incident Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
         </div>
 
     </div>
 
 <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { initializeFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { getFirestore, collection, addDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
     const firebaseConfig = {
         apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk",
@@ -418,423 +599,302 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+    const db = getFirestore(app);
+    const auth = getAuth(app);
 
-    const tsSection = new TomSelect("#filterSection", { create: false });
-    const tsMuni = new TomSelect("#filterMuni", { create: false });
-
-    function updateClock() {
-        const clockEl = document.getElementById('digitalClock');
-        if (clockEl) {
-            const now = new Date();
-            clockEl.textContent = now.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour12: true });
+    onAuthStateChanged(auth, (user) => {
+        if (user) { 
+            document.body.style.visibility = "visible"; 
+        } else { 
+            window.location.href = "login.html?redirect=data_entry.html"; 
         }
-    }
-    setInterval(updateClock, 1000);
-    updateClock();
+    });
 
-    const dbData = { weather: [], floods: [], evacs: [], preemptives: [], complements: [], lifelines: [], infrastructure: [], casualties: [], resources: [], suspensions: [], agri: [], residential: [], assistance: [], actions: [], incidents: [] };
-    
-    let activeCause = "";
-    let activeSitrep = "";
-    let activeMuni = "ALL";
-    let activeSection = "ALL";
-    let activeKeyword = "";
-
-    window.toggleText = function(btn) {
-        const box = btn.previousElementSibling;
-        box.classList.toggle('expanded');
-        btn.innerHTML = box.classList.contains('expanded') ? 'See less details' : 'See more details';
+    window.logoutUser = function() { 
+        signOut(auth).then(() => { window.location.href = "index.html"; }); 
     };
 
-    function formatNarrative(text) {
-        if (!text) return '<span class="sub-text">N/A</span>';
-        if (text.length < 80) return `<div class="truncate-box expanded">${text}</div>`;
-        return `
-            <div class="truncate-box">${text}</div>
-            <button class="read-more-btn" onclick="toggleText(this)">See more details</button>
-        `;
-    }
+    const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
+    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|' }); });
 
-    function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
-    
-    function formatActionTime(dateString) { 
-        if(!dateString) return `<span class="sub-text">N/A</span>`;
-        const d = new Date(dateString);
-        return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`;
-    }
-    
-    function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount); }
-    
-    function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text">${lat}, ${lng}</span>` : ``; }
-    
-    function buildTag(cause, sr) { 
-        if(!cause && !sr) return "";
-        let text = cause || "Unknown Incident";
-        if(sr) text += ` - SR#${sr}`;
-        return `<br><span class="sitrep-tag">${text}</span>`;
-    }
+    const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
+    document.querySelectorAll('.f-coverage').forEach(el => { coverages.forEach(c => el.add(new Option(c, c))); new TomSelect(el, { create: false, delimiter: '|', plugins: ['remove_button'] }); });
 
-    function matchesFilter(data) {
-        const matchCause = activeCause === "" || (data.incidentCause && data.incidentCause.toLowerCase().includes(activeCause.toLowerCase()));
-        const matchSitrep = activeSitrep === "" || (data.sitrepNo && data.sitrepNo.toString() === activeSitrep);
-        let loc = data.municipality || data.coverage || data.agency || "";
-        const matchMuni = activeMuni === "ALL" || loc.includes(activeMuni);
-        let matchKeyword = true;
-        if (activeKeyword !== "") {
-            const dataStr = JSON.stringify(data).toLowerCase();
-            matchKeyword = dataStr.includes(activeKeyword.toLowerCase());
-        }
-        return matchCause && matchSitrep && matchMuni && matchKeyword;
-    }
+    const globalAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
+    document.querySelectorAll('.f-agency').forEach(el => { globalAgencies.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true, delimiter: '|' }); });
 
-    function updateSectionVisibility() {
-        const sections = [
-            { id: "sec-weather", icon: "fa-cloud-sun-rain" },
-            { id: "sec-actions", icon: "fa-clipboard-list" },
-            { id: "sec-flood", icon: "fa-water" },
-            { id: "sec-evac", icon: "fa-users-rays" },
-            { id: "sec-preemptive", icon: "fa-person-walking-arrow-right" },
-            { id: "sec-lifeline", icon: "fa-bolt" },
-            { id: "sec-infra", icon: "fa-building-shield" },
-            { id: "sec-cas", icon: "fa-truck-medical" },
-            { id: "sec-complement", icon: "fa-clipboard-user" },
-            { id: "sec-deployed", icon: "fa-truck-fast" },
-            { id: "sec-sus", icon: "fa-school" },
-            { id: "sec-agri", icon: "fa-wheat-awn" },
-            { id: "sec-residential", icon: "fa-house-chimney-crack" },
-            { id: "sec-ast", icon: "fa-hand-holding-hand" },
-            { id: "sec-inc", icon: "fa-triangle-exclamation" }
-        ];
-
-        document.querySelectorAll('.section-title').forEach(header => {
-            const container = header.nextElementSibling;
-            let show = activeSection === "ALL";
-            
-            if (!show) {
-                const target = sections.find(s => s.id === activeSection);
-                if (target && header.querySelector(`.${target.icon}`)) show = true;
-            }
-
-            header.style.display = show ? "flex" : "none";
-            if(container && container.classList.contains('table-container')) {
-                container.style.display = show ? "block" : "none";
+    const actionAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
+    document.querySelectorAll('.f-action-agency').forEach(el => {
+        actionAgencies.forEach(a => el.add(new Option(a, a)));
+        new TomSelect(el, { 
+            create: true,
+            delimiter: '|',
+            onChange: function(value) {
+                const lguGroup = document.getElementById('ldrmmc-lgu-group'); const lguInput = document.querySelector('.f-action-lgu');
+                if (value === 'LDRRMC') { lguGroup.style.display = 'flex'; lguInput.setAttribute('required', 'required'); } 
+                else { lguGroup.style.display = 'none'; lguInput.removeAttribute('required'); if (lguInput.tomselect) lguInput.tomselect.clear(); }
             }
         });
+    });
+
+    const assets = ["Search & Rescue Personnel", "Rescue Boat", "Ambulance", "Fire Truck", "Relief/Supply Truck", "Heavy Equipment (Backhoe/Loader)", "Dump Truck"];
+    document.querySelectorAll('.f-asset').forEach(el => { 
+        assets.forEach(a => el.add(new Option(a, a))); 
+        new TomSelect(el, { create: true, delimiter: '|', plugins: ['remove_button'] }); 
+    });
+
+    const sources = ["DSWD", "Provincial LGU (PDRRMO/PSWDO)", "Municipal/City LGU", "Barangay LGU", "NGO / Private Sector", "OCD / NDRRMC", "Red Cross"];
+    document.querySelectorAll('.f-source').forEach(el => { sources.forEach(s => el.add(new Option(s, s))); new TomSelect(el, { create: true, delimiter: '|' }); });
+
+    const reliefs = ["Family Food Packs (FFP)", "Hygiene Kits", "Sleeping Kits", "Bottled Water", "Hot Meals", "Financial Assistance"];
+    document.querySelectorAll('.f-relief').forEach(el => { reliefs.forEach(r => el.add(new Option(r, r))); new TomSelect(el, { create: true, delimiter: '|' }); });
+    
+    document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|' }); });
+
+    // FLATPICKR ENGINE INITIALIZATION
+    flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K", time_24hr: false, minuteIncrement: 1, monthSelectorType: "dropdown", prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`, nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`, position: "auto" });
+
+    window.openTab = function(tabId) {
+        document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
+        document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
+        document.getElementById(tabId).classList.add('active');
+        event.currentTarget.classList.add('active');
+    };
+
+    // SECURE CONTEXT LOCK & LOCAL STORAGE ENGINE
+    const lockBtn = document.getElementById('lockCtxBtn');
+    const inputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-synopsis', 'ctx-source'];
+    let isLocked = false;
+
+    // Load saved context data if user accidentally refreshed the page
+    inputs.forEach(id => {
+        const el = document.getElementById(id);
+        const savedVal = localStorage.getItem(id);
+        if(savedVal) {
+            el.value = savedVal;
+            // Force Flatpickr to read the saved data
+            if(el._flatpickr) el._flatpickr.setDate(savedVal);
+        }
+    });
+
+    // Re-lock the UI if it was previously locked
+    if(localStorage.getItem('sitrepContextLocked') === 'true') {
+        inputs.forEach(id => { 
+            const el = document.getElementById(id);
+            el.disabled = true; 
+            // Specifically disable the visual flatpickr calendar input
+            if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true;
+        });
+        lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked'; lockBtn.classList.add('locked'); isLocked = true;
     }
 
-    function updateLatestSitrepIndicator() {
-        const allData = [...dbData.weather, ...dbData.floods, ...dbData.evacs, ...dbData.preemptives, ...dbData.complements, ...dbData.lifelines, ...dbData.infrastructure, ...dbData.casualties, ...dbData.resources, ...dbData.suspensions, ...dbData.agri, ...dbData.residential, ...dbData.assistance, ...dbData.actions, ...dbData.incidents];
-        const valid = allData.filter(d => d.timeMonitored && d.sitrepNo);
-        const display = document.getElementById('latestSitrepDisplay');
-        const weatherBanner = document.getElementById('weatherBanner');
-        
-        if(valid.length === 0) {
-            display.innerHTML = '<i class="fa-solid fa-satellite"></i> Awaiting Data...';
-            display.style.backgroundColor = 'var(--bg-hover)';
-            display.style.color = 'var(--text-muted)';
-            weatherBanner.style.display = 'none';
-            return;
-        }
-
-        valid.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
-        const latest = valid[0];
-        
-        display.innerHTML = `<i class="fa-solid fa-tower-broadcast fa-fade" style="margin-right: 5px;"></i> ACTIVE: ${latest.incidentCause} - SR#${latest.sitrepNo}`;
-        display.style.backgroundColor = 'var(--accent-orange)';
-        display.style.color = '#000';
-
-        if(latest.synopsis) {
-            weatherBanner.style.display = 'flex';
-            document.getElementById('synopsisText').innerText = latest.synopsis;
-            document.getElementById('synopsisSource').innerText = latest.infoSource || "Unknown Source";
+    // Toggle Lock / Unlock
+    lockBtn.addEventListener('click', () => {
+        if (!isLocked) {
+            if(!document.getElementById('ctx-cause').value || !document.getElementById('ctx-sitrep').value || !document.getElementById('ctx-synopsis').value) {
+                alert("Please fill out Incident Cause, SitRep #, and Weather Synopsis before locking."); return;
+            }
+            inputs.forEach(id => { 
+                const el = document.getElementById(id);
+                localStorage.setItem(id, el.value); 
+                el.disabled = true; 
+                // Specifically disable the visual flatpickr calendar input
+                if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true;
+            });
+            localStorage.setItem('sitrepContextLocked', 'true');
+            lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked'; lockBtn.classList.add('locked'); isLocked = true;
         } else {
-            weatherBanner.style.display = 'none';
+            inputs.forEach(id => { 
+                const el = document.getElementById(id);
+                el.disabled = false; 
+                // Specifically enable the visual flatpickr calendar input
+                if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = false;
+            });
+            localStorage.setItem('sitrepContextLocked', 'false');
+            lockBtn.innerHTML = '<i class="fa-solid fa-unlock"></i> Lock Context & Synopsis'; lockBtn.classList.remove('locked'); isLocked = false;
         }
-    }
-
-    function renderWeather() {
-        const tb = document.getElementById('weather-tbody'); tb.innerHTML = '';
-        const filtered = dbData.weather.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-blue);">${data.weatherCondition}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td><span class="badge bg-secondary">${data.source || 'LDRRMO'}</span></td>
-                <td>${formatNarrative(data.remarks)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderActions() {
-        const tb = document.getElementById('act-tbody'); tb.innerHTML = '';
-        const filtered = dbData.actions.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td><span class="badge bg-secondary">${data.category}</span></td><td>${formatNarrative(data.description)}</td><td>${formatActionTime(data.actionTime)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
-    }
-
-    function renderFloods() {
-        const tb = document.getElementById('flood-tbody'); tb.innerHTML = '';
-        const filtered = dbData.floods.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Still Flooded' || data.status === 'Rising') ? "bg-danger" : (data.status === 'Receding') ? "bg-warning" : "bg-success";
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td>${data.barangay}</td>
-                <td><span class="strong-text">${data.waterDepth_ft} ft</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatGPS(data.latitude, data.longitude)}</td>
-                <td><span class="badge ${badgeClass}">${data.status}</span></td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderEvacs() {
-        const tb = document.getElementById('evac-tbody'); tb.innerHTML = '';
-        const filtered = dbData.evacs.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Active') ? "bg-danger" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary";
-            let affFam = data.affectedFamilies || 0;
-            let affPax = data.affectedIndividuals || 0;
-            let servedFam = data.servedFamilies || 0;
-            let servedPax = data.servedIndividuals || 0;
-            let ecFamCum = data.insideEcFamiliesCum !== undefined ? data.insideEcFamiliesCum : (data.insideEcFamilies || 0);
-            let ecFamNow = data.insideEcFamiliesNow !== undefined ? data.insideEcFamiliesNow : (data.insideEcFamilies || 0);
-            let ecPaxCum = data.insideEcIndividualsCum !== undefined ? data.insideEcIndividualsCum : (data.insideEcIndividuals || data.individuals || 0);
-            let ecPaxNow = data.insideEcIndividualsNow !== undefined ? data.insideEcIndividualsNow : (data.insideEcIndividuals || data.individuals || 0);
-            let brgyCount = data.affectedBarangays || 0;
-            let ecCount = data.evacCenterCount || 0;
-
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-purple);">${brgyCount} Brgys</span></td>
-                <td><span class="strong-text" style="color: var(--accent-orange);">${ecCount} ECs</span></td>
-                <td><span class="strong-text">${affFam} Fam</span><span class="sub-text">${affPax} Persons</span></td>
-                <td><span class="strong-text" style="color: var(--accent-green);">${servedFam} Fam</span><span class="sub-text">${servedPax} Persons</span></td>
-                <td><span class="strong-text" style="color: var(--accent-blue);">${ecFamCum} | ${ecFamNow} Fam</span><span class="sub-text">${ecPaxCum} | ${ecPaxNow} Persons</span></td>
-                <td><span class="badge ${badgeClass}">${data.status || 'Unknown'}</span></td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderPreemptive() {
-        const tb = document.getElementById('preemptive-tbody'); tb.innerHTML = '';
-        const filtered = dbData.preemptives.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let brgyDisplay = data.barangayOrigin ? data.barangayOrigin : '<span class="sub-text">N/A</span>';
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text">${brgyDisplay}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveFamilies || 0}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveIndividuals || 0}</span></td>
-                <td>${formatNarrative(data.remarks)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderLifelines() {
-        const tb = document.getElementById('lifeline-tbody'); tb.innerHTML = '';
-        const filtered = dbData.lifelines.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = data.status.includes("Not Passable") || data.status.includes("Outage") ? "bg-danger" : "bg-success";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
-    }
-
-    function renderInfrastructure() {
-        const tb = document.getElementById('infra-tbody'); tb.innerHTML = '';
-        const filtered = dbData.infrastructure.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = data.status.includes("Damaged") || data.status.includes("Breached") ? "bg-danger" : data.status.includes("Repair") ? "bg-warning" : "bg-success";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
-    }
-
-    function renderCasualties() {
-        const tb = document.getElementById('cas-tbody'); tb.innerHTML = '';
-        const filtered = dbData.casualties.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.classification.includes("Dead")) ? "bg-secondary" : "bg-danger";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
-    }
-
-    function renderComplement() {
-        const tb = document.getElementById('complement-tbody'); tb.innerHTML = '';
-        const filtered = dbData.complements.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Checked-In') ? "bg-primary" : (data.status === 'Demobilized') ? "bg-secondary" : "bg-warning";
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.agency}</span></td>
-                <td><span class="strong-text">${data.personnel} Pax</span></td>
-                <td>${formatNarrative(data.assetDetails)}</td>
-                <td><span class="badge ${badgeClass}">${data.status}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderDeployed() {
-        const tb = document.getElementById('deployed-tbody'); tb.innerHTML = '';
-        const filtered = dbData.resources.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Deployed') ? "bg-primary" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary";
-            let pax = data.personnel !== undefined ? data.personnel : 0;
-            let gpsDiv = formatGPS(data.latitude, data.longitude) ? `<div style="margin-top:4px;">${formatGPS(data.latitude, data.longitude)}</div>` : ''; 
-            
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span><span class="sub-text">${data.barangay}</span>${gpsDiv}</td>
-                <td><span class="strong-text">${data.agency}</span><span class="sub-text">${data.quantity}x ${data.assetType} | ${pax} Pax</span></td>
-                <td><span class="badge ${badgeClass}">${data.status}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatNarrative(data.remarks)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderSuspensions() {
-        const tb = document.getElementById('sus-tbody'); tb.innerHTML = '';
-        const filtered = dbData.suspensions.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Suspended') ? "bg-danger" : "bg-success";
-            let remarksText = data.remarks ? data.remarks : '<span class="sub-text">N/A</span>';
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.coverage}</span></td><td>${data.type}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${remarksText}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
-    }
-
-    function renderAgri() {
-        const tb = document.getElementById('agri-tbody'); tb.innerHTML = '';
-        const filtered = dbData.agri.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let lguDisplay = data.lguCount || data.municipality || 0;
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${lguDisplay}</span></td>
-                <td><span class="strong-text" style="color:var(--accent-yellow);">${data.commodity}</span></td>
-                <td><span class="strong-text">${(data.farmersAffected || 0).toLocaleString()} Farmers</span></td>
-                <td>${(data.partialHa || 0).toFixed(2)} ha</td>
-                <td>${(data.totalHa || 0).toFixed(2)} ha</td>
-                <td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderResidential() {
-        const tb = document.getElementById('residential-tbody'); tb.innerHTML = '';
-        const filtered = dbData.residential.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = data.category.includes("Totally") ? "bg-danger" : "bg-warning";
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td>${data.barangay}</td>
-                <td><span class="badge ${badgeClass}">${data.category}</span></td>
-                <td><span class="strong-text" style="color:var(--accent-orange);">${(data.count || 0).toLocaleString()}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatNarrative(data.description)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderAssistance() {
-        const tb = document.getElementById('ast-tbody'); tb.innerHTML = '';
-        const filtered = dbData.assistance.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge bg-primary">${data.source}</span></td><td><span class="strong-text">${data.quantity}x</span> ${data.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
-    }
-
-    function renderIncidents() {
-        const tb = document.getElementById('inc-tbody'); tb.innerHTML = '';
-        const filtered = dbData.incidents.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-red);">${data.particulars}</span></td>
-                <td>${formatNarrative(data.actionsTaken)}</td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
-    }
-
-    function renderAll() {
-        renderWeather(); renderActions(); renderFloods(); renderEvacs(); renderPreemptive(); renderLifelines(); renderInfrastructure(); renderCasualties(); 
-        renderComplement(); renderDeployed(); 
-        renderSuspensions(); renderAgri(); renderResidential(); renderAssistance(); renderIncidents();
-        updateLatestSitrepIndicator(); 
-    }
-
-    document.getElementById('applyFilterBtn').addEventListener('click', () => {
-        activeCause = document.getElementById('filterCause').value.trim();
-        activeSitrep = document.getElementById('filterSitrep').value.trim();
-        activeMuni = document.getElementById('filterMuni').value;
-        activeSection = document.getElementById('filterSection').value;
-        activeKeyword = document.getElementById('filterKeyword').value.trim();
-        updateSectionVisibility(); renderAll();
     });
 
-    document.getElementById('clearFilterBtn').addEventListener('click', () => {
-        document.getElementById('filterCause').value = ""; 
-        document.getElementById('filterSitrep').value = "";
-        document.getElementById('filterKeyword').value = "";
-        tsSection.setValue("ALL"); tsMuni.setValue("ALL");
-        activeCause = ""; activeSitrep = ""; activeMuni = "ALL"; activeSection = "ALL"; activeKeyword = "";
-        updateSectionVisibility(); renderAll();
-    });
+    function getContextPayload() {
+        return {
+            incidentCause: document.getElementById('ctx-cause').value, sitrepNo: parseInt(document.getElementById('ctx-sitrep').value),
+            advisoryNo: parseInt(document.getElementById('ctx-advisory').value) || 0, asOfDate: document.getElementById('ctx-datetime').value, 
+            synopsis: document.getElementById('ctx-synopsis').value, infoSource: document.getElementById('ctx-source').value, timeMonitored: serverTimestamp() 
+        };
+    }
 
-    document.getElementById('exportCsvBtn').addEventListener('click', () => {
-        const filteredFloods = dbData.floods.filter(matchesFilter);
-        if(filteredFloods.length === 0) { alert("No flood data matches your current filter to export."); return; }
-        let csvContent = "IncidentCause,SitRepNo,Municipality,Barangay,WaterDepth_ft,Status,Latitude,Longitude,TimeMonitored\n";
-        filteredFloods.forEach((d) => {
-            const timeStr = d.timeMonitored ? d.timeMonitored.toDate().toISOString() : "";
-            csvContent += `"${d.incidentCause || ""}","${d.sitrepNo || ""}","${d.municipality}","${d.barangay}",${d.waterDepth_ft},"${d.status}",${d.latitude || ""},${d.longitude || ""},"${timeStr}"\n`;
+    document.querySelectorAll('.gps-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            const row = btn.closest('.gps-row'); const lat = row.querySelector('.lat-input'); const lng = row.querySelector('.lng-input');
+            const originalText = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching...'; lat.value = "Fetching..."; lng.value = "Fetching...";
+            if (navigator.geolocation) {
+                navigator.geolocation.getCurrentPosition(
+                    pos => { lat.value = pos.coords.latitude.toFixed(6); lng.value = pos.coords.longitude.toFixed(6); btn.innerHTML = originalText; },
+                    err => { console.warn("GPS Error:", err); lat.value = "Error"; lng.value = "Error"; btn.innerHTML = originalText; }, { enableHighAccuracy: true }
+                );
+            } else { alert("Geolocation is not supported by this browser."); btn.innerHTML = originalText; }
         });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-        link.download = `Tarlac_Filtered_Data_SitRep${activeSitrep || "All"}.csv`;
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
     });
 
-    onSnapshot(query(collection(db, "weather_conditions"), orderBy("timeMonitored", "desc")), (snap) => { dbData.weather = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "actions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.actions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "flooded_areas"), orderBy("timeMonitored", "desc")), (snap) => { dbData.floods = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "evacuation_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "preemptive_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.preemptives = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "complement_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.complements = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "lifeline_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.lifelines = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.infrastructure = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "casualties_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "resource_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.resources = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "suspensions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.suspensions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "agri_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.agri = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "residential_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.residential = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "assistance_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "related_incidents"), orderBy("timeMonitored", "desc")), (snap) => { dbData.incidents = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    async function handleSubmission(e, collectionName, dataCompiler) {
+        e.preventDefault(); const form = e.target; const successMsg = form.querySelector('.msg-success'); const errorMsg = form.querySelector('.msg-error'); const submitBtn = form.querySelector('.submit-btn');
+        if (!isLocked) { errorMsg.style.display = 'block'; setTimeout(() => errorMsg.style.display = 'none', 4000); return; }
+
+        try {
+            const originalBtnText = submitBtn.innerHTML; submitBtn.innerHTML = '<i class="fa-solid fa-circle-notch fa-spin"></i> Saving Record...'; submitBtn.disabled = true;
+            const coreData = dataCompiler(form);
+            if (collectionName === "evacuation_data" && coreData.validationFailed) {
+                submitBtn.innerHTML = originalBtnText; submitBtn.disabled = false;
+                alert("Please provide at least one count for Families or Persons."); return;
+            }
+            const contextData = getContextPayload(); const finalPayload = { ...coreData, ...contextData };
+            await addDoc(collection(db, collectionName), finalPayload);
+            submitBtn.innerHTML = originalBtnText; submitBtn.disabled = false; successMsg.style.display = 'block'; 
+            form.reset();
+            form.querySelectorAll('select, input').forEach(el => { if(el.tomselect) { el.tomselect.clear(); } if(el._flatpickr) { el._flatpickr.clear(); } });
+            setTimeout(() => successMsg.style.display = 'none', 3000);
+        } catch (error) { console.error("Submission failed: ", error); alert("Error saving record to the system."); submitBtn.disabled = false; }
+    }
+
+    document.getElementById('form-weather').addEventListener('submit', (e) => {
+        handleSubmission(e, "weather_conditions", (f) => ({ municipality: f.querySelector('.f-muni').value, weatherCondition: f.querySelector('.f-weather-cond').value, dateReported: f.querySelector('.f-weather-time').value, source: f.querySelector('.f-weather-source').value, remarks: f.querySelector('.f-weather-remarks').value }));
+    });
+
+    document.getElementById('form-actions').addEventListener('submit', (e) => {
+        handleSubmission(e, "actions_data", (f) => {
+            let agencyVal = f.querySelector('.f-action-agency').value;
+            if (agencyVal === 'LDRRMC') { const specificLgu = f.querySelector('.f-action-lgu').value; agencyVal = `LDRRMC - ${specificLgu}`; }
+            return { agency: agencyVal, actionTime: f.querySelector('.f-action-time').value, category: f.querySelector('.f-action-cat').value, description: f.querySelector('.f-action-desc').value };
+        });
+    });
+
+    document.getElementById('form-flood').addEventListener('submit', (e) => {
+        handleSubmission(e, "flooded_areas", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, waterDepth_ft: parseFloat(f.querySelector('.f-depth').value), status: f.querySelector('.f-status').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-flood-time').value }));
+    });
+
+    document.getElementById('form-evac').addEventListener('submit', (e) => {
+        handleSubmission(e, "evacuation_data", (f) => {
+            const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0;
+            const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0;
+            const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0;
+            const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0;
+            const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0;
+            const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0;
+            const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0;
+            const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0;
+
+            const totalInputCount = affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow;
+
+            return {
+                validationFailed: totalInputCount === 0, 
+                municipality: f.querySelector('.f-muni').value, 
+                affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value) || 0,
+                evacCenterCount: parseInt(f.querySelector('.f-ec-count').value) || 0,
+                status: f.querySelector('.f-status').value,
+                affectedFamilies: affFam, affectedIndividuals: affIndv,
+                servedFamilies: servedFam, servedIndividuals: servedIndv,
+                insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow,
+                insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow,
+                latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
+                dateReported: f.querySelector('.f-report-time').value
+            };
+        });
+    });
+
+    document.getElementById('form-preemptive').addEventListener('submit', (e) => {
+        handleSubmission(e, "preemptive_data", (f) => ({
+            municipality: f.querySelector('.f-muni').value, barangayOrigin: f.querySelector('.f-brgy').value, preEmptiveFamilies: parseInt(f.querySelector('.f-pre-fam').value) || 0, preEmptiveIndividuals: parseInt(f.querySelector('.f-pre-indv').value) || 0, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value
+        }));
+    });
+
+    document.getElementById('form-complement').addEventListener('submit', (e) => {
+        handleSubmission(e, "complement_data", (f) => ({
+            agency: f.querySelector('.f-agency').value, status: f.querySelector('.f-status').value, personnel: parseInt(f.querySelector('.f-personnel').value) || 0, assetDetails: f.querySelector('.f-asset-details').value, dateReported: f.querySelector('.f-report-time').value
+        }));
+    });
+
+    document.getElementById('form-deployed').addEventListener('submit', (e) => {
+        handleSubmission(e, "resource_data", (f) => {
+            const assetSelect = f.querySelector('.f-asset');
+            const selectedAssets = Array.from(assetSelect.selectedOptions).map(opt => opt.value).join(', ');
+            return { municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, agency: f.querySelector('.f-agency').value, assetType: selectedAssets, quantity: parseInt(f.querySelector('.f-qty').value), personnel: parseInt(f.querySelector('.f-personnel').value), status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value };
+        });
+    });
+
+    document.getElementById('form-lifelines').addEventListener('submit', (e) => {
+        handleSubmission(e, "lifeline_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
+    });
+
+    document.getElementById('form-infrastructure').addEventListener('submit', (e) => {
+        handleSubmission(e, "infrastructure_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
+    });
+
+    // UPDATED CASUALTIES FORM SUBMISSION
+    document.getElementById('form-casualties').addEventListener('submit', (e) => {
+        handleSubmission(e, "casualties_data", (f) => ({ 
+            municipality: f.querySelector('.f-muni').value, 
+            barangay: f.querySelector('.f-brgy').value, 
+            classification: f.querySelector('.f-class').value, 
+            count: parseInt(f.querySelector('.f-count').value), 
+            remarks: f.querySelector('.f-remarks').value, 
+            actionsTaken: f.querySelector('.f-action') ? f.querySelector('.f-action').value : "",
+            latitude: f.querySelector('.lat-input').value, 
+            longitude: f.querySelector('.lng-input').value, 
+            dateReported: f.querySelector('.f-report-time').value 
+        }));
+    });
+
+    document.getElementById('form-suspensions').addEventListener('submit', (e) => {
+        handleSubmission(e, "suspensions_data", (f) => {
+            const coverageSelect = f.querySelector('.f-coverage'); const selectedCoverages = Array.from(coverageSelect.selectedOptions).map(opt => opt.value).join(', ');
+            return { coverage: selectedCoverages, type: f.querySelector('.f-type').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value };
+        });
+    });
+
+    document.getElementById('form-agri').addEventListener('submit', (e) => {
+        handleSubmission(e, "agri_damages", (f) => ({
+            lguCount: parseInt(f.querySelector('.f-lgu-count').value) || 0,
+            commodity: f.querySelector('.f-commodity').value, 
+            farmersAffected: parseInt(f.querySelector('.f-farmers').value) || 0, 
+            partialHa: parseFloat(f.querySelector('.f-partial-ha').value) || 0.0, 
+            totalHa: parseFloat(f.querySelector('.f-total-ha').value) || 0.0, 
+            cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, 
+            dateReported: f.querySelector('.f-report-time').value
+        }));
+    });
+
+    document.getElementById('form-residential').addEventListener('submit', (e) => {
+        handleSubmission(e, "residential_damages", (f) => ({
+            municipality: f.querySelector('.f-muni').value, 
+            barangay: f.querySelector('.f-brgy').value, 
+            category: f.querySelector('.f-cat').value, 
+            count: parseInt(f.querySelector('.f-count').value) || 0, 
+            description: f.querySelector('.f-desc').value, 
+            latitude: f.querySelector('.lat-input').value, 
+            longitude: f.querySelector('.lng-input').value, 
+            dateReported: f.querySelector('.f-report-time').value
+        }));
+    });
+
+    document.getElementById('form-assistance').addEventListener('submit', (e) => {
+        handleSubmission(e, "assistance_data", (f) => ({ 
+            municipality: f.querySelector('.f-muni').value, 
+            barangay: f.querySelector('.f-brgy').value || "", 
+            source: f.querySelector('.f-source').value, 
+            reliefItem: f.querySelector('.f-relief').value, 
+            quantity: parseInt(f.querySelector('.f-qty').value), 
+            cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, 
+            remarks: f.querySelector('.f-remarks').value, 
+            dateReported: f.querySelector('.f-report-time').value 
+        }));
+    });
+
+    document.getElementById('form-incidents').addEventListener('submit', (e) => {
+        handleSubmission(e, "related_incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value, actionsTaken: f.querySelector('.f-action').value, dateReported: f.querySelector('.f-report-time').value }));
+    });
+
 </script>
 </body>
 </html>
