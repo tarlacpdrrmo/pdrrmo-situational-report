@@ -169,7 +169,7 @@
     const app = initializeApp(firebaseConfig);
     const db = initializeFirestore(app, { experimentalForceLongPolling: true });
 
-    const dbData = { floods: [], evacs: [], casualties: [], agri: [], residential: [], assistance: [], resources: [] };
+    const dbData = { floods: [], evacs: [], casualties: [], agri: [], infrastructure: [], residential: [], assistance: [], resources: [] };
 
     // Set global chart defaults for dark mode
     Chart.defaults.color = '#a0a0a0'; 
@@ -236,7 +236,7 @@
         options: { ...commonLineOptions, scales: { y: { beginAtZero: true, grid: { color: '#2e2e2e' }, ticks: { stepSize: 1 } }, x: { grid: { display: false } } } }
     });
 
-    // 4a. Economics Chart (Agri & Infra Damages)
+    // 4a. Economics Chart (Agri & Infra Damages - Dual Axis)
     const econCtx = document.getElementById('econChart').getContext('2d');
     const econChart = new Chart(econCtx, {
         type: 'line',
@@ -244,7 +244,8 @@
         options: { 
             ...commonLineOptions, 
             scales: { 
-                y: { type: 'linear', display: true, position: 'left', beginAtZero: true, grid: { color: '#2e2e2e' }, ticks: { callback: function(value){ return '₱' + (value/1000000).toFixed(1) + 'M'; } } },
+                y: { type: 'linear', display: true, position: 'left', beginAtZero: true, grid: { color: '#2e2e2e' }, title: { display: true, text: 'Agri (PHP)', color: '#a0a0a0', font: {size: 10} }, ticks: { callback: function(value){ return '₱' + (value/1000000).toFixed(1) + 'M'; } } },
+                y1: { type: 'linear', display: true, position: 'right', beginAtZero: true, grid: { display: false }, title: { display: true, text: 'Infra (Qty)', color: '#a0a0a0', font: {size: 10} }, ticks: { precision: 0, stepSize: 1 } },
                 x: { grid: { display: false } }
             } 
         }
@@ -314,7 +315,7 @@
     }
 
     function processTimelineData() {
-        const allDocs = [...dbData.floods, ...dbData.evacs, ...dbData.casualties, ...dbData.agri, ...dbData.residential, ...dbData.assistance, ...dbData.resources];
+        const allDocs = [...dbData.floods, ...dbData.evacs, ...dbData.casualties, ...dbData.agri, ...dbData.infrastructure, ...dbData.residential, ...dbData.assistance, ...dbData.resources];
         
         // 1. Gather & Sort Unique SitReps
         let uniqueSitreps = new Set();
@@ -334,7 +335,7 @@
             affPax: [], ecPax: [], 
             dead: [], missing: [], injured: [],
             activeFloods: [],
-            damagesAgri: [], damagesResCount: [], 
+            damagesAgri: [], damagesInfraCount: [], 
             cashAssistance: [], physicalItems: [],
             depPax: [], depAssets: []
         };
@@ -368,9 +369,14 @@
             dbData.agri.filter(d => Number(d.sitrepNo) === sr).forEach(d => s_agriDmg += (d.cost || 0));
             dataStore.damagesAgri.push(s_agriDmg);
 
-            let s_resDmg = 0;
-            dbData.residential.filter(d => Number(d.sitrepNo) === sr).forEach(d => s_resDmg += (d.count || 0));
-            dataStore.damagesResCount.push(s_resDmg);
+            let s_infraCount = 0;
+            dbData.infrastructure.filter(d => Number(d.sitrepNo) === sr).forEach(d => {
+                let stat = d.status || '';
+                if(stat.includes('Damaged') || stat.includes('Breached') || stat.includes('Collapsed') || stat.includes('Not Passable') || stat.includes('Repair')) {
+                    s_infraCount++;
+                }
+            });
+            dataStore.damagesInfraCount.push(s_infraCount);
 
             let s_cash = 0, s_physical = 0;
             dbData.assistance.filter(d => Number(d.sitrepNo) === sr).forEach(d => {
@@ -452,16 +458,18 @@
         ];
         floodChart.update();
 
-        // --- CHART 4a: ECONOMIC DAMAGES (Agri) ---
+        // --- CHART 4a: ECONOMIC DAMAGES (Agri & Infra) ---
         let agriFmt = applyPeakFormatting(dataStore.damagesAgri, '#ef4444', 'surge');
+        let infraFmt = applyPeakFormatting(dataStore.damagesInfraCount, '#fcd34d', 'surge');
         
-        let hasEcon = dataStore.damagesAgri.some(v=>v>0);
+        let hasEcon = dataStore.damagesAgri.some(v=>v>0) || dataStore.damagesInfraCount.some(v=>v>0);
         document.getElementById('econChart-empty').style.display = hasEcon ? 'none' : 'flex';
         document.getElementById('econChart').style.display = hasEcon ? 'block' : 'none';
 
         econChart.data.labels = labels;
         econChart.data.datasets = [
-            { label: 'Damages (PHP)', type: 'line', data: dataStore.damagesAgri, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: agriFmt.radius, pointBackgroundColor: agriFmt.bg, pointBorderColor: agriFmt.border, pointBorderWidth: 2, customPeakNotes: agriFmt.notes }
+            { label: 'Agri Damages (PHP)', type: 'line', yAxisID: 'y', data: dataStore.damagesAgri, borderColor: '#ef4444', backgroundColor: 'rgba(239, 68, 68, 0.15)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: agriFmt.radius, pointHoverRadius: agriFmt.hoverRadius, pointBackgroundColor: agriFmt.bg, pointBorderColor: agriFmt.border, pointBorderWidth: 2, customPeakNotes: agriFmt.notes },
+            { label: 'Damaged Infra (Qty)', type: 'line', yAxisID: 'y1', data: dataStore.damagesInfraCount, borderColor: '#fcd34d', backgroundColor: 'rgba(252, 211, 77, 0.15)', borderWidth: 2, fill: true, tension: 0.3, pointRadius: infraFmt.radius, pointHoverRadius: infraFmt.hoverRadius, pointBackgroundColor: infraFmt.bg, pointBorderColor: infraFmt.border, pointBorderWidth: 2, customPeakNotes: infraFmt.notes }
         ];
         econChart.update();
 
@@ -502,6 +510,7 @@
     onSnapshot(query(collection(db, "evacuation_data")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
     onSnapshot(query(collection(db, "casualties_data")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
     onSnapshot(query(collection(db, "agri_damages")), (snap) => { dbData.agri = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
+    onSnapshot(query(collection(db, "infrastructure_data")), (snap) => { dbData.infrastructure = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
     onSnapshot(query(collection(db, "residential_damages")), (snap) => { dbData.residential = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
     onSnapshot(query(collection(db, "assistance_data")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
     onSnapshot(query(collection(db, "resource_data")), (snap) => { dbData.resources = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true && d.sitrepNo); processTimelineData(); });
