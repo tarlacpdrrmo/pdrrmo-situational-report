@@ -461,41 +461,70 @@
         if (Array.from(munisSet).includes(currentVal)) { ts.setValue(currentVal, true); } else { ts.setValue('ALL', true); }
     }
 
-    Chart.defaults.color = '#a0a0a0'; Chart.defaults.font.family = 'Inter'; Chart.defaults.plugins.tooltip.backgroundColor = '#181818'; Chart.defaults.plugins.tooltip.titleColor = '#ffffff'; Chart.defaults.plugins.tooltip.borderColor = '#2e2e2e'; Chart.defaults.plugins.tooltip.borderWidth = 1;
+    Chart.defaults.color = '#a0a0a0'; Chart.defaults.font.family = 'Inter'; 
     Chart.register(ChartDataLabels);
 
-    const barLegendConfig = { display: true, position: 'bottom', align: 'start', labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 15, font: { size: 11 } } };
+    const globalBarTooltip = {
+        backgroundColor: '#181818',
+        titleColor: '#ffffff',
+        borderColor: '#2e2e2e',
+        borderWidth: 1,
+        callbacks: {
+            label: function(context) {
+                let label = context.dataset.fullLabel || context.dataset.label || '';
+                if (label) { label += ': '; }
+                if (context.parsed.y !== null) { label += context.parsed.y.toLocaleString(); }
+                return label;
+            }
+        }
+    };
+
+    const fixedLegendConfig = { 
+        display: true, 
+        position: 'bottom', 
+        align: 'start', 
+        labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 10, font: { size: 10 } } 
+    };
+
+    const dynamicLegendConfig = { 
+        display: true, 
+        position: 'right', 
+        align: 'center', 
+        labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 10, font: { size: 10 } } 
+    };
+    
     const noDataLabels = { datalabels: { display: false } };
 
+    // FIXED: Unstacked Affected vs Evacuated chart so small numbers are visible
     const evacCtx = document.getElementById('evacChart').getContext('2d');
     const evacChart = new Chart(evacCtx, { 
         type: 'bar', 
-        data: { labels: [], datasets: [
-            { label: 'Affected (Indv)', data: [], backgroundColor: '#ff8c00', borderRadius: 4 }, 
-            { label: 'Served (Indv)', data: [], backgroundColor: '#10b981', borderRadius: 4 },
-            { label: 'Inside ECs (Indv)', data: [], backgroundColor: '#3b82f6', borderRadius: 4 }
-        ] }, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }
+        data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: false, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: false, grid: { display: false } } }, plugins: { legend: fixedLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }
     });
     
     const preemptiveCtx = document.getElementById('preemptiveChart').getContext('2d');
     const preemptiveChart = new Chart(preemptiveCtx, { 
         type: 'bar', 
-        data: { labels: [], datasets: [{ label: 'Pre-emptive (Indv)', data: [], backgroundColor: '#14b8a6', borderRadius: 4 }]}, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }
+        data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: fixedLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }
     });
 
     const resDamCtx = document.getElementById('residentialChart').getContext('2d');
-    const residentialChart = new Chart(resDamCtx, { type: 'bar', data: { labels: [], datasets: [{ label: 'Damaged Units', data: [], backgroundColor: '#ef4444', borderRadius: 4 }]}, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    const residentialChart = new Chart(resDamCtx, { 
+        type: 'bar', 
+        data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: fixedLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }
+    });
     
     const itemsCtx = document.getElementById('itemsChart').getContext('2d');
-    const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: barLegendConfig, datalabels: { display: false }, tooltip: { callbacks: { label: function(context) { let label = context.dataset.fullLabel || context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += context.parsed.y; } return label; } } } } }});
+    const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: dynamicLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }});
     
     const casCtx = document.getElementById('casChart').getContext('2d');
-    const casChart = new Chart(casCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { grid: { display: false } } }, plugins: { legend: barLegendConfig, ...noDataLabels } }});
+    const casChart = new Chart(casCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: fixedLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }});
     
     const resCtx = document.getElementById('resChart').getContext('2d');
-    const resChart = new Chart(resCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: barLegendConfig, datalabels: { display: false }, tooltip: { callbacks: { label: function(context) { let label = context.dataset.fullLabel || context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += context.parsed.y; } return label; } } } } }});
+    const resChart = new Chart(resCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: dynamicLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }});
 
     function createCircularChart(ctx, type) {
         return new Chart(ctx, { 
@@ -504,8 +533,7 @@
             options: { 
                 responsive: true, maintainAspectRatio: false, cutout: type==='doughnut'?'70%':'0%', 
                 plugins: { 
-                    legend: { position: 'bottom', align: 'start', labels: { color: '#a0a0a0', padding: 15, usePointStyle: true, font: {size: 11} } },
-                    
+                    legend: { position: 'bottom', align: 'start', labels: { color: '#a0a0a0', padding: 10, usePointStyle: true, boxWidth: 8, font: {size: 10} } },
                     datalabels: { 
                         color: '#ffffff', 
                         font: { weight: 'bold', size: 12 }, 
@@ -516,7 +544,8 @@
                             let percentage = (value * 100 / sum);
                             return (value > 0 && percentage > 5) ? value : ''; 
                         } 
-                    }
+                    },
+                    tooltip: { backgroundColor: '#181818', titleColor: '#ffffff', borderColor: '#2e2e2e', borderWidth: 1 }
                 },
                 onClick: (e, elements) => {
                     if (elements.length > 0) {
@@ -900,9 +929,9 @@
 
         casChart.data.labels = Object.keys(cMap);
         casChart.data.datasets = [
-            { label: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4 },
-            { label: 'Missing', data: Object.values(cMap).map(v => v['Missing']), backgroundColor: '#fcd34d', borderRadius: 4 },
-            { label: 'Injured', data: Object.values(cMap).map(v => v['Injured']), backgroundColor: '#3b82f6', borderRadius: 4 }
+            { label: 'Dead', fullLabel: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4 },
+            { label: 'Missing', fullLabel: 'Missing', data: Object.values(cMap).map(v => v['Missing']), backgroundColor: '#fcd34d', borderRadius: 4 },
+            { label: 'Injured', fullLabel: 'Injured', data: Object.values(cMap).map(v => v['Injured']), backgroundColor: '#3b82f6', borderRadius: 4 }
         ]; casChart.update();
     }
     
@@ -910,19 +939,39 @@
         if(!tsInstances['items-muni-filter']) return;
         let sel = tsInstances['items-muni-filter'].getValue() || 'ALL'; 
         let iMap = {}; let itms = new Set(); let munis = new Set();
+        
         filterBySitrep(dbData.assistance).forEach(d => {
-            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            if(d.municipality) munis.add(d.municipality); 
+            if (sel !== 'ALL' && d.municipality !== sel) return;
+            
             let loc = sel === 'ALL' ? d.municipality : d.barangay; 
-            let item = d.reliefItem || 'Other'; 
+            
+            let baseItem = d.reliefItem || 'Other'; 
+            let source = d.source || 'Unknown Source';
+            let item = `${baseItem} (${source})`;
+
             let qty = d.quantity || 0;
-            if(!iMap[loc]) iMap[loc] = {}; if(!iMap[loc][item]) iMap[loc][item] = 0; iMap[loc][item] += qty; itms.add(item);
+            let cost = d.cost || 0;
+            
+            if (baseItem.toLowerCase().includes('financial') || baseItem.toLowerCase().includes('cash') || baseItem.toLowerCase().includes('aics') || baseItem.toLowerCase().includes('peso')) {
+                if (cost === 0 && qty > 0) cost = qty;
+            }
+            
+            if(!iMap[loc]) iMap[loc] = {}; 
+            if(!iMap[loc][item]) iMap[loc][item] = 0; 
+            iMap[loc][item] += qty; 
+            itms.add(item);
         });
         
         syncTomSelect('items-muni-filter', munis);
         
-        itemsChart.data.labels = Object.keys(iMap); let cols = ['#14b8a6', '#fcd34d', '#3b82f6', '#8b5cf6', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
+        itemsChart.data.labels = Object.keys(iMap); 
+        let cols = ['#14b8a6', '#fcd34d', '#3b82f6', '#8b5cf6', '#ff8c00', '#ef4444']; 
+        let arrs = []; let idx = 0;
+        
         Array.from(itms).forEach(itm => { 
-            let dArr = []; Object.keys(iMap).forEach(loc => dArr.push(iMap[loc][itm] || 0)); 
+            let dArr = []; 
+            Object.keys(iMap).forEach(loc => dArr.push(iMap[loc][itm] || 0)); 
             
             let shortLabel = itm.length > 25 ? itm.substring(0, 25) + '...' : itm;
             arrs.push({ label: shortLabel, fullLabel: itm, data: dArr, backgroundColor: cols[idx % cols.length] }); 
@@ -944,41 +993,54 @@
             if(d.municipality) munis.add(d.municipality); 
             if (sel !== 'ALL' && d.municipality !== sel) return;
             let loc = sel === 'ALL' ? d.municipality : d.barangayOrigin || d.municipality;
-            if(!preMap[loc]) preMap[loc] = 0;
-            preMap[loc] += (d.preEmptiveIndividuals || 0);
+            if(!preMap[loc]) preMap[loc] = { indv: 0, fam: 0 };
+            preMap[loc].indv += (d.preEmptiveIndividuals || 0);
+            preMap[loc].fam += (d.preEmptiveFamilies || 0);
         });
         
         syncTomSelect('preemptive-muni-filter', munis);
         
-        let dataValues = Object.values(preMap);
-        let hasData = dataValues.some(v => v > 0);
+        let hasData = Object.values(preMap).some(v => v.indv > 0 || v.fam > 0);
         document.getElementById('preemptiveChart-empty').style.display = hasData ? 'none' : 'flex';
         document.getElementById('preemptiveChart').style.display = hasData ? 'block' : 'none';
 
         preemptiveChart.data.labels = Object.keys(preMap);
-        preemptiveChart.data.datasets[0].data = dataValues;
+        preemptiveChart.data.datasets = [
+            { label: 'Individuals', fullLabel: 'Pre-Emptive (Individuals)', data: Object.values(preMap).map(v=>v.indv), backgroundColor: '#14b8a6', borderRadius: 4 },
+            { label: 'Families', fullLabel: 'Pre-Emptive (Families)', data: Object.values(preMap).map(v=>v.fam), backgroundColor: '#8b5cf6', borderRadius: 4 }
+        ];
         preemptiveChart.update();
     }
 
     function updateResidentialChart() {
         if(!tsInstances['res-dam-muni-filter']) return;
         let sel = tsInstances['res-dam-muni-filter'].getValue() || 'ALL'; 
-        let resDamMap = {}; let munis = new Set();
+        let resDamMap = {}; let cats = new Set(); let munis = new Set();
         filterBySitrep(dbData.residential).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
             let loc = sel === 'ALL' ? d.municipality : d.barangay;
-            if(!resDamMap[loc]) resDamMap[loc] = 0;
-            resDamMap[loc] += (d.count || 0);
+            let cat = d.category || 'Unknown';
+            if(!resDamMap[loc]) resDamMap[loc] = {};
+            if(!resDamMap[loc][cat]) resDamMap[loc][cat] = 0;
+            resDamMap[loc][cat] += (d.count || 0);
+            cats.add(cat);
         });
         syncTomSelect('res-dam-muni-filter', munis);
         
-        let dataValues = Object.values(resDamMap);
-        let hasData = dataValues.some(v => v > 0);
+        residentialChart.data.labels = Object.keys(resDamMap); 
+        let cols = ['#ef4444', '#fcd34d', '#ff8c00', '#3b82f6']; let arrs = []; let idx = 0;
+        Array.from(cats).forEach(cat => { 
+            let dArr = []; Object.keys(resDamMap).forEach(loc => dArr.push(resDamMap[loc][cat] || 0)); 
+            let shortLabel = cat.length > 25 ? cat.substring(0, 25) + '...' : cat;
+            arrs.push({ label: shortLabel, fullLabel: cat, data: dArr, backgroundColor: cols[idx % cols.length] }); 
+            idx++; 
+        });
+
+        let hasData = arrs.some(dataset => dataset.data.some(v => v > 0));
         document.getElementById('residentialChart-empty').style.display = hasData ? 'none' : 'flex';
         document.getElementById('residentialChart').style.display = hasData ? 'block' : 'none';
 
-        residentialChart.data.labels = Object.keys(resDamMap);
-        residentialChart.data.datasets[0].data = dataValues;
+        residentialChart.data.datasets = arrs;
         residentialChart.update();
     }
 
@@ -1136,10 +1198,13 @@
         document.getElementById('evacChart-empty').style.display = evacHasData ? 'none' : 'flex';
         document.getElementById('evacChart').style.display = evacHasData ? 'block' : 'none';
 
+        // Add Full labels for tooltips
         evacChart.data.labels = Object.keys(evacMap);
-        evacChart.data.datasets[0].data = Object.values(evacMap).map(v => v.aff);
-        evacChart.data.datasets[1].data = Object.values(evacMap).map(v => v.served);
-        evacChart.data.datasets[2].data = Object.values(evacMap).map(v => v.ec);
+        evacChart.data.datasets = [
+            { label: 'Affected', fullLabel: 'Affected (Individuals)', data: Object.values(evacMap).map(v => v.aff), backgroundColor: '#ff8c00', borderRadius: 4 },
+            { label: 'Served', fullLabel: 'Served (Individuals)', data: Object.values(evacMap).map(v => v.served), backgroundColor: '#10b981', borderRadius: 4 },
+            { label: 'Inside ECs', fullLabel: 'Inside ECs (Individuals)', data: Object.values(evacMap).map(v => v.ec), backgroundColor: '#3b82f6', borderRadius: 4 }
+        ];
         evacChart.update();
 
         let feedHtml = '';
