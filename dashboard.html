@@ -21,13 +21,32 @@
 
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
         
+        /* GLOBAL LOADER OVERLAY */
+        .global-loader { position: fixed; top: 0; left: 260px; right: 0; bottom: 0; background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
+        .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
+        .loader-text { color: var(--text-main); font-size: 14px; font-weight: 600; letter-spacing: 1px; animation: pulseText 1.5s ease-in-out infinite; }
+        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes pulseText { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+
+        /* NARRATIVE MODAL OVERLAY */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.75); backdrop-filter: blur(5px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; width: 90%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5); transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); }
+        .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--border-subtle); background: rgba(255,255,255,0.02); border-radius: 12px 12px 0 0;}
+        .modal-header h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .modal-close { background: rgba(255,255,255,0.05); border: 1px solid var(--border-subtle); color: var(--text-muted); font-size: 16px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; }
+        .modal-close:hover { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.3);}
+        .modal-body { padding: 25px; overflow-y: auto; color: #e2e8f0; font-size: 14px; line-height: 1.7; white-space: pre-wrap; }
+        .modal-body::-webkit-scrollbar { width: 6px; }
+        .modal-body::-webkit-scrollbar-track { background: transparent; }
+        .modal-body::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 10px; }
+
         .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
         .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
         .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
         
-        .dashboard-link { 
-            display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;
-        }
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent; }
         .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
         .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
         .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
@@ -35,7 +54,7 @@
         .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--accent-orange); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(255, 140, 0, 0.2); }
         .active-tab i { color: var(--accent-orange); transform: scale(1.1); }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
+        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; position: relative; }
         
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;}
         .header-left { display: flex; align-items: center; gap: 15px;}
@@ -97,10 +116,9 @@
         tr:last-child td { border-bottom: none; }
         tr:hover { background-color: rgba(255, 255, 255, 0.02); }
         
-        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.3s ease; white-space: pre-wrap; font-size: 12px; color: var(--text-main); }
-        .truncate-box.expanded { -webkit-line-clamp: unset; }
-        .read-more-btn { background: none; border: none; padding: 0; color: var(--accent-orange); font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 5px; text-transform: uppercase; transition: 0.2s;}
-        .read-more-btn:hover { color: var(--accent-green); text-decoration: underline; }
+        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; font-size: 12px; color: var(--text-main); line-height: 1.5;}
+        .read-more-btn { background: rgba(255, 140, 0, 0.1); border: 1px solid rgba(255, 140, 0, 0.2); border-radius: 6px; padding: 6px 12px; color: var(--accent-orange); font-size: 10px; font-weight: 700; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: inline-flex; align-items: center;}
+        .read-more-btn:hover { background: var(--accent-orange); color: #000; box-shadow: 0 4px 10px rgba(255, 140, 0, 0.3);}
 
         .strong-text { font-weight: 600; color: white; display: block; }
         .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
@@ -125,7 +143,7 @@
        <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
         <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
         
-       <div style="margin-top: 10px;">
+        <div style="margin-top: 10px;">
             <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
             <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
             <a href="dashboard.html" class="dashboard-link active-tab"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
@@ -136,6 +154,25 @@
 
         <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
         <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
+    </div>
+
+    <!-- GLOBAL LOADER OVERLAY -->
+    <div id="global-loader" class="global-loader">
+        <div class="loader-spinner"></div>
+        <div class="loader-text">SYNCING LIVE DATABASE...</div>
+    </div>
+
+    <!-- NARRATIVE READING MODAL -->
+    <div class="modal-overlay" id="narrativeModal" onclick="closeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-lines" style="color: var(--accent-orange);"></i> Detailed Narrative</h3>
+                <button class="modal-close" onclick="closeNarrativeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                Loading details...
+            </div>
+        </div>
     </div>
 
     <div class="main-content">
@@ -344,11 +381,12 @@
                 </table>
             </div>
 
+            <!-- UPDATED SUSPENSIONS TABLE (4 Columns with Type) -->
             <h2 class="section-title"><i class="fa-solid fa-school"></i> 6. Class & Work Suspensions</h2>
             <div class="table-container" id="sec-sus">
                 <table style="table-layout: auto;">
-                    <thead><tr><th>Coverage Area</th><th>Suspension Type</th><th>Status</th><th>Reported Date/Time</th><th style="width: 25%;">Remarks / Details</th><th>Report Info</th></tr></thead>
-                    <tbody id="sus-tbody"><tr><td colspan="6" class="empty-state">Loading data...</td></tr></tbody>
+                    <thead><tr><th style="width: 20%;">Coverage Area</th><th style="width: 15%;">Type</th><th style="width: 45%;">Suspension Details / Narrative</th><th>Report Info</th></tr></thead>
+                    <tbody id="sus-tbody"><tr><td colspan="4" class="empty-state">Loading data...</td></tr></tbody>
                 </table>
             </div>
 
@@ -435,45 +473,65 @@
 
     const dbData = { weather: [], floods: [], evacs: [], preemptives: [], complements: [], lifelines: [], infrastructure: [], casualties: [], resources: [], suspensions: [], agri: [], residential: [], assistance: [], actions: [], incidents: [] };
     
-    let activeCause = "";
-    let activeSitrep = "";
-    let activeMuni = "ALL";
-    let activeSection = "ALL";
-    let activeKeyword = "";
+    let activeCause = ""; let activeSitrep = ""; let activeMuni = "ALL"; let activeSection = "ALL"; let activeKeyword = "";
+    let renderTimeout = null; 
 
-    window.toggleText = function(btn) {
-        const box = btn.previousElementSibling;
-        box.classList.toggle('expanded');
-        btn.innerHTML = box.classList.contains('expanded') ? 'See less details' : 'See more details';
+    function debouncedRenderAll() {
+        if (renderTimeout) clearTimeout(renderTimeout);
+        renderTimeout = setTimeout(() => {
+            renderAll();
+        }, 800);
+    }
+
+    // MODAL LOGIC ENGINE
+    window.openNarrativeModal = function(btn) {
+        const hiddenText = btn.previousElementSibling.innerHTML;
+        document.getElementById('modalBodyContent').innerHTML = hiddenText;
+        const modal = document.getElementById('narrativeModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
     };
 
+    window.closeNarrativeModal = function() {
+        const modal = document.getElementById('narrativeModal');
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300); 
+    };
+
+    window.closeModal = function(e) {
+        if(e.target.id === 'narrativeModal') closeNarrativeModal();
+    };
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') closeNarrativeModal();
+    });
+
+    // ATLAS: ULTIMATE PDF CLEANER UTILITY (Fixes squished numbers & protects lists)
     function formatNarrative(text) {
         if (!text) return '<span class="sub-text">N/A</span>';
-        if (text.length < 80) return `<div class="truncate-box expanded">${text}</div>`;
+        
+        // 0. Pre-Scrubber: Fix squished PDF numbers (e.g., "10.Deployed" -> "10. Deployed")
+        let cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+
+        // 1. Force a line break before bullet points (➤, •, ●, ❖) OR numbered/lettered lists
+        cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
+        
+        // 2. Remove single line breaks, BUT ignore lines starting with bullets, numbers, or letters
+        cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
+
+        if (cleanedText.length < 80) return `<div class="truncate-box expanded">${cleanedText}</div>`;
         return `
-            <div class="truncate-box">${text}</div>
-            <button class="read-more-btn" onclick="toggleText(this)">See more details</button>
+            <div class="truncate-box">${cleanedText}</div>
+            <div class="full-text-hidden" style="display:none;">${cleanedText}</div>
+            <button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-up-right-and-down-left-from-center" style="margin-right:4px;"></i>Read Full Narrative</button>
         `;
     }
 
     function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
-    
-    function formatActionTime(dateString) { 
-        if(!dateString) return `<span class="sub-text">N/A</span>`;
-        const d = new Date(dateString);
-        return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`;
-    }
-    
+    function formatActionTime(dateString) { if(!dateString) return `<span class="sub-text">N/A</span>`; const d = new Date(dateString); return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`; }
     function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount); }
-    
     function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text">${lat}, ${lng}</span>` : ``; }
-    
-    function buildTag(cause, sr) { 
-        if(!cause && !sr) return "";
-        let text = cause || "Unknown Incident";
-        if(sr) text += ` - SR#${sr}`;
-        return `<br><span class="sitrep-tag">${text}</span>`;
-    }
+    function buildTag(cause, sr) { if(!cause && !sr) return ""; let text = cause || "Unknown Incident"; if(sr) text += ` - SR#${sr}`; return `<br><span class="sitrep-tag">${text}</span>`; }
 
     function matchesFilter(data) {
         const matchCause = activeCause === "" || (data.incidentCause && data.incidentCause.toLowerCase().includes(activeCause.toLowerCase()));
@@ -481,366 +539,181 @@
         let loc = data.municipality || data.coverage || data.agency || "";
         const matchMuni = activeMuni === "ALL" || loc.includes(activeMuni);
         let matchKeyword = true;
-        if (activeKeyword !== "") {
-            const dataStr = JSON.stringify(data).toLowerCase();
-            matchKeyword = dataStr.includes(activeKeyword.toLowerCase());
-        }
+        if (activeKeyword !== "") { const dataStr = JSON.stringify(data).toLowerCase(); matchKeyword = dataStr.includes(activeKeyword.toLowerCase()); }
         return matchCause && matchSitrep && matchMuni && matchKeyword;
     }
 
     function updateSectionVisibility() {
-        const sections = [
-            { id: "sec-weather", icon: "fa-cloud-sun-rain" },
-            { id: "sec-actions", icon: "fa-clipboard-list" },
-            { id: "sec-flood", icon: "fa-water" },
-            { id: "sec-evac", icon: "fa-users-rays" },
-            { id: "sec-preemptive", icon: "fa-person-walking-arrow-right" },
-            { id: "sec-lifeline", icon: "fa-bolt" },
-            { id: "sec-infra", icon: "fa-building-shield" },
-            { id: "sec-cas", icon: "fa-truck-medical" },
-            { id: "sec-complement", icon: "fa-clipboard-user" },
-            { id: "sec-deployed", icon: "fa-truck-fast" },
-            { id: "sec-sus", icon: "fa-school" },
-            { id: "sec-agri", icon: "fa-wheat-awn" },
-            { id: "sec-residential", icon: "fa-house-chimney-crack" },
-            { id: "sec-ast", icon: "fa-hand-holding-hand" },
-            { id: "sec-inc", icon: "fa-triangle-exclamation" }
-        ];
-
+        const sections = [ { id: "sec-weather", icon: "fa-cloud-sun-rain" }, { id: "sec-actions", icon: "fa-clipboard-list" }, { id: "sec-flood", icon: "fa-water" }, { id: "sec-evac", icon: "fa-users-rays" }, { id: "sec-preemptive", icon: "fa-person-walking-arrow-right" }, { id: "sec-lifeline", icon: "fa-bolt" }, { id: "sec-infra", icon: "fa-building-shield" }, { id: "sec-cas", icon: "fa-truck-medical" }, { id: "sec-complement", icon: "fa-clipboard-user" }, { id: "sec-deployed", icon: "fa-truck-fast" }, { id: "sec-sus", icon: "fa-school" }, { id: "sec-agri", icon: "fa-wheat-awn" }, { id: "sec-residential", icon: "fa-house-chimney-crack" }, { id: "sec-ast", icon: "fa-hand-holding-hand" }, { id: "sec-inc", icon: "fa-triangle-exclamation" } ];
         document.querySelectorAll('.section-title').forEach(header => {
-            const container = header.nextElementSibling;
-            let show = activeSection === "ALL";
-            
-            if (!show) {
-                const target = sections.find(s => s.id === activeSection);
-                if (target && header.querySelector(`.${target.icon}`)) show = true;
-            }
-
+            const container = header.nextElementSibling; let show = activeSection === "ALL";
+            if (!show) { const target = sections.find(s => s.id === activeSection); if (target && header.querySelector(`.${target.icon}`)) show = true; }
             header.style.display = show ? "flex" : "none";
-            if(container && container.classList.contains('table-container')) {
-                container.style.display = show ? "block" : "none";
-            }
+            if(container && container.classList.contains('table-container')) { container.style.display = show ? "block" : "none"; }
         });
     }
 
     function updateLatestSitrepIndicator() {
         const allData = [...dbData.weather, ...dbData.floods, ...dbData.evacs, ...dbData.preemptives, ...dbData.complements, ...dbData.lifelines, ...dbData.infrastructure, ...dbData.casualties, ...dbData.resources, ...dbData.suspensions, ...dbData.agri, ...dbData.residential, ...dbData.assistance, ...dbData.actions, ...dbData.incidents];
         const valid = allData.filter(d => d.timeMonitored && d.sitrepNo);
-        const display = document.getElementById('latestSitrepDisplay');
-        const weatherBanner = document.getElementById('weatherBanner');
-        
-        if(valid.length === 0) {
-            display.innerHTML = '<i class="fa-solid fa-satellite"></i> Awaiting Data...';
-            display.style.backgroundColor = 'var(--bg-hover)';
-            display.style.color = 'var(--text-muted)';
-            weatherBanner.style.display = 'none';
-            return;
-        }
-
-        valid.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
-        const latest = valid[0];
-        
-        display.innerHTML = `<i class="fa-solid fa-tower-broadcast fa-fade" style="margin-right: 5px;"></i> ACTIVE: ${latest.incidentCause} - SR#${latest.sitrepNo}`;
-        display.style.backgroundColor = 'var(--accent-orange)';
-        display.style.color = '#000';
-
-        if(latest.synopsis) {
-            weatherBanner.style.display = 'flex';
-            document.getElementById('synopsisText').innerText = latest.synopsis;
-            document.getElementById('synopsisSource').innerText = latest.infoSource || "Unknown Source";
-        } else {
-            weatherBanner.style.display = 'none';
-        }
+        const display = document.getElementById('latestSitrepDisplay'); const weatherBanner = document.getElementById('weatherBanner');
+        if(valid.length === 0) { display.innerHTML = '<i class="fa-solid fa-satellite"></i> Awaiting Data...'; display.style.backgroundColor = 'var(--bg-hover)'; display.style.color = 'var(--text-muted)'; weatherBanner.style.display = 'none'; return; }
+        valid.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis()); const latest = valid[0];
+        display.innerHTML = `<i class="fa-solid fa-tower-broadcast fa-fade" style="margin-right: 5px;"></i> ACTIVE: ${latest.incidentCause} - SR#${latest.sitrepNo}`; display.style.backgroundColor = 'var(--accent-orange)'; display.style.color = '#000';
+        if(latest.synopsis) { weatherBanner.style.display = 'flex'; document.getElementById('synopsisText').innerText = latest.synopsis; document.getElementById('synopsisSource').innerText = latest.infoSource || "Unknown Source"; } else { weatherBanner.style.display = 'none'; }
     }
 
     function renderWeather() {
-        const tb = document.getElementById('weather-tbody'); tb.innerHTML = '';
-        const filtered = dbData.weather.filter(matchesFilter);
+        const tb = document.getElementById('weather-tbody'); tb.innerHTML = ''; const filtered = dbData.weather.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-blue);">${data.weatherCondition}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td><span class="badge bg-secondary">${data.source || 'LDRRMO'}</span></td>
-                <td>${formatNarrative(data.remarks)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${data.weatherCondition}</span></td><td>${formatActionTime(data.dateReported)}</td><td><span class="badge bg-secondary">${data.source || 'LDRRMO'}</span></td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderActions() {
-        const tb = document.getElementById('act-tbody'); tb.innerHTML = '';
-        const filtered = dbData.actions.filter(matchesFilter);
+        const tb = document.getElementById('act-tbody'); tb.innerHTML = ''; const filtered = dbData.actions.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td><span class="badge bg-secondary">${data.category}</span></td><td>${formatNarrative(data.description)}</td><td>${formatActionTime(data.actionTime)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
+        filtered.forEach(data => { let catDisplay = (data.category && data.category !== "General Action") ? `<span class="badge bg-secondary">${data.category}</span>` : `<span class="sub-text">N/A</span>`; tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td>${catDisplay}</td><td>${formatNarrative(data.description)}</td><td>${formatActionTime(data.actionTime)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderFloods() {
-        const tb = document.getElementById('flood-tbody'); tb.innerHTML = '';
-        const filtered = dbData.floods.filter(matchesFilter);
+        const tb = document.getElementById('flood-tbody'); tb.innerHTML = ''; const filtered = dbData.floods.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Still Flooded' || data.status === 'Rising') ? "bg-danger" : (data.status === 'Receding') ? "bg-warning" : "bg-success";
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td>${data.barangay}</td>
-                <td><span class="strong-text">${data.waterDepth_ft} ft</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatGPS(data.latitude, data.longitude)}</td>
-                <td><span class="badge ${badgeClass}">${data.status}</span></td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = (data.status === 'Still Flooded' || data.status === 'Rising') ? "bg-danger" : (data.status === 'Receding') ? "bg-warning" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="strong-text">${data.waterDepth_ft} ft</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderEvacs() {
-        const tb = document.getElementById('evac-tbody'); tb.innerHTML = '';
-        const filtered = dbData.evacs.filter(matchesFilter);
+        const tb = document.getElementById('evac-tbody'); tb.innerHTML = ''; const filtered = dbData.evacs.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Active') ? "bg-danger" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary";
-            let affFam = data.affectedFamilies || 0;
-            let affPax = data.affectedIndividuals || 0;
-            let servedFam = data.servedFamilies || 0;
-            let servedPax = data.servedIndividuals || 0;
-            let ecFamCum = data.insideEcFamiliesCum !== undefined ? data.insideEcFamiliesCum : (data.insideEcFamilies || 0);
-            let ecFamNow = data.insideEcFamiliesNow !== undefined ? data.insideEcFamiliesNow : (data.insideEcFamilies || 0);
-            let ecPaxCum = data.insideEcIndividualsCum !== undefined ? data.insideEcIndividualsCum : (data.insideEcIndividuals || data.individuals || 0);
-            let ecPaxNow = data.insideEcIndividualsNow !== undefined ? data.insideEcIndividualsNow : (data.insideEcIndividuals || data.individuals || 0);
-            let brgyCount = data.affectedBarangays || 0;
-            let ecCount = data.evacCenterCount || 0;
-
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-purple);">${brgyCount} Brgys</span></td>
-                <td><span class="strong-text" style="color: var(--accent-orange);">${ecCount} ECs</span></td>
-                <td><span class="strong-text">${affFam} Fam</span><span class="sub-text">${affPax} Persons</span></td>
-                <td><span class="strong-text" style="color: var(--accent-green);">${servedFam} Fam</span><span class="sub-text">${servedPax} Persons</span></td>
-                <td><span class="strong-text" style="color: var(--accent-blue);">${ecFamCum} | ${ecFamNow} Fam</span><span class="sub-text">${ecPaxCum} | ${ecPaxNow} Persons</span></td>
-                <td><span class="badge ${badgeClass}">${data.status || 'Unknown'}</span></td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = (data.status === 'Active') ? "bg-danger" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary"; let affFam = data.affectedFamilies || 0; let affPax = data.affectedIndividuals || 0; let servedFam = data.servedFamilies || 0; let servedPax = data.servedIndividuals || 0; let ecFamCum = data.insideEcFamiliesCum !== undefined ? data.insideEcFamiliesCum : (data.insideEcFamilies || 0); let ecFamNow = data.insideEcFamiliesNow !== undefined ? data.insideEcFamiliesNow : (data.insideEcFamilies || 0); let ecPaxCum = data.insideEcIndividualsCum !== undefined ? data.insideEcIndividualsCum : (data.insideEcIndividuals || data.individuals || 0); let ecPaxNow = data.insideEcIndividualsNow !== undefined ? data.insideEcIndividualsNow : (data.insideEcIndividuals || data.individuals || 0); let brgyCount = data.affectedBarangays || 0; let ecCount = data.evacCenterCount || 0; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-purple);">${brgyCount} Brgys</span></td><td><span class="strong-text" style="color: var(--accent-orange);">${ecCount} ECs</span></td><td><span class="strong-text">${affFam} Fam</span><span class="sub-text">${affPax} Persons</span></td><td><span class="strong-text" style="color: var(--accent-green);">${servedFam} Fam</span><span class="sub-text">${servedPax} Persons</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${ecFamCum} | ${ecFamNow} Fam</span><span class="sub-text">${ecPaxCum} | ${ecPaxNow} Persons</span></td><td><span class="badge ${badgeClass}">${data.status || 'Unknown'}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderPreemptive() {
-        const tb = document.getElementById('preemptive-tbody'); tb.innerHTML = '';
-        const filtered = dbData.preemptives.filter(matchesFilter);
+        const tb = document.getElementById('preemptive-tbody'); tb.innerHTML = ''; const filtered = dbData.preemptives.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let brgyDisplay = data.barangayOrigin ? data.barangayOrigin : '<span class="sub-text">N/A</span>';
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text">${brgyDisplay}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveFamilies || 0}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveIndividuals || 0}</span></td>
-                <td>${formatNarrative(data.remarks)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let brgyDisplay = data.barangayOrigin ? data.barangayOrigin : '<span class="sub-text">N/A</span>'; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text">${brgyDisplay}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveFamilies || 0}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveIndividuals || 0}</span></td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderLifelines() {
-        const tb = document.getElementById('lifeline-tbody'); tb.innerHTML = '';
-        const filtered = dbData.lifelines.filter(matchesFilter);
+        const tb = document.getElementById('lifeline-tbody'); tb.innerHTML = ''; const filtered = dbData.lifelines.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = data.status.includes("Not Passable") || data.status.includes("Outage") ? "bg-danger" : "bg-success";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = data.status.includes("Not Passable") || data.status.includes("Outage") ? "bg-danger" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderInfrastructure() {
-        const tb = document.getElementById('infra-tbody'); tb.innerHTML = '';
-        const filtered = dbData.infrastructure.filter(matchesFilter);
+        const tb = document.getElementById('infra-tbody'); tb.innerHTML = ''; const filtered = dbData.infrastructure.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = data.status.includes("Damaged") || data.status.includes("Breached") ? "bg-danger" : data.status.includes("Repair") ? "bg-warning" : "bg-success";
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = data.status.includes("Damaged") || data.status.includes("Breached") ? "bg-danger" : data.status.includes("Repair") ? "bg-warning" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderCasualties() {
-        const tb = document.getElementById('cas-tbody'); tb.innerHTML = '';
-        const filtered = dbData.casualties.filter(matchesFilter);
+        const tb = document.getElementById('cas-tbody'); tb.innerHTML = ''; const filtered = dbData.casualties.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.classification.includes("Dead")) ? "bg-secondary" : "bg-danger";
-            
-            let narrative = data.remarks || '';
-            if (data.actionsTaken) {
-                narrative += `<br><br><span style="color:var(--accent-green); font-size:10px; font-weight:700; text-transform:uppercase;">Actions Taken:</span><br>${data.actionsTaken}`;
-            }
-
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(narrative)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = (data.classification.includes("Dead")) ? "bg-secondary" : "bg-danger"; let narrative = data.remarks || ''; if (data.actionsTaken) { narrative += `<br><br><span style="color:var(--accent-green); font-size:10px; font-weight:700; text-transform:uppercase;">Actions Taken:</span><br>${data.actionsTaken}`; } tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(narrative)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderComplement() {
-        const tb = document.getElementById('complement-tbody'); tb.innerHTML = '';
-        const filtered = dbData.complements.filter(matchesFilter);
+        const tb = document.getElementById('complement-tbody'); tb.innerHTML = ''; const filtered = dbData.complements.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Checked-In') ? "bg-primary" : (data.status === 'Demobilized') ? "bg-secondary" : "bg-warning";
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.agency}</span></td>
-                <td><span class="strong-text">${data.personnel} Pax</span></td>
-                <td>${formatNarrative(data.assetDetails)}</td>
-                <td><span class="badge ${badgeClass}">${data.status}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = (data.status === 'Checked-In') ? "bg-primary" : (data.status === 'Demobilized') ? "bg-secondary" : "bg-warning"; tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td><span class="strong-text">${data.personnel} Pax</span></td><td>${formatNarrative(data.assetDetails)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderDeployed() {
-        const tb = document.getElementById('deployed-tbody'); tb.innerHTML = '';
-        const filtered = dbData.resources.filter(matchesFilter);
+        const tb = document.getElementById('deployed-tbody'); tb.innerHTML = ''; const filtered = dbData.resources.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Deployed') ? "bg-primary" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary";
-            let pax = data.personnel !== undefined ? data.personnel : 0;
-            let gpsDiv = formatGPS(data.latitude, data.longitude) ? `<div style="margin-top:4px;">${formatGPS(data.latitude, data.longitude)}</div>` : ''; 
-            
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span><span class="sub-text">${data.barangay}</span>${gpsDiv}</td>
-                <td><span class="strong-text">${data.agency}</span><span class="sub-text">${data.quantity}x ${data.assetType} | ${pax} Pax</span></td>
-                <td><span class="badge ${badgeClass}">${data.status}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatNarrative(data.remarks)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = (data.status === 'Deployed') ? "bg-primary" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary"; let pax = data.personnel !== undefined ? data.personnel : 0; let gpsDiv = formatGPS(data.latitude, data.longitude) ? `<div style="margin-top:4px;">${formatGPS(data.latitude, data.longitude)}</div>` : ''; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span><span class="sub-text">${data.barangay}</span>${gpsDiv}</td><td><span class="strong-text">${data.agency}</span><span class="sub-text">${data.quantity}x ${data.assetType} | ${pax} Pax</span></td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
+    // UPDATED SUSPENSIONS RENDERER (Includes Type Badges)
     function renderSuspensions() {
-        const tb = document.getElementById('sus-tbody'); tb.innerHTML = '';
-        const filtered = dbData.suspensions.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Suspended') ? "bg-danger" : "bg-success";
-            let remarksText = data.remarks ? data.remarks : '<span class="sub-text">N/A</span>';
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.coverage}</span></td><td>${data.type}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${remarksText}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
+        const tb = document.getElementById('sus-tbody'); tb.innerHTML = ''; const filtered = dbData.suspensions.filter(matchesFilter);
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching data found.</td></tr>'; return; }
+        filtered.forEach(data => { 
+            let typeBadge = '';
+            if(data.type && data.type.includes('Classes') && data.type.includes('Work')) typeBadge = '<span class="badge bg-danger"><i class="fa-solid fa-school" style="margin-right:4px;"></i> Classes & Work</span>';
+            else if(data.type && data.type.includes('Classes')) typeBadge = '<span class="badge bg-warning"><i class="fa-solid fa-school" style="margin-right:4px;"></i> Classes</span>';
+            else if(data.type && data.type.includes('Work')) typeBadge = '<span class="badge bg-primary"><i class="fa-solid fa-briefcase" style="margin-right:4px;"></i> Work</span>';
+            else typeBadge = `<span class="badge bg-secondary">${data.type || 'N/A'}</span>`;
+
+            tb.innerHTML += `<tr>
+                <td><span class="strong-text">${data.coverage}</span></td>
+                <td>${typeBadge}</td>
+                <td>${formatNarrative(data.remarks)}</td>
+                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
+            </tr>`; 
         });
     }
 
     function renderAgri() {
-        const tb = document.getElementById('agri-tbody'); tb.innerHTML = '';
-        const filtered = dbData.agri.filter(matchesFilter);
+        const tb = document.getElementById('agri-tbody'); tb.innerHTML = ''; const filtered = dbData.agri.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let lguDisplay = data.lguCount || data.municipality || 0;
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${lguDisplay}</span></td>
-                <td><span class="strong-text" style="color:var(--accent-yellow);">${data.commodity}</span></td>
-                <td><span class="strong-text">${(data.farmersAffected || 0).toLocaleString()} Farmers</span></td>
-                <td>${(data.partialHa || 0).toFixed(2)} ha</td>
-                <td>${(data.totalHa || 0).toFixed(2)} ha</td>
-                <td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let lguDisplay = data.lguCount || data.municipality || 0; tb.innerHTML += `<tr><td><span class="strong-text">${lguDisplay}</span></td><td><span class="strong-text" style="color:var(--accent-yellow);">${data.commodity}</span></td><td><span class="strong-text">${(data.farmersAffected || 0).toLocaleString()} Farmers</span></td><td>${(data.partialHa || 0).toFixed(2)} ha</td><td>${(data.totalHa || 0).toFixed(2)} ha</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderResidential() {
-        const tb = document.getElementById('residential-tbody'); tb.innerHTML = '';
-        const filtered = dbData.residential.filter(matchesFilter);
+        const tb = document.getElementById('residential-tbody'); tb.innerHTML = ''; const filtered = dbData.residential.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = data.category.includes("Totally") ? "bg-danger" : "bg-warning";
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td>${data.barangay}</td>
-                <td><span class="badge ${badgeClass}">${data.category}</span></td>
-                <td><span class="strong-text" style="color:var(--accent-orange);">${(data.count || 0).toLocaleString()}</span></td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatNarrative(data.description)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = data.category.includes("Totally") ? "bg-danger" : "bg-warning"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(data.count || 0).toLocaleString()}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.description)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderAssistance() {
-        const tb = document.getElementById('ast-tbody'); tb.innerHTML = '';
-        const filtered = dbData.assistance.filter(matchesFilter);
+        const tb = document.getElementById('ast-tbody'); tb.innerHTML = ''; const filtered = dbData.assistance.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge bg-primary">${data.source}</span></td><td><span class="strong-text">${data.quantity}x</span> ${data.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
+        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge bg-primary">${data.source}</span></td><td><span class="strong-text">${data.quantity}x</span> ${data.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderIncidents() {
-        const tb = document.getElementById('inc-tbody'); tb.innerHTML = '';
-        const filtered = dbData.incidents.filter(matchesFilter);
+        const tb = document.getElementById('inc-tbody'); tb.innerHTML = ''; const filtered = dbData.incidents.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            tb.innerHTML += `<tr>
-                <td><span class="strong-text">${data.municipality}</span></td>
-                <td><span class="strong-text" style="color: var(--accent-red);">${data.particulars}</span></td>
-                <td>${formatNarrative(data.actionsTaken)}</td>
-                <td>${formatActionTime(data.dateReported)}</td>
-                <td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td>
-            </tr>`;
-        });
+        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-red);">${data.particulars}</span></td><td>${formatNarrative(data.actionsTaken)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderAll() {
         renderWeather(); renderActions(); renderFloods(); renderEvacs(); renderPreemptive(); renderLifelines(); renderInfrastructure(); renderCasualties(); 
-        renderComplement(); renderDeployed(); 
-        renderSuspensions(); renderAgri(); renderResidential(); renderAssistance(); renderIncidents();
+        renderComplement(); renderDeployed(); renderSuspensions(); renderAgri(); renderResidential(); renderAssistance(); renderIncidents();
         updateLatestSitrepIndicator(); 
+        
+        // FADE OUT LOADER
+        const loader = document.getElementById('global-loader');
+        if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.style.display = 'none', 500);
+        }
     }
 
     document.getElementById('applyFilterBtn').addEventListener('click', () => {
-        activeCause = document.getElementById('filterCause').value.trim();
-        activeSitrep = document.getElementById('filterSitrep').value.trim();
-        activeMuni = document.getElementById('filterMuni').value;
-        activeSection = document.getElementById('filterSection').value;
-        activeKeyword = document.getElementById('filterKeyword').value.trim();
-        updateSectionVisibility(); renderAll();
+        activeCause = document.getElementById('filterCause').value.trim(); activeSitrep = document.getElementById('filterSitrep').value.trim(); activeMuni = document.getElementById('filterMuni').value; activeSection = document.getElementById('filterSection').value; activeKeyword = document.getElementById('filterKeyword').value.trim();
+        updateSectionVisibility(); renderAll(); 
     });
 
     document.getElementById('clearFilterBtn').addEventListener('click', () => {
-        document.getElementById('filterCause').value = ""; 
-        document.getElementById('filterSitrep').value = "";
-        document.getElementById('filterKeyword').value = "";
-        tsSection.setValue("ALL"); tsMuni.setValue("ALL");
+        document.getElementById('filterCause').value = ""; document.getElementById('filterSitrep').value = ""; document.getElementById('filterKeyword').value = ""; tsSection.setValue("ALL"); tsMuni.setValue("ALL");
         activeCause = ""; activeSitrep = ""; activeMuni = "ALL"; activeSection = "ALL"; activeKeyword = "";
-        updateSectionVisibility(); renderAll();
+        updateSectionVisibility(); renderAll(); 
     });
 
     document.getElementById('exportCsvBtn').addEventListener('click', () => {
         const filteredFloods = dbData.floods.filter(matchesFilter);
         if(filteredFloods.length === 0) { alert("No flood data matches your current filter to export."); return; }
         let csvContent = "IncidentCause,SitRepNo,Municipality,Barangay,WaterDepth_ft,Status,Latitude,Longitude,TimeMonitored\n";
-        filteredFloods.forEach((d) => {
-            const timeStr = d.timeMonitored ? d.timeMonitored.toDate().toISOString() : "";
-            csvContent += `"${d.incidentCause || ""}","${d.sitrepNo || ""}","${d.municipality}","${d.barangay}",${d.waterDepth_ft},"${d.status}",${d.latitude || ""},${d.longitude || ""},"${timeStr}"\n`;
-        });
-        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
-        const link = document.createElement("a"); link.href = URL.createObjectURL(blob);
-        link.download = `Tarlac_Filtered_Data_SitRep${activeSitrep || "All"}.csv`;
-        document.body.appendChild(link); link.click(); document.body.removeChild(link);
+        filteredFloods.forEach((d) => { const timeStr = d.timeMonitored ? d.timeMonitored.toDate().toISOString() : ""; csvContent += `"${d.incidentCause || ""}","${d.sitrepNo || ""}","${d.municipality}","${d.barangay}",${d.waterDepth_ft},"${d.status}",${d.latitude || ""},${d.longitude || ""},"${timeStr}"\n`; });
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' }); const link = document.createElement("a"); link.href = URL.createObjectURL(blob); link.download = `Tarlac_Filtered_Data_SitRep${activeSitrep || "All"}.csv`; document.body.appendChild(link); link.click(); document.body.removeChild(link);
     });
 
-    onSnapshot(query(collection(db, "weather_conditions"), orderBy("timeMonitored", "desc")), (snap) => { dbData.weather = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "actions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.actions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "flooded_areas"), orderBy("timeMonitored", "desc")), (snap) => { dbData.floods = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "evacuation_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "preemptive_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.preemptives = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "complement_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.complements = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "lifeline_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.lifelines = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.infrastructure = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "casualties_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "resource_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.resources = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "suspensions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.suspensions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "agri_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.agri = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "residential_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.residential = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "assistance_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
-    onSnapshot(query(collection(db, "related_incidents"), orderBy("timeMonitored", "desc")), (snap) => { dbData.incidents = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); renderAll(); });
+    onSnapshot(query(collection(db, "weather_conditions"), orderBy("timeMonitored", "desc")), (snap) => { dbData.weather = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "actions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.actions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "flooded_areas"), orderBy("timeMonitored", "desc")), (snap) => { dbData.floods = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "evacuation_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.evacs = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "preemptive_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.preemptives = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "complement_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.complements = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "lifeline_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.lifelines = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.infrastructure = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "casualties_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.casualties = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "resource_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.resources = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "suspensions_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.suspensions = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "agri_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.agri = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "residential_damages"), orderBy("timeMonitored", "desc")), (snap) => { dbData.residential = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "assistance_data"), orderBy("timeMonitored", "desc")), (snap) => { dbData.assistance = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
+    onSnapshot(query(collection(db, "related_incidents"), orderBy("timeMonitored", "desc")), (snap) => { dbData.incidents = snap.docs.map(d => d.data()).filter(d => d.isArchived !== true); debouncedRenderAll(); });
 </script>
 </body>
 </html>
