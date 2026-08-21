@@ -41,6 +41,12 @@
         .form-section h2 { font-size: 18px; margin-bottom: 25px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px;}
         .context-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end; }
         .form-group { display: flex; flex-direction: column; margin-bottom: 15px; width: 100%;}
+        
+        /* MAGIC UI ELEMENTS */
+        .flex-label { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px; font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.3px; text-transform: uppercase;}
+        .magic-btn { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
+        .magic-btn:hover { background: var(--accent-purple); color: #fff; }
+
         label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.3px;}
         input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance: none; margin: 0; }
         input[type=number] { -moz-appearance: textfield; }
@@ -216,10 +222,13 @@
                 <div class="row">
                     <div class="col form-group"><label>Acting Council / Agency</label><select class="f-action-agency" required placeholder="Type or Select Council..."><option value=""></option></select></div>
                     <div class="col form-group" id="ldrmmc-lgu-group" style="display: none;"><label>Specific LGU / Province</label><select class="f-action-lgu" placeholder="Select Municipality/City..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Date & Time of Action</label><input type="datetime-local" class="f-action-time" required></div>
+                    <div class="col form-group" id="action-time-group"><label>Date & Time of Action</label><input type="datetime-local" class="f-action-time" required></div>
                 </div>
-                <div class="form-group"><label>Action Category</label><select class="f-action-cat" required placeholder="Select Category..."><option value=""></option><option value="Meetings / PDRA">Meetings / PDRA</option><option value="Issuance of Advisories/Memos">Issuance of Advisories / Memos</option><option value="Pre-emptive Evacuation">Pre-emptive Evacuation</option><option value="Resource Pre-positioning">Resource Pre-positioning</option><option value="Clearing Operations">Clearing Operations</option><option value="Relief Distribution">Relief Distribution Ops</option><option value="Other Operations">Other Operations</option></select></div>
-                <div class="form-group"><label>Narrative / Details</label><textarea class="f-action-desc" rows="4" placeholder="e.g., Convened Pre-Disaster Risk Assessment (PDRA) Core Group to discuss proactive measures..." required></textarea></div>
+                <div class="form-group" id="action-cat-group"><label>Action Category</label><select class="f-action-cat" required placeholder="Select Category..."><option value=""></option><option value="Meetings / PDRA">Meetings / PDRA</option><option value="Issuance of Advisories/Memos">Issuance of Advisories / Memos</option><option value="Pre-emptive Evacuation">Pre-emptive Evacuation</option><option value="Resource Pre-positioning">Resource Pre-positioning</option><option value="Clearing Operations">Clearing Operations</option><option value="Relief Distribution">Relief Distribution Ops</option><option value="Other Operations">Other Operations</option></select></div>
+                <div class="form-group">
+                    <label class="flex-label">Narrative / Details <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label>
+                    <textarea class="f-action-desc" rows="4" placeholder="e.g., Convened Pre-Disaster Risk Assessment (PDRA) Core Group to discuss proactive measures..." required></textarea>
+                </div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Actions Report</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
@@ -447,14 +456,13 @@
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
                 
-                <!-- NEW UI: Redesigned Casualties input to match official narrative format -->
                 <div class="row">
                     <div class="col form-group">
-                        <label>Particulars / Narrative</label>
+                        <label class="flex-label">Particulars / Narrative <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label>
                         <textarea class="f-remarks" rows="2" placeholder="e.g., Aug 13, 01:00PM Missing 55 year old man from Sitio Palang... swept by floodwaters" required></textarea>
                     </div>
                     <div class="col form-group">
-                        <label>Actions Taken</label>
+                        <label class="flex-label">Actions Taken <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label>
                         <textarea class="f-action" rows="2" placeholder="e.g., Search and Rescue (SAR) operations conducted by PDRRMO..."></textarea>
                     </div>
                 </div>
@@ -478,13 +486,22 @@
                         <label>Coverage Area</label>
                         <select class="f-coverage" multiple required placeholder="Select Multiple Areas..."><option value=""></option></select>
                     </div>
-                    <div class="col form-group"><label>Suspension Type</label><select class="f-type" required placeholder="Select Type..."><option value=""></option><option value="Classes Only (All Levels)">Classes Only (All Levels)</option><option value="Work Only (Govt & Private)">Work Only (Govt & Private)</option><option value="Classes and Work">Both Classes and Work</option></select></div>
+                    <div class="col form-group">
+                        <label>Suspension Type</label>
+                        <select class="f-type" required placeholder="Select Suspension Type...">
+                            <option value=""></option>
+                            <option value="Classes (All Levels)">Classes (All Levels)</option>
+                            <option value="Classes (Selected Levels)">Classes (Selected Levels)</option>
+                            <option value="Work (Government)">Work (Government)</option>
+                            <option value="Work (Public & Private)">Work (Public & Private)</option>
+                            <option value="Classes and Work">Classes & Work</option>
+                        </select>
+                    </div>
                 </div>
-                <div class="row">
-                    <div class="col form-group"><label>Status</label><select class="f-status" required placeholder="Select Status..."><option value=""></option><option value="Suspended">Suspended</option><option value="Lifted/Resumed">Lifted / Resumed</option></select></div>
-                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                <div class="form-group">
+                    <label class="flex-label">Suspension Details / Narrative <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label>
+                    <textarea class="f-remarks" rows="5" placeholder="e.g., Paste the full suspension text or Executive Order details here..." required></textarea>
                 </div>
-                <div class="form-group"><label>Remarks / Issuance Details</label><input type="text" class="f-remarks" placeholder="e.g., Declared via EO No. 15 s. 2026"></div>
                 <button type="submit" class="submit-btn" style="margin-top: 20px;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Suspensions Report</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
@@ -575,7 +592,10 @@
                     <div class="col form-group"><label>Particulars / Hazard</label><input type="text" class="f-hazard" placeholder="e.g. Felled Tree, Broken Dike" required></div>
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
-                <div class="form-group"><label>Actions Taken</label><textarea class="f-action" rows="3" placeholder="What was done to mitigate this hazard?" required></textarea></div>
+                <div class="form-group">
+                    <label class="flex-label">Actions Taken <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label>
+                    <textarea class="f-action" rows="3" placeholder="What was done to mitigate this hazard?" required></textarea>
+                </div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Incident Report</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
@@ -614,6 +634,41 @@
         signOut(auth).then(() => { window.location.href = "index.html"; }); 
     };
 
+    // ATLAS: THE MAGIC BUTTON LOGIC
+    window.applyMagicClean = function(btn) {
+        const group = btn.closest('.form-group');
+        const textarea = group.querySelector('textarea');
+        if (!textarea || !textarea.value) return;
+
+        let text = textarea.value;
+        
+        // 0. Pre-Scrubber: Fix squished PDF numbers (e.g., "10.Deployed" -> "10. Deployed")
+        let cleaned = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+        
+        // 1. Force a line break before bullet points (➤, •, ●, ❖) OR numbered/lettered lists
+        cleaned = cleaned.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
+        
+        // 2. Remove single line breaks, BUT ignore lines starting with bullets, numbers, or letters
+        cleaned = cleaned.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
+
+        textarea.value = cleaned;
+
+        // UI Feedback Animation
+        const originalHTML = btn.innerHTML;
+        btn.innerHTML = '<i class="fa-solid fa-check"></i> Cleaned!';
+        btn.style.background = 'var(--accent-green)';
+        btn.style.color = '#000';
+        btn.style.borderColor = 'var(--accent-green)';
+        
+        setTimeout(() => {
+            btn.innerHTML = originalHTML;
+            btn.style.background = '';
+            btn.style.color = '';
+            btn.style.borderColor = '';
+        }, 1500);
+    };
+
+
     const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
     document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|' }); });
 
@@ -630,9 +685,32 @@
             create: true,
             delimiter: '|',
             onChange: function(value) {
-                const lguGroup = document.getElementById('ldrmmc-lgu-group'); const lguInput = document.querySelector('.f-action-lgu');
-                if (value === 'LDRRMC') { lguGroup.style.display = 'flex'; lguInput.setAttribute('required', 'required'); } 
-                else { lguGroup.style.display = 'none'; lguInput.removeAttribute('required'); if (lguInput.tomselect) lguInput.tomselect.clear(); }
+                const lguGroup = document.getElementById('ldrmmc-lgu-group'); 
+                const lguInput = document.querySelector('.f-action-lgu');
+                const timeGroup = document.getElementById('action-time-group'); 
+                const timeInput = document.querySelector('.f-action-time');
+                const catGroup = document.getElementById('action-cat-group'); 
+                const catInput = document.querySelector('.f-action-cat');
+
+                if (value === 'LDRRMC' || value === '') { 
+                    lguGroup.style.display = value === 'LDRRMC' ? 'flex' : 'none'; 
+                    if (value === 'LDRRMC') { lguInput.setAttribute('required', 'required'); } else { lguInput.removeAttribute('required'); }
+                    timeGroup.style.display = 'flex'; 
+                    timeInput.setAttribute('required', 'required');
+                    catGroup.style.display = 'flex'; 
+                    catInput.setAttribute('required', 'required');
+                } else { 
+                    lguGroup.style.display = 'none'; 
+                    lguInput.removeAttribute('required'); 
+                    if (lguInput.tomselect) lguInput.tomselect.clear(); 
+                    timeGroup.style.display = 'none'; 
+                    timeInput.removeAttribute('required');
+                    timeInput.value = ''; 
+                    if(timeInput._flatpickr) timeInput._flatpickr.clear();
+                    catGroup.style.display = 'none'; 
+                    catInput.removeAttribute('required'); 
+                    if (catInput.tomselect) catInput.tomselect.clear();
+                }
             }
         });
     });
@@ -653,7 +731,6 @@
     document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
     document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|' }); });
 
-    // FLATPICKR ENGINE INITIALIZATION
     flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K", time_24hr: false, minuteIncrement: 1, monthSelectorType: "dropdown", prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`, nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`, position: "auto" });
 
     window.openTab = function(tabId) {
@@ -663,34 +740,28 @@
         event.currentTarget.classList.add('active');
     };
 
-    // SECURE CONTEXT LOCK & LOCAL STORAGE ENGINE
     const lockBtn = document.getElementById('lockCtxBtn');
     const inputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-synopsis', 'ctx-source'];
     let isLocked = false;
 
-    // Load saved context data if user accidentally refreshed the page
     inputs.forEach(id => {
         const el = document.getElementById(id);
         const savedVal = localStorage.getItem(id);
         if(savedVal) {
             el.value = savedVal;
-            // Force Flatpickr to read the saved data
             if(el._flatpickr) el._flatpickr.setDate(savedVal);
         }
     });
 
-    // Re-lock the UI if it was previously locked
     if(localStorage.getItem('sitrepContextLocked') === 'true') {
         inputs.forEach(id => { 
             const el = document.getElementById(id);
             el.disabled = true; 
-            // Specifically disable the visual flatpickr calendar input
             if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true;
         });
         lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked'; lockBtn.classList.add('locked'); isLocked = true;
     }
 
-    // Toggle Lock / Unlock
     lockBtn.addEventListener('click', () => {
         if (!isLocked) {
             if(!document.getElementById('ctx-cause').value || !document.getElementById('ctx-sitrep').value || !document.getElementById('ctx-synopsis').value) {
@@ -700,7 +771,6 @@
                 const el = document.getElementById(id);
                 localStorage.setItem(id, el.value); 
                 el.disabled = true; 
-                // Specifically disable the visual flatpickr calendar input
                 if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true;
             });
             localStorage.setItem('sitrepContextLocked', 'true');
@@ -709,7 +779,6 @@
             inputs.forEach(id => { 
                 const el = document.getElementById(id);
                 el.disabled = false; 
-                // Specifically enable the visual flatpickr calendar input
                 if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = false;
             });
             localStorage.setItem('sitrepContextLocked', 'false');
@@ -759,15 +828,57 @@
     }
 
     document.getElementById('form-weather').addEventListener('submit', (e) => {
-        handleSubmission(e, "weather_conditions", (f) => ({ municipality: f.querySelector('.f-muni').value, weatherCondition: f.querySelector('.f-weather-cond').value, dateReported: f.querySelector('.f-weather-time').value, source: f.querySelector('.f-weather-source').value, remarks: f.querySelector('.f-weather-remarks').value }));
+        handleSubmission(e, "weather_conditions", (f) => ({ municipality: f.querySelector('.f-muni').value, weatherCondition: f.querySelector('.f-weather-cond').value, dateReported: f.querySelector('.f-weather-time').value, source: f.querySelector('.f-weather-source').value, remarks: f.querySelector('.f-weather-remarks').value.trim() }));
     });
 
-    document.getElementById('form-actions').addEventListener('submit', (e) => {
-        handleSubmission(e, "actions_data", (f) => {
-            let agencyVal = f.querySelector('.f-action-agency').value;
-            if (agencyVal === 'LDRRMC') { const specificLgu = f.querySelector('.f-action-lgu').value; agencyVal = `LDRRMC - ${specificLgu}`; }
-            return { agency: agencyVal, actionTime: f.querySelector('.f-action-time').value, category: f.querySelector('.f-action-cat').value, description: f.querySelector('.f-action-desc').value };
-        });
+    document.getElementById('form-actions').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target;
+        const successMsg = form.querySelector('.msg-success');
+        const errorMsg = form.querySelector('.msg-error');
+        const submitBtn = form.querySelector('.submit-btn');
+
+        if (!isLocked) { errorMsg.style.display = 'block'; setTimeout(() => errorMsg.style.display = 'none', 4000); return; }
+
+        let agencyVal = form.querySelector('.f-action-agency').value;
+        if (agencyVal === 'LDRRMC') { 
+            const specificLgu = form.querySelector('.f-action-lgu').value; 
+            agencyVal = `LDRRMC - ${specificLgu}`; 
+        }
+        
+        const dateStr = form.querySelector('.f-action-time').value || "";
+        const category = form.querySelector('.f-action-cat').value || "General Action";
+        
+        const narrativeBox = form.querySelector('.f-action-desc');
+        const narrative = narrativeBox.value.trim();
+        const contextData = getContextPayload();
+
+        if (!agencyVal || !narrative) {
+            alert("Agency and Narrative are required!"); return;
+        }
+
+        try {
+            const originalText = submitBtn.innerHTML;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
+            submitBtn.style.opacity = '0.7'; submitBtn.disabled = true;
+
+            const finalPayload = { agency: agencyVal, actionTime: dateStr, category: category, description: narrative, ...contextData };
+            await addDoc(collection(db, "actions_data"), finalPayload);
+
+            narrativeBox.value = '';
+            narrativeBox.focus();
+
+            submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved! Ready for next...';
+            submitBtn.style.backgroundColor = '#10b981'; submitBtn.style.color = '#fff';
+            
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText; submitBtn.style.backgroundColor = ''; submitBtn.style.color = ''; submitBtn.style.opacity = '1'; submitBtn.disabled = false;
+            }, 1000);
+
+        } catch (error) {
+            console.error("Error adding document: ", error); alert("Error saving data. Check console.");
+            submitBtn.innerHTML = originalText; submitBtn.disabled = false; submitBtn.style.opacity = '1';
+        }
     });
 
     document.getElementById('form-flood').addEventListener('submit', (e) => {
@@ -776,123 +887,111 @@
 
     document.getElementById('form-evac').addEventListener('submit', (e) => {
         handleSubmission(e, "evacuation_data", (f) => {
-            const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0;
-            const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0;
-            const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0;
-            const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0;
-            const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0;
-            const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0;
-            const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0;
-            const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0;
-
+            const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0; const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0; const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0; const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0; const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0; const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0; const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0; const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0;
             const totalInputCount = affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow;
-
             return {
-                validationFailed: totalInputCount === 0, 
-                municipality: f.querySelector('.f-muni').value, 
-                affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value) || 0,
-                evacCenterCount: parseInt(f.querySelector('.f-ec-count').value) || 0,
-                status: f.querySelector('.f-status').value,
-                affectedFamilies: affFam, affectedIndividuals: affIndv,
-                servedFamilies: servedFam, servedIndividuals: servedIndv,
-                insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow,
-                insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow,
-                latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value,
-                dateReported: f.querySelector('.f-report-time').value
+                validationFailed: totalInputCount === 0, municipality: f.querySelector('.f-muni').value, affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value) || 0, evacCenterCount: parseInt(f.querySelector('.f-ec-count').value) || 0, status: f.querySelector('.f-status').value, affectedFamilies: affFam, affectedIndividuals: affIndv, servedFamilies: servedFam, servedIndividuals: servedIndv, insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow, insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value
             };
         });
     });
 
     document.getElementById('form-preemptive').addEventListener('submit', (e) => {
         handleSubmission(e, "preemptive_data", (f) => ({
-            municipality: f.querySelector('.f-muni').value, barangayOrigin: f.querySelector('.f-brgy').value, preEmptiveFamilies: parseInt(f.querySelector('.f-pre-fam').value) || 0, preEmptiveIndividuals: parseInt(f.querySelector('.f-pre-indv').value) || 0, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value
+            municipality: f.querySelector('.f-muni').value, barangayOrigin: f.querySelector('.f-brgy').value, preEmptiveFamilies: parseInt(f.querySelector('.f-pre-fam').value) || 0, preEmptiveIndividuals: parseInt(f.querySelector('.f-pre-indv').value) || 0, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
     document.getElementById('form-complement').addEventListener('submit', (e) => {
         handleSubmission(e, "complement_data", (f) => ({
-            agency: f.querySelector('.f-agency').value, status: f.querySelector('.f-status').value, personnel: parseInt(f.querySelector('.f-personnel').value) || 0, assetDetails: f.querySelector('.f-asset-details').value, dateReported: f.querySelector('.f-report-time').value
+            agency: f.querySelector('.f-agency').value, status: f.querySelector('.f-status').value, personnel: parseInt(f.querySelector('.f-personnel').value) || 0, assetDetails: f.querySelector('.f-asset-details').value.trim(), dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
     document.getElementById('form-deployed').addEventListener('submit', (e) => {
         handleSubmission(e, "resource_data", (f) => {
-            const assetSelect = f.querySelector('.f-asset');
-            const selectedAssets = Array.from(assetSelect.selectedOptions).map(opt => opt.value).join(', ');
-            return { municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, agency: f.querySelector('.f-agency').value, assetType: selectedAssets, quantity: parseInt(f.querySelector('.f-qty').value), personnel: parseInt(f.querySelector('.f-personnel').value), status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value };
+            const assetSelect = f.querySelector('.f-asset'); const selectedAssets = Array.from(assetSelect.selectedOptions).map(opt => opt.value).join(', ');
+            return { municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, agency: f.querySelector('.f-agency').value, assetType: selectedAssets, quantity: parseInt(f.querySelector('.f-qty').value), personnel: parseInt(f.querySelector('.f-personnel').value), status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value };
         });
     });
 
     document.getElementById('form-lifelines').addEventListener('submit', (e) => {
-        handleSubmission(e, "lifeline_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
+        handleSubmission(e, "lifeline_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
     });
 
     document.getElementById('form-infrastructure').addEventListener('submit', (e) => {
-        handleSubmission(e, "infrastructure_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
+        handleSubmission(e, "infrastructure_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
     });
 
-    // UPDATED CASUALTIES FORM SUBMISSION
     document.getElementById('form-casualties').addEventListener('submit', (e) => {
         handleSubmission(e, "casualties_data", (f) => ({ 
-            municipality: f.querySelector('.f-muni').value, 
-            barangay: f.querySelector('.f-brgy').value, 
-            classification: f.querySelector('.f-class').value, 
-            count: parseInt(f.querySelector('.f-count').value), 
-            remarks: f.querySelector('.f-remarks').value, 
-            actionsTaken: f.querySelector('.f-action') ? f.querySelector('.f-action').value : "",
-            latitude: f.querySelector('.lat-input').value, 
-            longitude: f.querySelector('.lng-input').value, 
-            dateReported: f.querySelector('.f-report-time').value 
+            municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, classification: f.querySelector('.f-class').value, count: parseInt(f.querySelector('.f-count').value), remarks: f.querySelector('.f-remarks').value.trim(), actionsTaken: f.querySelector('.f-action') ? f.querySelector('.f-action').value.trim() : "", latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value 
         }));
     });
 
-    document.getElementById('form-suspensions').addEventListener('submit', (e) => {
-        handleSubmission(e, "suspensions_data", (f) => {
-            const coverageSelect = f.querySelector('.f-coverage'); const selectedCoverages = Array.from(coverageSelect.selectedOptions).map(opt => opt.value).join(', ');
-            return { coverage: selectedCoverages, type: f.querySelector('.f-type').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value };
-        });
+    document.getElementById('form-suspensions').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        const form = e.target; const successMsg = form.querySelector('.msg-success'); const errorMsg = form.querySelector('.msg-error'); const submitBtn = form.querySelector('.submit-btn');
+
+        if (!isLocked) { errorMsg.style.display = 'block'; setTimeout(() => errorMsg.style.display = 'none', 4000); return; }
+
+        const coverageSelect = form.querySelector('.f-coverage'); 
+        const selectedCoverages = Array.from(coverageSelect.selectedOptions).map(opt => opt.value).join(', ');
+        const typeSelect = form.querySelector('.f-type');
+        const selectedType = typeSelect.value;
+        const remarksBox = form.querySelector('.f-remarks');
+        const remarks = remarksBox.value.trim();
+
+        if (!selectedCoverages || !selectedType || !remarks) { alert("Coverage Area, Suspension Type, and Details are required!"); return; }
+
+        try {
+            const originalText = submitBtn.innerHTML; submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; submitBtn.style.opacity = '0.7'; submitBtn.disabled = true;
+
+            const contextData = getContextPayload();
+            await addDoc(collection(db, "suspensions_data"), {
+                coverage: selectedCoverages,
+                type: selectedType, 
+                status: "Suspended", 
+                dateReported: "", 
+                remarks: remarks,
+                ...contextData
+            });
+
+            remarksBox.value = '';
+            remarksBox.focus();
+
+            submitBtn.innerHTML = '<i class="fa-solid fa-check"></i> Saved! Ready for next...';
+            submitBtn.style.backgroundColor = '#10b981'; submitBtn.style.color = '#fff';
+            
+            setTimeout(() => {
+                submitBtn.innerHTML = originalText; submitBtn.style.backgroundColor = ''; submitBtn.style.color = ''; submitBtn.style.opacity = '1'; submitBtn.disabled = false;
+            }, 1000);
+
+        } catch (error) { 
+            console.error("Error adding document: ", error); alert("Error saving data. Check console."); 
+            submitBtn.innerHTML = originalText; submitBtn.disabled = false; submitBtn.style.opacity = '1'; 
+        }
     });
 
     document.getElementById('form-agri').addEventListener('submit', (e) => {
         handleSubmission(e, "agri_damages", (f) => ({
-            lguCount: parseInt(f.querySelector('.f-lgu-count').value) || 0,
-            commodity: f.querySelector('.f-commodity').value, 
-            farmersAffected: parseInt(f.querySelector('.f-farmers').value) || 0, 
-            partialHa: parseFloat(f.querySelector('.f-partial-ha').value) || 0.0, 
-            totalHa: parseFloat(f.querySelector('.f-total-ha').value) || 0.0, 
-            cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, 
-            dateReported: f.querySelector('.f-report-time').value
+            lguCount: parseInt(f.querySelector('.f-lgu-count').value) || 0, commodity: f.querySelector('.f-commodity').value, farmersAffected: parseInt(f.querySelector('.f-farmers').value) || 0, partialHa: parseFloat(f.querySelector('.f-partial-ha').value) || 0.0, totalHa: parseFloat(f.querySelector('.f-total-ha').value) || 0.0, cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
     document.getElementById('form-residential').addEventListener('submit', (e) => {
         handleSubmission(e, "residential_damages", (f) => ({
-            municipality: f.querySelector('.f-muni').value, 
-            barangay: f.querySelector('.f-brgy').value, 
-            category: f.querySelector('.f-cat').value, 
-            count: parseInt(f.querySelector('.f-count').value) || 0, 
-            description: f.querySelector('.f-desc').value, 
-            latitude: f.querySelector('.lat-input').value, 
-            longitude: f.querySelector('.lng-input').value, 
-            dateReported: f.querySelector('.f-report-time').value
+            municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, category: f.querySelector('.f-cat').value, count: parseInt(f.querySelector('.f-count').value) || 0, description: f.querySelector('.f-desc').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value
         }));
     });
 
     document.getElementById('form-assistance').addEventListener('submit', (e) => {
         handleSubmission(e, "assistance_data", (f) => ({ 
-            municipality: f.querySelector('.f-muni').value, 
-            barangay: f.querySelector('.f-brgy').value || "", 
-            source: f.querySelector('.f-source').value, 
-            reliefItem: f.querySelector('.f-relief').value, 
-            quantity: parseInt(f.querySelector('.f-qty').value), 
-            cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, 
-            remarks: f.querySelector('.f-remarks').value, 
-            dateReported: f.querySelector('.f-report-time').value 
+            municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value || "", source: f.querySelector('.f-source').value, reliefItem: f.querySelector('.f-relief').value, quantity: parseInt(f.querySelector('.f-qty').value), cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: f.querySelector('.f-report-time').value 
         }));
     });
 
     document.getElementById('form-incidents').addEventListener('submit', (e) => {
-        handleSubmission(e, "related_incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value, actionsTaken: f.querySelector('.f-action').value, dateReported: f.querySelector('.f-report-time').value }));
+        handleSubmission(e, "related_incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), dateReported: f.querySelector('.f-report-time').value }));
     });
 
 </script>
