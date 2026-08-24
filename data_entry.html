@@ -642,18 +642,12 @@
 
         let text = textarea.value;
         
-        // 0. Pre-Scrubber: Fix squished PDF numbers (e.g., "10.Deployed" -> "10. Deployed")
         let cleaned = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
-        
-        // 1. Force a line break before bullet points (➤, •, ●, ❖) OR numbered/lettered lists
         cleaned = cleaned.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
-        
-        // 2. Remove single line breaks, BUT ignore lines starting with bullets, numbers, or letters
         cleaned = cleaned.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
 
         textarea.value = cleaned;
 
-        // UI Feedback Animation
         const originalHTML = btn.innerHTML;
         btn.innerHTML = '<i class="fa-solid fa-check"></i> Cleaned!';
         btn.style.background = 'var(--accent-green)';
@@ -668,15 +662,20 @@
         }, 1500);
     };
 
+    // ATLAS: TOMSELECT GHOST-TEXT BUG FIX
+    const tsClearOptions = {
+        onItemAdd: function() { this.setTextboxValue(''); },
+        onBlur: function() { this.setTextboxValue(''); }
+    };
 
     const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
-    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|' }); });
+    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
 
     const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
-    document.querySelectorAll('.f-coverage').forEach(el => { coverages.forEach(c => el.add(new Option(c, c))); new TomSelect(el, { create: false, delimiter: '|', plugins: ['remove_button'] }); });
+    document.querySelectorAll('.f-coverage').forEach(el => { coverages.forEach(c => el.add(new Option(c, c))); new TomSelect(el, { create: false, delimiter: '|', plugins: ['remove_button'], ...tsClearOptions }); });
 
     const globalAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
-    document.querySelectorAll('.f-agency').forEach(el => { globalAgencies.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-agency').forEach(el => { globalAgencies.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
 
     const actionAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
     document.querySelectorAll('.f-action-agency').forEach(el => {
@@ -684,6 +683,7 @@
         new TomSelect(el, { 
             create: true,
             delimiter: '|',
+            ...tsClearOptions,
             onChange: function(value) {
                 const lguGroup = document.getElementById('ldrmmc-lgu-group'); 
                 const lguInput = document.querySelector('.f-action-lgu');
@@ -718,18 +718,18 @@
     const assets = ["Search & Rescue Personnel", "Rescue Boat", "Ambulance", "Fire Truck", "Relief/Supply Truck", "Heavy Equipment (Backhoe/Loader)", "Dump Truck"];
     document.querySelectorAll('.f-asset').forEach(el => { 
         assets.forEach(a => el.add(new Option(a, a))); 
-        new TomSelect(el, { create: true, delimiter: '|', plugins: ['remove_button'] }); 
+        new TomSelect(el, { create: true, delimiter: '|', plugins: ['remove_button'], ...tsClearOptions }); 
     });
 
     const sources = ["DSWD", "Provincial LGU (PDRRMO/PSWDO)", "Municipal/City LGU", "Barangay LGU", "NGO / Private Sector", "OCD / NDRRMC", "Red Cross"];
-    document.querySelectorAll('.f-source').forEach(el => { sources.forEach(s => el.add(new Option(s, s))); new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-source').forEach(el => { sources.forEach(s => el.add(new Option(s, s))); new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
 
     const reliefs = ["Family Food Packs (FFP)", "Hygiene Kits", "Sleeping Kits", "Bottled Water", "Hot Meals", "Financial Assistance"];
-    document.querySelectorAll('.f-relief').forEach(el => { reliefs.forEach(r => el.add(new Option(r, r))); new TomSelect(el, { create: true, delimiter: '|' }); });
+    document.querySelectorAll('.f-relief').forEach(el => { reliefs.forEach(r => el.add(new Option(r, r))); new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
     
-    document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
-    document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true, delimiter: '|' }); });
-    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|' }); });
+    document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
+    document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
+    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
 
     flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K", time_24hr: false, minuteIncrement: 1, monthSelectorType: "dropdown", prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`, nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`, position: "auto" });
 
