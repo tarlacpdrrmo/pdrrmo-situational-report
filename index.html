@@ -509,11 +509,13 @@
     const utilityChart = createCircularChart(document.getElementById('utilityChart').getContext('2d'), 'doughnut');
     const pubInfraChart = createCircularChart(document.getElementById('pubInfraChart').getContext('2d'), 'doughnut');
 
+    // ATLAS: UPDATED DRILL-DOWN ENGINE (Now supports Timestamps in Level 3)
     window.applyDrilldown = function(chart, tree, rootColorMap, panelId, itemLabel) {
         chart.drillTree = tree; chart.rootColorMap = rootColorMap; chart.drillLevel = 0; chart.activeStatus = null; chart.activeMuni = null; chart.panelId = panelId; chart.itemLabel = itemLabel;
         chart.renderLevel = function() {
             let labels = []; let data = []; let bgColors = []; let panelHtml = '';
             const palette = ['#3b82f6', '#10b981', '#fcd34d', '#ff8c00', '#ef4444', '#8b5cf6', '#14b8a6', '#f43f5e', '#a855f7', '#0ea5e9'];
+            
             if (this.drillLevel === 0) {
                 for (let status in this.drillTree) {
                     let count = 0;
@@ -533,8 +535,30 @@
             else if (this.drillLevel === 2) {
                 let items = this.drillTree[this.activeStatus][this.activeMuni]; let i = 0;
                 panelHtml = `<div class="animate-reveal"><div style="display:flex; align-items:center; justify-content:space-between; margin-bottom:15px; padding-bottom:10px; border-bottom:1px solid var(--border-subtle);"><div style="display:flex; align-items:center; gap:8px;"><div style="width:10px; height:10px; border-radius:50%; background-color:var(--accent-teal);"></div><h4 style="color:var(--text-main); margin:0; font-size:13px; font-weight:600; text-transform:uppercase;">${this.activeMuni} <span style="color:var(--text-muted); font-size:11px;">(${this.activeStatus})</span></h4></div><span style="font-size:10px; background:rgba(255,255,255,0.1); padding:3px 6px; border-radius:4px;">Level 3</span></div><div style="display:flex; flex-direction:column; gap:6px;">`;
-                let itemCounts = {}; items.forEach(itm => { itemCounts[itm] = (itemCounts[itm] || 0) + 1; });
-                for(let itm in itemCounts) { labels.push(itm); data.push(itemCounts[itm]); let color = palette[i % palette.length]; bgColors.push(color); let qtyHtml = itemCounts[itm] > 1 ? `<span style="font-weight:bold; color:${color};">x${itemCounts[itm]}</span>` : ``; panelHtml += `<div style="font-size:12px; color:#e2e8f0; padding:8px 0; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:flex-start;"><div style="display:flex; gap:8px;"><i class="fa-solid fa-location-dot" style="color:${color}; font-size:10px; margin-top:2px;"></i><span style="line-height:1.4;">${itm}</span></div>${qtyHtml}</div>`; i++; }
+                
+                let itemMap = {}; 
+                items.forEach(itm => { 
+                    let locName = typeof itm === 'string' ? itm : itm.loc;
+                    let locDate = typeof itm === 'string' ? null : itm.date;
+                    if(!itemMap[locName]) itemMap[locName] = { count: 0, date: locDate };
+                    itemMap[locName].count++;
+                    if(locDate && (!itemMap[locName].date || new Date(locDate) > new Date(itemMap[locName].date))) { itemMap[locName].date = locDate; }
+                });
+
+                for(let itm in itemMap) { 
+                    labels.push(itm); data.push(itemMap[itm].count); let color = palette[i % palette.length]; bgColors.push(color); 
+                    let qtyHtml = itemMap[itm].count > 1 ? `<span style="font-weight:bold; color:${color};">x${itemMap[itm].count}</span>` : ``; 
+                    
+                    let dateHtml = '';
+                    if(itemMap[itm].date) {
+                        let dObj = new Date(itemMap[itm].date);
+                        let dStrText = dObj.toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' });
+                        dateHtml = `<div style="font-size:10px; color:var(--text-muted); margin-top:4px; margin-left:20px; font-style:italic;"><i class="fa-regular fa-clock" style="margin-right:4px;"></i>${dStrText}</div>`;
+                    }
+
+                    panelHtml += `<div style="font-size:12px; color:#e2e8f0; padding:10px 0; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:flex-start;"><div style="display:flex; flex-direction:column; width:100%;"><div style="display:flex; gap:8px;"><i class="fa-solid fa-location-dot" style="color:${color}; font-size:12px; margin-top:2px;"></i><span style="line-height:1.4; font-weight:600;">${itm}</span></div>${dateHtml}</div>${qtyHtml}</div>`; 
+                    i++; 
+                }
                 panelHtml += `</div></div>`;
             }
             if (labels.length === 0) { panelHtml = `<div class="empty-state animate-reveal" style="font-size: 12px;">No data available.</div>`; }
@@ -600,7 +624,8 @@
         filterBySitrep(dbData.floods).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if(sel !== 'ALL' && d.municipality !== sel) return;
             let status = d.status || 'Unknown'; let muni = d.municipality || 'Unknown'; let brgy = d.barangay || 'Unspecified';
-            if(!fTree[status]) fTree[status] = {}; if(!fTree[status][muni]) fTree[status][muni] = []; fTree[status][muni].push(brgy);
+            let locObj = { loc: brgy, date: d.dateReported };
+            if(!fTree[status]) fTree[status] = {}; if(!fTree[status][muni]) fTree[status][muni] = []; fTree[status][muni].push(locObj);
         });
         syncTomSelect('flood-muni-filter', munis); let cMap = { 'Still Flooded': '#ef4444', 'Rising': '#ef4444', 'Receding': '#fcd34d', 'Subsided': '#10b981', 'No Flood': '#10b981' };
         if (!floodChart.drillTree) { window.applyDrilldown(floodChart, fTree, cMap, 'floodDetails', 'areas'); } else { floodChart.drillTree = fTree; floodChart.renderLevel(); }
@@ -613,7 +638,8 @@
             if(stat.includes("Passable") || stat.includes("Not Passable") || cat.includes('Road') || cat.includes('Bridge')) {
                 if(d.municipality) munis.add(d.municipality); if(sel !== 'ALL' && d.municipality !== sel) return;
                 let muni = d.municipality || 'Unknown'; let loc = d.specificArea || 'Unspecified';
-                if(!iTree[stat]) iTree[stat] = {}; if(!iTree[stat][muni]) iTree[stat][muni] = []; iTree[stat][muni].push(loc);
+                let locObj = { loc: loc, date: d.dateReported };
+                if(!iTree[stat]) iTree[stat] = {}; if(!iTree[stat][muni]) iTree[stat][muni] = []; iTree[stat][muni].push(locObj);
             }
         });
         syncTomSelect('infra-muni-filter', munis); let cMap = { 'Not Passable': '#ef4444', 'Light Vehicles': '#fcd34d', 'Passable': '#10b981' };
@@ -627,7 +653,8 @@
             if(stat.includes("Outage") || stat.includes("Restored") || stat.includes("Interrupted") || cat.includes('Power') || cat.includes('Water')) {
                 if(d.municipality) munis.add(d.municipality); if(sel !== 'ALL' && d.municipality !== sel) return;
                 let muni = d.municipality || 'Unknown'; let loc = `${d.specificArea || 'Unspecified'} (${cat})`;
-                if(!uTree[stat]) uTree[stat] = {}; if(!uTree[stat][muni]) uTree[stat][muni] = []; uTree[stat][muni].push(loc);
+                let locObj = { loc: loc, date: d.dateReported };
+                if(!uTree[stat]) uTree[stat] = {}; if(!uTree[stat][muni]) uTree[stat][muni] = []; uTree[stat][muni].push(locObj);
             }
         });
         syncTomSelect('utility-muni-filter', munis); let cMap = { 'Outage': '#ef4444', 'Interrupted': '#fcd34d', 'Restored': '#10b981' };
@@ -641,7 +668,8 @@
             if(cat.includes('Road') || cat.includes('Bridge')) return;
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
             let muni = d.municipality || 'Unknown'; let loc = `${d.specificArea || 'Unspecified'} (${cat})`;
-            if(!pTree[stat]) pTree[stat] = {}; if(!pTree[stat][muni]) pTree[stat][muni] = []; pTree[stat][muni].push(loc);
+            let locObj = { loc: loc, date: d.dateReported };
+            if(!pTree[stat]) pTree[stat] = {}; if(!pTree[stat][muni]) pTree[stat][muni] = []; pTree[stat][muni].push(locObj);
         });
         syncTomSelect('pub-infra-muni-filter', munis);
         let cMap = { 'Intact / Monitored': '#10b981', 'Partially Damaged': '#fcd34d', 'Totally Damaged': '#ef4444', 'Breached / Collapsed': '#ef4444', 'Ongoing Repair': '#3b82f6' };
@@ -769,7 +797,7 @@
 
         updatePreemptiveChart(); updateAgriFeed(); updateResidentialChart(); updateItemsChart(); updateCasChart(); updateResChart(); updateFloodChart(); updateInfraChart(); updateUtilityChart(); updatePubInfraChart(); updateWeatherFeed();
         
-        // NEW: Fade out the global loader once everything is drawn!
+        // FADE OUT LOADER
         const loader = document.getElementById('global-loader');
         if (loader) {
             loader.style.opacity = '0';
