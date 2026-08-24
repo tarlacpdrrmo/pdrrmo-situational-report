@@ -16,7 +16,7 @@
         :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-yellow: #fcd34d; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; --accent-teal: #14b8a6; --border-subtle: #2e2e2e; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
         
-        /* NEW: GLOBAL LOADER OVERLAY */
+        /* GLOBAL LOADER OVERLAY */
         .global-loader { position: fixed; top: 0; left: 260px; right: 0; bottom: 0; background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
         .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         .loader-text { color: var(--text-main); font-size: 14px; font-weight: 600; letter-spacing: 1px; animation: pulseText 1.5s ease-in-out infinite; }
@@ -458,7 +458,35 @@
     Chart.defaults.color = '#a0a0a0'; Chart.defaults.font.family = 'Inter'; 
     Chart.register(ChartDataLabels);
 
-    const globalBarTooltip = { backgroundColor: '#181818', titleColor: '#ffffff', borderColor: '#2e2e2e', borderWidth: 1, callbacks: { label: function(context) { let label = context.dataset.fullLabel || context.dataset.label || ''; if (label) { label += ': '; } if (context.parsed.y !== null) { label += context.parsed.y.toLocaleString(); } return label; } } };
+    // ATLAS: UPDATED GLOBAL BAR TOOLTIP (With Date & Time Support)
+    const globalBarTooltip = { 
+        backgroundColor: 'rgba(24, 24, 24, 0.95)', 
+        titleColor: '#ffffff', 
+        borderColor: '#ff8c00', 
+        borderWidth: 1, 
+        padding: 10,
+        callbacks: { 
+            label: function(context) { 
+                let label = context.dataset.fullLabel || context.dataset.label || ''; 
+                if (label) { label += ': '; } 
+                if (context.parsed.y !== null) { label += context.parsed.y.toLocaleString(); } 
+                return label; 
+            },
+            afterLabel: function(context) {
+                if (context.dataset.reportedDates && context.dataset.reportedDates[context.dataIndex]) {
+                    let rawDate = context.dataset.reportedDates[context.dataIndex];
+                    if (rawDate) {
+                        let dObj = new Date(rawDate);
+                        if (!isNaN(dObj.getTime())) {
+                            return '🕒 As of: ' + dObj.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit' });
+                        }
+                    }
+                }
+                return null;
+            }
+        } 
+    };
+    
     const fixedLegendConfig = { display: true, position: 'bottom', align: 'start', labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 10, font: { size: 10 } } };
     const dynamicLegendConfig = { display: true, position: 'right', align: 'center', labels: { color: '#a0a0a0', usePointStyle: true, boxWidth: 8, padding: 10, font: { size: 10 } } };
     const noDataLabels = { datalabels: { display: false } };
@@ -509,7 +537,6 @@
     const utilityChart = createCircularChart(document.getElementById('utilityChart').getContext('2d'), 'doughnut');
     const pubInfraChart = createCircularChart(document.getElementById('pubInfraChart').getContext('2d'), 'doughnut');
 
-    // ATLAS: UPDATED DRILL-DOWN ENGINE (Now supports Timestamps in Level 3)
     window.applyDrilldown = function(chart, tree, rootColorMap, panelId, itemLabel) {
         chart.drillTree = tree; chart.rootColorMap = rootColorMap; chart.drillLevel = 0; chart.activeStatus = null; chart.activeMuni = null; chart.panelId = panelId; chart.itemLabel = itemLabel;
         chart.renderLevel = function() {
@@ -682,13 +709,25 @@
             if (!(d.status || '').toLowerCase().includes('deployed')) return;
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
             let loc = sel === 'ALL' ? d.municipality : (d.barangay || 'Unspecified'); let ag = d.agency || 'Unknown';
-            if(!rMap[loc]) rMap[loc] = {}; if(!rMap[loc][ag]) rMap[loc][ag] = 0; rMap[loc][ag] += 1; ags.add(ag);
+            let date = d.dateReported;
+            if(!rMap[loc]) rMap[loc] = {}; 
+            if(!rMap[loc][ag]) rMap[loc][ag] = { count: 0, date: date };
+            rMap[loc][ag].count += 1;
+            if (date && (!rMap[loc][ag].date || new Date(date) > new Date(rMap[loc][ag].date))) { rMap[loc][ag].date = date; }
+            ags.add(ag);
         });
         syncTomSelect('res-muni-filter', munis);
         resChart.data.labels = Object.keys(rMap); let cols = ['#8b5cf6', '#3b82f6', '#10b981', '#fcd34d', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
         Array.from(ags).forEach(ag => { 
-            let dArr = []; Object.keys(rMap).forEach(loc => dArr.push(rMap[loc][ag] || 0)); 
-            let shortLabel = ag.length > 25 ? ag.substring(0, 25) + '...' : ag; arrs.push({ label: shortLabel, fullLabel: ag, data: dArr, backgroundColor: cols[idx % cols.length] }); idx++; 
+            let dArr = []; let datesArr = [];
+            Object.keys(rMap).forEach(loc => {
+                let entry = rMap[loc][ag];
+                dArr.push(entry ? entry.count : 0);
+                datesArr.push(entry ? entry.date : null);
+            }); 
+            let shortLabel = ag.length > 25 ? ag.substring(0, 25) + '...' : ag; 
+            arrs.push({ label: shortLabel, fullLabel: ag, data: dArr, reportedDates: datesArr, backgroundColor: cols[idx % cols.length] }); 
+            idx++; 
         });
         let hasData = arrs.some(dataset => dataset.data.some(v => v > 0)); document.getElementById('resChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('resChart').style.display = hasData ? 'block' : 'none'; resChart.data.datasets = arrs; resChart.update();
     }
@@ -697,27 +736,56 @@
         if(!tsInstances['cas-view-filter']) return; let sel = tsInstances['cas-view-filter'].getValue() || 'ALL'; let cMap = {}; let munis = new Set();
         filterBySitrep(dbData.casualties).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cls = d.classification || ''; let cnt = d.count || 0;
-            if(!cMap[loc]) cMap[loc] = { 'Dead': 0, 'Missing': 0, 'Injured': 0 };
-            if (cls.includes('Dead')) cMap[loc]['Dead'] += cnt; else if (cls.includes('Missing')) cMap[loc]['Missing'] += cnt; else if (cls.includes('Injured')) cMap[loc]['Injured'] += cnt;
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cls = d.classification || ''; let cnt = d.count || 0; let date = d.dateReported;
+            if(!cMap[loc]) cMap[loc] = { 'Dead': { count: 0, date: null }, 'Missing': { count: 0, date: null }, 'Injured': { count: 0, date: null } };
+            
+            if (cls.includes('Dead')) {
+                cMap[loc]['Dead'].count += cnt;
+                if(date && (!cMap[loc]['Dead'].date || new Date(date) > new Date(cMap[loc]['Dead'].date))) cMap[loc]['Dead'].date = date;
+            } else if (cls.includes('Missing')) {
+                cMap[loc]['Missing'].count += cnt;
+                if(date && (!cMap[loc]['Missing'].date || new Date(date) > new Date(cMap[loc]['Missing'].date))) cMap[loc]['Missing'].date = date;
+            } else if (cls.includes('Injured')) {
+                cMap[loc]['Injured'].count += cnt;
+                if(date && (!cMap[loc]['Injured'].date || new Date(date) > new Date(cMap[loc]['Injured'].date))) cMap[loc]['Injured'].date = date;
+            }
         });
         syncTomSelect('cas-view-filter', munis);
-        let hasData = Object.values(cMap).some(v => v.Dead > 0 || v.Missing > 0 || v.Injured > 0); document.getElementById('casChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('casChart').style.display = hasData ? 'block' : 'none';
+        let hasData = Object.values(cMap).some(v => v.Dead.count > 0 || v.Missing.count > 0 || v.Injured.count > 0); document.getElementById('casChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('casChart').style.display = hasData ? 'block' : 'none';
         casChart.data.labels = Object.keys(cMap);
-        casChart.data.datasets = [ { label: 'Dead', fullLabel: 'Dead', data: Object.values(cMap).map(v => v['Dead']), backgroundColor: '#ef4444', borderRadius: 4 }, { label: 'Missing', fullLabel: 'Missing', data: Object.values(cMap).map(v => v['Missing']), backgroundColor: '#fcd34d', borderRadius: 4 }, { label: 'Injured', fullLabel: 'Injured', data: Object.values(cMap).map(v => v['Injured']), backgroundColor: '#3b82f6', borderRadius: 4 } ]; casChart.update();
+        casChart.data.datasets = [ 
+            { label: 'Dead', fullLabel: 'Dead', data: Object.values(cMap).map(v => v['Dead'].count), reportedDates: Object.values(cMap).map(v => v['Dead'].date), backgroundColor: '#ef4444', borderRadius: 4 }, 
+            { label: 'Missing', fullLabel: 'Missing', data: Object.values(cMap).map(v => v['Missing'].count), reportedDates: Object.values(cMap).map(v => v['Missing'].date), backgroundColor: '#fcd34d', borderRadius: 4 }, 
+            { label: 'Injured', fullLabel: 'Injured', data: Object.values(cMap).map(v => v['Injured'].count), reportedDates: Object.values(cMap).map(v => v['Injured'].date), backgroundColor: '#3b82f6', borderRadius: 4 } 
+        ]; 
+        casChart.update();
     }
     
     function updateItemsChart() {
         if(!tsInstances['items-muni-filter']) return; let sel = tsInstances['items-muni-filter'].getValue() || 'ALL'; let iMap = {}; let itms = new Set(); let munis = new Set();
         filterBySitrep(dbData.assistance).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.barangay; let baseItem = d.reliefItem || 'Other'; let source = d.source || 'Unknown Source'; let item = `${baseItem} (${source})`; let qty = d.quantity || 0; let cost = d.cost || 0;
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; let baseItem = d.reliefItem || 'Other'; let source = d.source || 'Unknown Source'; let item = `${baseItem} (${source})`; let qty = d.quantity || 0; let cost = d.cost || 0; let date = d.dateReported;
             if (baseItem.toLowerCase().includes('financial') || baseItem.toLowerCase().includes('cash') || baseItem.toLowerCase().includes('aics') || baseItem.toLowerCase().includes('peso')) { if (cost === 0 && qty > 0) cost = qty; }
-            if(!iMap[loc]) iMap[loc] = {}; if(!iMap[loc][item]) iMap[loc][item] = 0; iMap[loc][item] += qty; itms.add(item);
+            if(!iMap[loc]) iMap[loc] = {}; 
+            if(!iMap[loc][item]) iMap[loc][item] = { qty: 0, date: date };
+            iMap[loc][item].qty += qty;
+            if(date && (!iMap[loc][item].date || new Date(date) > new Date(iMap[loc][item].date))) { iMap[loc][item].date = date; }
+            itms.add(item);
         });
         syncTomSelect('items-muni-filter', munis);
         itemsChart.data.labels = Object.keys(iMap); let cols = ['#14b8a6', '#fcd34d', '#3b82f6', '#8b5cf6', '#ff8c00', '#ef4444']; let arrs = []; let idx = 0;
-        Array.from(itms).forEach(itm => { let dArr = []; Object.keys(iMap).forEach(loc => dArr.push(iMap[loc][itm] || 0)); let shortLabel = itm.length > 25 ? itm.substring(0, 25) + '...' : itm; arrs.push({ label: shortLabel, fullLabel: itm, data: dArr, backgroundColor: cols[idx % cols.length] }); idx++; });
+        Array.from(itms).forEach(itm => { 
+            let dArr = []; let datesArr = [];
+            Object.keys(iMap).forEach(loc => {
+                let entry = iMap[loc][itm];
+                dArr.push(entry ? entry.qty : 0);
+                datesArr.push(entry ? entry.date : null);
+            }); 
+            let shortLabel = itm.length > 25 ? itm.substring(0, 25) + '...' : itm; 
+            arrs.push({ label: shortLabel, fullLabel: itm, data: dArr, reportedDates: datesArr, backgroundColor: cols[idx % cols.length] }); 
+            idx++; 
+        });
         let hasData = arrs.some(dataset => dataset.data.some(v => v > 0)); document.getElementById('itemsChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('itemsChart').style.display = hasData ? 'block' : 'none'; itemsChart.data.datasets = arrs; itemsChart.update();
     }
 
@@ -726,23 +794,46 @@
         filterBySitrep(dbData.preemptives).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
             let loc = sel === 'ALL' ? d.municipality : d.barangayOrigin || d.municipality;
-            if(!preMap[loc]) preMap[loc] = { indv: 0, fam: 0 }; preMap[loc].indv += (d.preEmptiveIndividuals || 0); preMap[loc].fam += (d.preEmptiveFamilies || 0);
+            let date = d.dateReported;
+            if(!preMap[loc]) preMap[loc] = { indv: 0, fam: 0, date: date }; 
+            preMap[loc].indv += (d.preEmptiveIndividuals || 0); 
+            preMap[loc].fam += (d.preEmptiveFamilies || 0);
+            if(date && (!preMap[loc].date || new Date(date) > new Date(preMap[loc].date))) { preMap[loc].date = date; }
         });
         syncTomSelect('preemptive-muni-filter', munis);
         let hasData = Object.values(preMap).some(v => v.indv > 0 || v.fam > 0); document.getElementById('preemptiveChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('preemptiveChart').style.display = hasData ? 'block' : 'none';
-        preemptiveChart.data.labels = Object.keys(preMap); preemptiveChart.data.datasets = [ { label: 'Individuals', fullLabel: 'Pre-Emptive (Individuals)', data: Object.values(preMap).map(v=>v.indv), backgroundColor: '#14b8a6', borderRadius: 4 }, { label: 'Families', fullLabel: 'Pre-Emptive (Families)', data: Object.values(preMap).map(v=>v.fam), backgroundColor: '#8b5cf6', borderRadius: 4 } ]; preemptiveChart.update();
+        preemptiveChart.data.labels = Object.keys(preMap); 
+        preemptiveChart.data.datasets = [ 
+            { label: 'Individuals', fullLabel: 'Pre-Emptive (Individuals)', data: Object.values(preMap).map(v=>v.indv), reportedDates: Object.values(preMap).map(v=>v.date), backgroundColor: '#14b8a6', borderRadius: 4 }, 
+            { label: 'Families', fullLabel: 'Pre-Emptive (Families)', data: Object.values(preMap).map(v=>v.fam), reportedDates: Object.values(preMap).map(v=>v.date), backgroundColor: '#8b5cf6', borderRadius: 4 } 
+        ]; 
+        preemptiveChart.update();
     }
 
     function updateResidentialChart() {
         if(!tsInstances['res-dam-muni-filter']) return; let sel = tsInstances['res-dam-muni-filter'].getValue() || 'ALL'; let resDamMap = {}; let cats = new Set(); let munis = new Set();
         filterBySitrep(dbData.residential).forEach(d => {
             if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cat = d.category || 'Unknown';
-            if(!resDamMap[loc]) resDamMap[loc] = {}; if(!resDamMap[loc][cat]) resDamMap[loc][cat] = 0; resDamMap[loc][cat] += (d.count || 0); cats.add(cat);
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cat = d.category || 'Unknown'; let date = d.dateReported;
+            if(!resDamMap[loc]) resDamMap[loc] = {}; 
+            if(!resDamMap[loc][cat]) resDamMap[loc][cat] = { count: 0, date: date }; 
+            resDamMap[loc][cat].count += (d.count || 0); 
+            if(date && (!resDamMap[loc][cat].date || new Date(date) > new Date(resDamMap[loc][cat].date))) { resDamMap[loc][cat].date = date; }
+            cats.add(cat);
         });
         syncTomSelect('res-dam-muni-filter', munis);
         residentialChart.data.labels = Object.keys(resDamMap); let cols = ['#ef4444', '#fcd34d', '#ff8c00', '#3b82f6']; let arrs = []; let idx = 0;
-        Array.from(cats).forEach(cat => { let dArr = []; Object.keys(resDamMap).forEach(loc => dArr.push(resDamMap[loc][cat] || 0)); let shortLabel = cat.length > 25 ? cat.substring(0, 25) + '...' : cat; arrs.push({ label: shortLabel, fullLabel: cat, data: dArr, backgroundColor: cols[idx % cols.length] }); idx++; });
+        Array.from(cats).forEach(cat => { 
+            let dArr = []; let datesArr = [];
+            Object.keys(resDamMap).forEach(loc => {
+                let entry = resDamMap[loc][cat];
+                dArr.push(entry ? entry.count : 0);
+                datesArr.push(entry ? entry.date : null);
+            }); 
+            let shortLabel = cat.length > 25 ? cat.substring(0, 25) + '...' : cat; 
+            arrs.push({ label: shortLabel, fullLabel: cat, data: dArr, reportedDates: datesArr, backgroundColor: cols[idx % cols.length] }); 
+            idx++; 
+        });
         let hasData = arrs.some(dataset => dataset.data.some(v => v > 0)); document.getElementById('residentialChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('residentialChart').style.display = hasData ? 'block' : 'none'; residentialChart.data.datasets = arrs; residentialChart.update();
     }
 
@@ -786,11 +877,25 @@
         document.getElementById('kpi-assistance').innerText = formatCurrency(totalAssist); document.getElementById('kpi-item-food').innerHTML = `${foodQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`; document.getElementById('kpi-item-kits').innerHTML = `${kitsQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`; document.getElementById('kpi-item-cash').innerText = formatCurrency(cashAmount);
 
         let evacMap = {};
-        evacs.forEach(d => { if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0 }; let ecNowMap = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0); evacMap[d.municipality].aff += (d.affectedIndividuals || 0); evacMap[d.municipality].served += (d.servedIndividuals || 0); evacMap[d.municipality].ec += ecNowMap; });
+        evacs.forEach(d => { 
+            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0, date: d.dateReported }; 
+            let ecNowMap = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0); 
+            evacMap[d.municipality].aff += (d.affectedIndividuals || 0); 
+            evacMap[d.municipality].served += (d.servedIndividuals || 0); 
+            evacMap[d.municipality].ec += ecNowMap; 
+            if(d.dateReported && (!evacMap[d.municipality].date || new Date(d.dateReported) > new Date(evacMap[d.municipality].date))) {
+                evacMap[d.municipality].date = d.dateReported;
+            }
+        });
         let evacHasData = Object.values(evacMap).some(v => v.aff > 0 || v.served > 0 || v.ec > 0); document.getElementById('evacChart-empty').style.display = evacHasData ? 'none' : 'flex'; document.getElementById('evacChart').style.display = evacHasData ? 'block' : 'none';
 
         evacChart.data.labels = Object.keys(evacMap);
-        evacChart.data.datasets = [ { label: 'Affected', fullLabel: 'Affected (Individuals)', data: Object.values(evacMap).map(v => v.aff), backgroundColor: '#ff8c00', borderRadius: 4 }, { label: 'Served', fullLabel: 'Served (Individuals)', data: Object.values(evacMap).map(v => v.served), backgroundColor: '#10b981', borderRadius: 4 }, { label: 'Inside ECs', fullLabel: 'Inside ECs (Individuals)', data: Object.values(evacMap).map(v => v.ec), backgroundColor: '#3b82f6', borderRadius: 4 } ]; evacChart.update();
+        evacChart.data.datasets = [ 
+            { label: 'Affected', fullLabel: 'Affected (Individuals)', data: Object.values(evacMap).map(v => v.aff), reportedDates: Object.values(evacMap).map(v => v.date), backgroundColor: '#ff8c00', borderRadius: 4 }, 
+            { label: 'Served', fullLabel: 'Served (Individuals)', data: Object.values(evacMap).map(v => v.served), reportedDates: Object.values(evacMap).map(v => v.date), backgroundColor: '#10b981', borderRadius: 4 }, 
+            { label: 'Inside ECs', fullLabel: 'Inside ECs (Individuals)', data: Object.values(evacMap).map(v => v.ec), reportedDates: Object.values(evacMap).map(v => v.date), backgroundColor: '#3b82f6', borderRadius: 4 } 
+        ]; 
+        evacChart.update();
 
         let feedHtml = '';
         if(incidents.length === 0) { feedHtml = '<li class="empty-state">No related incidents or hazards reported for this SitRep.</li>'; } else { incidents.forEach(inc => { feedHtml += `<li class="incident-item"><div class="incident-loc"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-top:2px;"></i> ${inc.municipality || 'Unknown'}</div><div class="incident-desc"><span class="incident-label">Reported Hazard</span>${inc.particulars || inc.incident || 'N/A'}</div><div class="incident-act"><span class="incident-label">Action Taken</span>${inc.actionsTaken || 'Monitoring ongoing'}</div></li>`; }); } document.getElementById('incidentFeed').innerHTML = feedHtml;
