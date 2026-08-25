@@ -16,7 +16,6 @@
         :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-yellow: #fcd34d; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-purple: #8b5cf6; --accent-teal: #14b8a6; --border-subtle: #2e2e2e; }
         body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
         
-        /* GLOBAL LOADER OVERLAY */
         .global-loader { position: fixed; top: 0; left: 260px; right: 0; bottom: 0; background: rgba(18, 18, 18, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
         .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-orange); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
         .loader-text { color: var(--text-main); font-size: 14px; font-weight: 600; letter-spacing: 1px; animation: pulseText 1.5s ease-in-out infinite; }
@@ -187,13 +186,18 @@
             </div>
             
             <div class="kpi-card">
+                <div class="kpi-icon" style="background: rgba(160, 160, 160, 0.1); color: var(--text-main); margin-top: 0;"><i class="fa-solid fa-truck-medical"></i></div>
+                <div class="kpi-details"><span class="kpi-title">Casualties</span><span class="kpi-value" id="kpi-casualties">0</span></div>
+            </div>
+
+            <div class="kpi-card">
                 <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-green); margin-top: 0;"><i class="fa-solid fa-house-crack"></i></div>
                 <div class="kpi-details">
                     <span class="kpi-title">Est. Damages (PHP)</span>
                     <span class="kpi-value" id="kpi-damages">₱0</span>
                     <div style="display: flex; justify-content: space-between; margin-top: 10px; border-top: 1px solid var(--border-subtle); padding-top: 6px;">
                         <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">AGRI (PHP)</span><span id="kpi-dmg-agri" style="font-size: 11px; font-weight: 700; color: var(--accent-green);">₱0</span></div>
-                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">HOUSES (QTY)</span><span id="kpi-dmg-res" style="font-size: 11px; font-weight: 700; color: var(--accent-red);">0</span></div>
+                        <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">INFRA (PHP)</span><span id="kpi-dmg-infra" style="font-size: 11px; font-weight: 700; color: var(--accent-red);">₱0</span></div>
                     </div>
                 </div>
             </div>
@@ -213,7 +217,7 @@
                 </div>
             </div>
 
-            <div class="kpi-card">
+            <div class="kpi-card span-2">
                 <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); margin-top: 0;"><i class="fa-solid fa-truck-fast"></i></div>
                 <div class="kpi-details">
                     <span class="kpi-title">Manpower & Assets</span>
@@ -224,11 +228,6 @@
                         <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">ASSETS (QTY)</span><span id="kpi-res-assets" style="font-size: 11px; font-weight: 700; color: var(--accent-yellow);">0</span></div>
                     </div>
                 </div>
-            </div>
-
-            <div class="kpi-card" style="align-items: center;">
-                <div class="kpi-icon" style="background: rgba(160, 160, 160, 0.1); color: var(--text-main); margin-top: 0;"><i class="fa-solid fa-truck-medical"></i></div>
-                <div class="kpi-details"><span class="kpi-title">Casualties</span><span class="kpi-value" id="kpi-casualties">0</span></div>
             </div>
         </div>
 
@@ -257,17 +256,17 @@
                 </div>
             </div>
 
+            <!-- ATLAS: INFRASTRUCTURE BREAKDOWN CARD WITH REMARKS -->
             <div class="chart-card">
                 <div class="chart-header">
-                    <h3><i class="fa-solid fa-house-chimney-crack" style="color: var(--accent-red);"></i> Residential Damages (Count)</h3>
+                    <h3><i class="fa-solid fa-building-shield" style="color: var(--accent-red);"></i> Infrastructure Damages Breakdown</h3>
                     <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('res-dam-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="res-dam-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
+                        <button class="btn-chart-reset" onclick="resetChart('infra-cost-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
+                        <select id="infra-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
                     </div>
                 </div>
-                <div class="chart-container">
-                    <canvas id="residentialChart"></canvas>
-                    <div id="residentialChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-house-circle-xmark" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No residential damages reported</span></div>
+                <div class="incident-feed-container">
+                    <ul id="infraCostFeed" class="incident-list"><li class="empty-state">No infrastructure damages reported.</li></ul>
                 </div>
             </div>
             
@@ -413,12 +412,18 @@
     let highestKnownSitrep = 0; 
     let renderTimeout = null; 
 
+    function formatCurrency(amount) { 
+        if(amount >= 1000000) return '₱' + (amount / 1000000).toFixed(2) + 'M'; 
+        if(amount >= 1000) return '₱' + (amount / 1000).toFixed(1) + 'k'; 
+        return '₱' + (amount || 0); 
+    }
+
     const dbData = { weather: [], floods: [], evacs: [], preemptives: [], complements: [], lifelines: [], infrastructure: [], casualties: [], agri: [], residential: [], assistance: [], resources: [], suspensions: [], incidents: [] };
 
     const tsGlobal = new TomSelect("#globalSitrepFilter", { create: false, controlInput: null, onChange: function() { updateCharts(); } });
     const tsInstances = {};
     
-    const chartFilterIds = ['items-muni-filter', 'cas-view-filter', 'res-muni-filter', 'flood-muni-filter', 'infra-muni-filter', 'utility-muni-filter', 'pub-infra-muni-filter', 'weather-muni-filter', 'res-dam-muni-filter', 'preemptive-muni-filter'];
+    const chartFilterIds = ['items-muni-filter', 'cas-view-filter', 'res-muni-filter', 'flood-muni-filter', 'infra-muni-filter', 'utility-muni-filter', 'pub-infra-muni-filter', 'weather-muni-filter', 'infra-cost-muni-filter', 'preemptive-muni-filter'];
     
     chartFilterIds.forEach(id => {
         tsInstances[id] = new TomSelect(`#${id}`, { 
@@ -432,7 +437,7 @@
                 if(id === 'utility-muni-filter') updateUtilityChart();
                 if(id === 'pub-infra-muni-filter') updatePubInfraChart();
                 if(id === 'weather-muni-filter') updateWeatherFeed();
-                if(id === 'res-dam-muni-filter') updateResidentialChart();
+                if(id === 'infra-cost-muni-filter') updateInfraCostFeed();
                 if(id === 'preemptive-muni-filter') updatePreemptiveChart();
             }
         });
@@ -458,7 +463,6 @@
     Chart.defaults.color = '#a0a0a0'; Chart.defaults.font.family = 'Inter'; 
     Chart.register(ChartDataLabels);
 
-    // ATLAS: UPDATED GLOBAL BAR TOOLTIP (With Date & Time Support)
     const globalBarTooltip = { 
         backgroundColor: 'rgba(24, 24, 24, 0.95)', 
         titleColor: '#ffffff', 
@@ -469,7 +473,13 @@
             label: function(context) { 
                 let label = context.dataset.fullLabel || context.dataset.label || ''; 
                 if (label) { label += ': '; } 
-                if (context.parsed.y !== null) { label += context.parsed.y.toLocaleString(); } 
+                if (context.parsed.y !== null) { 
+                    if(label.includes('(PHP)')) {
+                        label += new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
+                    } else {
+                        label += context.parsed.y.toLocaleString(); 
+                    }
+                } 
                 return label; 
             },
             afterLabel: function(context) {
@@ -496,9 +506,6 @@
     
     const preemptiveCtx = document.getElementById('preemptiveChart').getContext('2d');
     const preemptiveChart = new Chart(preemptiveCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: fixedLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } } });
-
-    const resDamCtx = document.getElementById('residentialChart').getContext('2d');
-    const residentialChart = new Chart(resDamCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#2e2e2e' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: fixedLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } } });
     
     const itemsCtx = document.getElementById('itemsChart').getContext('2d');
     const itemsChart = new Chart(itemsCtx, { type: 'bar', data: { labels: [], datasets: [] }, options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#2e2e2e' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: dynamicLegendConfig, tooltip: globalBarTooltip, ...noDataLabels } }});
@@ -583,7 +590,7 @@
                         dateHtml = `<div style="font-size:10px; color:var(--text-muted); margin-top:4px; margin-left:20px; font-style:italic;"><i class="fa-regular fa-clock" style="margin-right:4px;"></i>${dStrText}</div>`;
                     }
 
-                    panelHtml += `<div style="font-size:12px; color:#e2e8f0; padding:10px 0; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:flex-start;"><div style="display:flex; flex-direction:column; width:100%;"><div style="display:flex; gap:8px;"><i class="fa-solid fa-location-dot" style="color:${color}; font-size:12px; margin-top:2px;"></i><span style="line-height:1.4; font-weight:600;">${itm}</span></div>${dateHtml}</div>${qtyHtml}</div>`; 
+                    panelHtml += `<div style="font-size:12px; color:#e2e8f0; padding:10px 0; border-bottom:1px solid var(--border-subtle); display:flex; justify-content:space-between; align-items:flex-start;"><div style="display:flex; gap:8px;"><i class="fa-solid fa-location-dot" style="color:${color}; font-size:10px; margin-top:2px;"></i><span style="line-height:1.4;">${itm}</span></div>${dateHtml}</div>${qtyHtml}</div>`; 
                     i++; 
                 }
                 panelHtml += `</div></div>`;
@@ -601,7 +608,6 @@
         if (chart && chart.drillLevel !== undefined) { chart.drillLevel = 0; chart.activeStatus = null; chart.activeMuni = null; chart.renderLevel(); }
     };
 
-    function formatCurrency(amount) { if(amount >= 1000000) return '₱' + (amount / 1000000).toFixed(2) + 'M'; if(amount >= 1000) return '₱' + (amount / 1000).toFixed(1) + 'k'; return '₱' + (amount || 0); }
     function updateClock() { const clockEl = document.getElementById('digitalClock'); if (clockEl) { const now = new Date(); clockEl.textContent = now.toLocaleTimeString('en-PH', { timeZone: 'Asia/Manila', hour12: true }); } }
     setInterval(updateClock, 1000); updateClock();
     function filterBySitrep(rawArray) { let activeSitrep = tsGlobal.getValue(); if (!activeSitrep) return []; return rawArray.filter(d => String(d.sitrepNo) === String(activeSitrep)); }
@@ -693,7 +699,8 @@
         filterBySitrep(dbData.infrastructure).forEach(d => { 
             let stat = d.status || 'Unknown'; let cat = d.category || '';
             if(cat.includes('Road') || cat.includes('Bridge')) return;
-            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            if(d.municipality) d.municipality.split(',').forEach(m => munis.add(m.trim())); 
+            if (sel !== 'ALL' && (!d.municipality || !d.municipality.includes(sel))) return;
             let muni = d.municipality || 'Unknown'; let loc = `${d.specificArea || 'Unspecified'} (${cat})`;
             let locObj = { loc: loc, date: d.dateReported };
             if(!pTree[stat]) pTree[stat] = {}; if(!pTree[stat][muni]) pTree[stat][muni] = []; pTree[stat][muni].push(locObj);
@@ -810,31 +817,64 @@
         preemptiveChart.update();
     }
 
-    function updateResidentialChart() {
-        if(!tsInstances['res-dam-muni-filter']) return; let sel = tsInstances['res-dam-muni-filter'].getValue() || 'ALL'; let resDamMap = {}; let cats = new Set(); let munis = new Set();
-        filterBySitrep(dbData.residential).forEach(d => {
-            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
-            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cat = d.category || 'Unknown'; let date = d.dateReported;
-            if(!resDamMap[loc]) resDamMap[loc] = {}; 
-            if(!resDamMap[loc][cat]) resDamMap[loc][cat] = { count: 0, date: date }; 
-            resDamMap[loc][cat].count += (d.count || 0); 
-            if(date && (!resDamMap[loc][cat].date || new Date(date) > new Date(resDamMap[loc][cat].date))) { resDamMap[loc][cat].date = date; }
-            cats.add(cat);
+    // ATLAS: INJECTED REMARKS DETAILS DIRECTLY INTO INFRASTRUCTURE FEED
+    function updateInfraCostFeed() {
+        if(!tsInstances['infra-cost-muni-filter']) return; 
+        let sel = tsInstances['infra-cost-muni-filter'].getValue() || 'ALL'; 
+        let munis = new Set();
+        
+        let filtered = dbData.infrastructure.filter(d => {
+            if(d.category === 'Road' || d.category === 'Bridge') return false; 
+            let cost = parseFloat(d.cost) || 0;
+            if (cost <= 0) return false; 
+
+            let hasMuni = false;
+            if(d.municipality) {
+                d.municipality.split(',').forEach(m => {
+                    let mTrimmed = m.trim();
+                    munis.add(mTrimmed);
+                    if (sel === 'ALL' || mTrimmed === sel) hasMuni = true;
+                });
+            }
+            if (sel !== 'ALL' && !hasMuni) return false;
+            return true;
         });
-        syncTomSelect('res-dam-muni-filter', munis);
-        residentialChart.data.labels = Object.keys(resDamMap); let cols = ['#ef4444', '#fcd34d', '#ff8c00', '#3b82f6']; let arrs = []; let idx = 0;
-        Array.from(cats).forEach(cat => { 
-            let dArr = []; let datesArr = [];
-            Object.keys(resDamMap).forEach(loc => {
-                let entry = resDamMap[loc][cat];
-                dArr.push(entry ? entry.count : 0);
-                datesArr.push(entry ? entry.date : null);
-            }); 
-            let shortLabel = cat.length > 25 ? cat.substring(0, 25) + '...' : cat; 
-            arrs.push({ label: shortLabel, fullLabel: cat, data: dArr, reportedDates: datesArr, backgroundColor: cols[idx % cols.length] }); 
-            idx++; 
-        });
-        let hasData = arrs.some(dataset => dataset.data.some(v => v > 0)); document.getElementById('residentialChart-empty').style.display = hasData ? 'none' : 'flex'; document.getElementById('residentialChart').style.display = hasData ? 'block' : 'none'; residentialChart.data.datasets = arrs; residentialChart.update();
+        
+        syncTomSelect('infra-cost-muni-filter', munis);
+        
+        let feedHtml = '';
+        if(filtered.length === 0) { 
+            feedHtml = '<li class="empty-state">No infrastructure damages reported.</li>'; 
+        } else {
+            filtered.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                let costStr = formatCurrency(parseFloat(d.cost) || 0);
+                let sourceStr = d.source || 'Unknown Source';
+                let muniStr = d.municipality || 'Unknown';
+                
+                // NOVA: RENDERING REMARKS WITH CLEAN LINE-BREAK PRESERVATION
+                let remarksDisplay = d.remarks ? `<div style="font-size: 11px; color: var(--text-muted); margin-top: 6px; line-height: 1.4; white-space: pre-wrap;">${d.remarks}</div>` : '';
+
+                feedHtml += `<li class="incident-item">
+                    <div class="incident-loc" style="width: 140px; flex-direction: column; gap: 6px;">
+                        <div style="font-size: 11px; line-height: 1.4;"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-right: 4px;"></i>${muniStr}</div>
+                        <div style="font-size: 9px; font-weight: 700; color: var(--accent-orange); background: rgba(255, 140, 0, 0.1); border: 1px solid rgba(255, 140, 0, 0.2); padding: 4px 6px; border-radius: 4px; display: inline-block; width: fit-content; letter-spacing: 0.5px;">${sourceStr}</div>
+                    </div>
+                    <div class="incident-desc">
+                        <span class="incident-label">Infrastructure Name</span>
+                        <span style="color: var(--text-main); font-weight: 600; font-size: 13px;">${d.specificArea || 'Unknown Infra'}</span>
+                        ${remarksDisplay}
+                    </div>
+                    <div class="incident-act" style="flex: 1; text-align: right;">
+                        <span class="incident-label">Damage Cost</span>
+                        <span style="color: var(--accent-red); font-weight: 800; font-size: 16px;">${costStr}</span><br>
+                        <span style="font-size:10px; color:var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">As of ${dateStr}</span>
+                    </div>
+                </li>`;
+            });
+        }
+        document.getElementById('infraCostFeed').innerHTML = feedHtml;
     }
 
     function updateCharts() {
@@ -852,6 +892,7 @@
         }
 
         let evacs = filterBySitrep(dbData.evacs); let preemptives = filterBySitrep(dbData.preemptives); let complements = filterBySitrep(dbData.complements); let agri = filterBySitrep(dbData.agri); let residential = filterBySitrep(dbData.residential); let assistance = filterBySitrep(dbData.assistance); let casualties = filterBySitrep(dbData.casualties); let resources = filterBySitrep(dbData.resources); let incidents = filterBySitrep(dbData.incidents);
+        let infrastructure = filterBySitrep(dbData.infrastructure);
 
         let totalAffIndv = 0, totalAffFam = 0, totalAffBrgy = 0, totalServedIndv = 0, totalServedFam = 0, totalActiveEcs = 0, totalEcIndv = 0, totalEcFam = 0, totalPreIndv = 0, totalPreFam = 0;
         evacs.forEach(curr => { totalAffIndv += (curr.affectedIndividuals || 0); totalAffFam += (curr.affectedFamilies || 0); totalServedIndv += (curr.servedIndividuals || 0); totalServedFam += (curr.servedFamilies || 0); totalAffBrgy += (curr.affectedBarangays || 0); totalActiveEcs += (curr.evacCenterCount || 0); let currEcFamNow = curr.insideEcFamiliesNow !== undefined ? curr.insideEcFamiliesNow : (curr.insideEcFamilies || 0); let currEcIndvNow = curr.insideEcIndividualsNow !== undefined ? curr.insideEcIndividualsNow : (curr.insideEcIndividuals || curr.individuals || 0); totalEcIndv += currEcIndvNow; totalEcFam += currEcFamNow; });
@@ -865,15 +906,20 @@
         complements.forEach(d => { let status = (d.status || '').toLowerCase(); if(status.includes('checked-in') || status.includes('standby')) { opcenPax += (d.personnel || 0); } });
         resources.forEach(d => { let status = (d.status || '').toLowerCase(); if(status.includes('deployed')) { depPax += (d.personnel || 0); totalAssets += (d.quantity || 0); } });
 
-        let totalDamages = 0, dmgAgri = 0, dmgRes = 0;
-        agri.forEach(curr => { let cost = curr.cost || 0; totalDamages += cost; dmgAgri += cost; }); residential.forEach(curr => { let count = curr.count || 0; dmgRes += count; });
+        let totalDamages = 0, dmgAgri = 0, dmgInfra = 0;
+        agri.forEach(curr => { let cost = curr.cost || 0; totalDamages += cost; dmgAgri += cost; }); 
+        infrastructure.forEach(curr => { let cost = curr.cost || 0; totalDamages += cost; dmgInfra += cost; });
 
         document.getElementById('kpi-aff-indv').innerText = totalAffIndv.toLocaleString(); document.getElementById('kpi-aff-fam').innerText = totalAffFam.toLocaleString(); document.getElementById('kpi-served-indv').innerText = totalServedIndv.toLocaleString(); document.getElementById('kpi-served-fam').innerText = totalServedFam.toLocaleString(); document.getElementById('kpi-aff-brgy').innerText = totalAffBrgy.toLocaleString();
         document.getElementById('kpi-ec-indv').innerText = totalEcIndv.toLocaleString(); document.getElementById('kpi-ec-count').innerText = totalActiveEcs.toLocaleString(); document.getElementById('kpi-ec-fam').innerText = totalEcFam.toLocaleString();
         document.getElementById('kpi-pre-indv').innerText = totalPreIndv.toLocaleString(); document.getElementById('kpi-pre-fam').innerText = totalPreFam.toLocaleString();
         document.getElementById('kpi-casualties').innerText = totalCas.toLocaleString();
         document.getElementById('kpi-res-pax').innerText = (opcenPax + depPax).toLocaleString(); document.getElementById('kpi-res-opcen').innerText = opcenPax.toLocaleString(); document.getElementById('kpi-res-dep').innerText = depPax.toLocaleString(); document.getElementById('kpi-res-assets').innerText = totalAssets.toLocaleString();
-        document.getElementById('kpi-damages').innerText = formatCurrency(totalDamages); document.getElementById('kpi-dmg-agri').innerText = formatCurrency(dmgAgri); document.getElementById('kpi-dmg-res').innerText = dmgRes.toLocaleString();
+        
+        document.getElementById('kpi-damages').innerText = formatCurrency(totalDamages); 
+        document.getElementById('kpi-dmg-agri').innerText = formatCurrency(dmgAgri); 
+        document.getElementById('kpi-dmg-infra').innerText = formatCurrency(dmgInfra);
+        
         document.getElementById('kpi-assistance').innerText = formatCurrency(totalAssist); document.getElementById('kpi-item-food').innerHTML = `${foodQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`; document.getElementById('kpi-item-kits').innerHTML = `${kitsQty.toLocaleString()} <span style="font-size:8px;">QTY</span>`; document.getElementById('kpi-item-cash').innerText = formatCurrency(cashAmount);
 
         let evacMap = {};
@@ -900,9 +946,8 @@
         let feedHtml = '';
         if(incidents.length === 0) { feedHtml = '<li class="empty-state">No related incidents or hazards reported for this SitRep.</li>'; } else { incidents.forEach(inc => { feedHtml += `<li class="incident-item"><div class="incident-loc"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-top:2px;"></i> ${inc.municipality || 'Unknown'}</div><div class="incident-desc"><span class="incident-label">Reported Hazard</span>${inc.particulars || inc.incident || 'N/A'}</div><div class="incident-act"><span class="incident-label">Action Taken</span>${inc.actionsTaken || 'Monitoring ongoing'}</div></li>`; }); } document.getElementById('incidentFeed').innerHTML = feedHtml;
 
-        updatePreemptiveChart(); updateAgriFeed(); updateResidentialChart(); updateItemsChart(); updateCasChart(); updateResChart(); updateFloodChart(); updateInfraChart(); updateUtilityChart(); updatePubInfraChart(); updateWeatherFeed();
+        updatePreemptiveChart(); updateAgriFeed(); updateInfraCostFeed(); updateItemsChart(); updateCasChart(); updateResChart(); updateFloodChart(); updateInfraChart(); updateUtilityChart(); updatePubInfraChart(); updateWeatherFeed();
         
-        // FADE OUT LOADER
         const loader = document.getElementById('global-loader');
         if (loader) {
             loader.style.opacity = '0';
