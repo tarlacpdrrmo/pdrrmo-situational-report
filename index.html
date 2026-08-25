@@ -186,11 +186,6 @@
             </div>
             
             <div class="kpi-card">
-                <div class="kpi-icon" style="background: rgba(160, 160, 160, 0.1); color: var(--text-main); margin-top: 0;"><i class="fa-solid fa-truck-medical"></i></div>
-                <div class="kpi-details"><span class="kpi-title">Casualties</span><span class="kpi-value" id="kpi-casualties">0</span></div>
-            </div>
-
-            <div class="kpi-card">
                 <div class="kpi-icon" style="background: rgba(16, 185, 129, 0.1); color: var(--accent-green); margin-top: 0;"><i class="fa-solid fa-house-crack"></i></div>
                 <div class="kpi-details">
                     <span class="kpi-title">Est. Damages (PHP)</span>
@@ -217,7 +212,7 @@
                 </div>
             </div>
 
-            <div class="kpi-card span-2">
+            <div class="kpi-card">
                 <div class="kpi-icon" style="background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); margin-top: 0;"><i class="fa-solid fa-truck-fast"></i></div>
                 <div class="kpi-details">
                     <span class="kpi-title">Manpower & Assets</span>
@@ -228,6 +223,11 @@
                         <div style="display: flex; flex-direction: column;"><span style="font-size: 8px; color: var(--text-muted); font-weight: 600;">ASSETS (QTY)</span><span id="kpi-res-assets" style="font-size: 11px; font-weight: 700; color: var(--accent-yellow);">0</span></div>
                     </div>
                 </div>
+            </div>
+
+            <div class="kpi-card" style="align-items: center;">
+                <div class="kpi-icon" style="background: rgba(160, 160, 160, 0.1); color: var(--text-main); margin-top: 0;"><i class="fa-solid fa-truck-medical"></i></div>
+                <div class="kpi-details"><span class="kpi-title">Casualties</span><span class="kpi-value" id="kpi-casualties">0</span></div>
             </div>
         </div>
 
@@ -256,7 +256,6 @@
                 </div>
             </div>
 
-            <!-- ATLAS: INFRASTRUCTURE BREAKDOWN CARD WITH REMARKS -->
             <div class="chart-card">
                 <div class="chart-header">
                     <h3><i class="fa-solid fa-building-shield" style="color: var(--accent-red);"></i> Infrastructure Damages Breakdown</h3>
@@ -823,7 +822,8 @@
         let sel = tsInstances['infra-cost-muni-filter'].getValue() || 'ALL'; 
         let munis = new Set();
         
-        let filtered = dbData.infrastructure.filter(d => {
+        let infraData = filterBySitrep(dbData.infrastructure);
+        let filtered = infraData.filter(d => {
             if(d.category === 'Road' || d.category === 'Bridge') return false; 
             let cost = parseFloat(d.cost) || 0;
             if (cost <= 0) return false; 
