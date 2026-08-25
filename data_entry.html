@@ -566,16 +566,15 @@
             <form id="form-assistance">
                 <div class="row">
                     <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Barangay (Optional)</label><input type="text" class="f-brgy" placeholder="e.g., Poblacion"></div>
-                </div>
-                <div class="row">
                     <div class="col form-group"><label>Source of Assistance</label><select class="f-source" required placeholder="Type or Select Source..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Relief Item Provided</label><select class="f-relief" required placeholder="Type or Select Item..."><option value=""></option></select></div>
                 </div>
                 <div class="row">
-                    <div class="col form-group"><label>Quantity Distributed</label><input type="number" class="f-qty" min="1" required></div>
-                    <div class="col form-group"><label>Estimated Cost (PHP - Optional)</label><input type="number" step="0.01" class="f-cost" min="0" placeholder="e.g., 15000.50"></div>
+                    <div class="col form-group"><label>Relief Item Provided</label><select class="f-relief" required placeholder="Type or Select Item..."><option value=""></option></select></div>
+                    <div class="col form-group"><label>Quantity / Financial Assistance Distributed</label><input type="number" step="0.01" class="f-qty" min="1" required placeholder="e.g., 500 (sacks) or 15000.50 (PHP)"></div>
+                </div>
+                <div class="row">
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                    <div class="col form-group"></div>
                 </div>
                 <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Distributed to 50 families in evacuation center" required></div>
                 <button type="submit" class="submit-btn" style="margin-top: 40px;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Assistance Report</button>
@@ -634,14 +633,12 @@
         signOut(auth).then(() => { window.location.href = "index.html"; }); 
     };
 
-    // ATLAS: THE MAGIC BUTTON LOGIC
     window.applyMagicClean = function(btn) {
         const group = btn.closest('.form-group');
         const textarea = group.querySelector('textarea');
         if (!textarea || !textarea.value) return;
 
         let text = textarea.value;
-        
         let cleaned = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
         cleaned = cleaned.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
         cleaned = cleaned.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
@@ -662,7 +659,6 @@
         }, 1500);
     };
 
-    // ATLAS: TOMSELECT GHOST-TEXT BUG FIX
     const tsClearOptions = {
         onItemAdd: function() { this.setTextboxValue(''); },
         onBlur: function() { this.setTextboxValue(''); }
@@ -807,7 +803,6 @@
         });
     });
 
-    // ATLAS: MOVED originalBtnText OUTSIDE TRY/CATCH TO PREVENT REFERENCE ERRORS
     async function handleSubmission(e, collectionName, dataCompiler) {
         e.preventDefault(); const form = e.target; const successMsg = form.querySelector('.msg-success'); const errorMsg = form.querySelector('.msg-error'); const submitBtn = form.querySelector('.submit-btn');
         if (!isLocked) { errorMsg.style.display = 'block'; setTimeout(() => errorMsg.style.display = 'none', 4000); return; }
@@ -862,11 +857,9 @@
             alert("Agency and Narrative are required!"); return;
         }
 
-        // ATLAS: MOVED originalText OUTSIDE TRY/CATCH
-        const originalText = submitBtn.innerHTML;
+        const originalText = submitBtn.innerHTML; 
         try {
-            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...';
-            submitBtn.style.opacity = '0.7'; submitBtn.disabled = true;
+            submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; submitBtn.style.opacity = '0.7'; submitBtn.disabled = true;
 
             const finalPayload = { agency: agencyVal, actionTime: dateStr, category: category, description: narrative, ...contextData };
             await addDoc(collection(db, "actions_data"), finalPayload);
@@ -949,7 +942,6 @@
 
         if (!selectedCoverages || !selectedType || !remarks) { alert("Coverage Area, Suspension Type, and Details are required!"); return; }
 
-        // ATLAS: MOVED originalText OUTSIDE TRY/CATCH
         const originalText = submitBtn.innerHTML; 
         try {
             submitBtn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Saving...'; submitBtn.style.opacity = '0.7'; submitBtn.disabled = true;
@@ -993,9 +985,28 @@
     });
 
     document.getElementById('form-assistance').addEventListener('submit', (e) => {
-        handleSubmission(e, "assistance_data", (f) => ({ 
-            municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value || "", source: f.querySelector('.f-source').value, reliefItem: f.querySelector('.f-relief').value, quantity: parseInt(f.querySelector('.f-qty').value), cost: parseFloat(f.querySelector('.f-cost').value) || 0.0, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: f.querySelector('.f-report-time').value 
-        }));
+        handleSubmission(e, "assistance_data", (f) => {
+            let item = f.querySelector('.f-relief').value;
+            let rawAmount = parseFloat(f.querySelector('.f-qty').value) || 0;
+            let qty = rawAmount;
+            let cost = 0.0;
+            
+            let isFinancial = item.toLowerCase().includes('financial') || item.toLowerCase().includes('cash') || item.toLowerCase().includes('aics') || item.toLowerCase().includes('peso');
+            if (isFinancial) {
+                cost = rawAmount;
+                qty = 0;
+            }
+
+            return { 
+                municipality: f.querySelector('.f-muni').value, 
+                source: f.querySelector('.f-source').value, 
+                reliefItem: item, 
+                quantity: qty, 
+                cost: cost, 
+                remarks: f.querySelector('.f-remarks').value.trim(), 
+                dateReported: f.querySelector('.f-report-time').value 
+            };
+        });
     });
 
     document.getElementById('form-incidents').addEventListener('submit', (e) => {
