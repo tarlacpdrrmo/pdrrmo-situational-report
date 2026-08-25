@@ -221,7 +221,8 @@
                     <option value="sec-evac">2a. Affected Population & ECs</option>
                     <option value="sec-preemptive">2b. Pre-Emptive Evacuations</option>
                     <option value="sec-lifeline">3. Status of Lifelines</option>
-                    <option value="sec-infra">Public Infrastructure Report</option>
+                    <option value="sec-road">Status of Roads & Bridges</option>
+                    <option value="sec-infra">Damage to Infrastructure</option>
                     <option value="sec-cas">4. Casualties & Human Impact</option>
                     <option value="sec-complement">5a. Manpower / Resources Complement</option>
                     <option value="sec-deployed">5b. Deployed Assets & Personnel</option>
@@ -335,11 +336,28 @@
                 </table>
             </div>
 
-            <h2 class="section-title"><i class="fa-solid fa-building-shield"></i> Public Infrastructure Report</h2>
+            <h2 class="section-title"><i class="fa-solid fa-road-barrier"></i> Status of Roads & Bridges</h2>
+            <div class="table-container" id="sec-road">
+                <table style="table-layout: auto;">
+                    <thead><tr>
+                        <th style="width: 30%;">Road Section</th>
+                        <th style="width: 20%;">Date/Time Reported/Monitored</th>
+                        <th style="width: 20%;">Status</th>
+                        <th style="width: 30%;">Remarks</th>
+                    </tr></thead>
+                    <tbody id="road-tbody"><tr><td colspan="4" class="empty-state">Loading data...</td></tr></tbody>
+                </table>
+            </div>
+
+            <h2 class="section-title"><i class="fa-solid fa-building-shield"></i> Damage to Infrastructure</h2>
             <div class="table-container" id="sec-infra">
                 <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 20%;">Specific Infra / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="width: 20%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="infra-tbody"><tr><td colspan="8" class="empty-state">Loading data...</td></tr></tbody>
+                    <thead><tr>
+                        <th style="width: 45%; color: var(--accent-blue);">Infrastructure</th>
+                        <th style="width: 25%; color: var(--accent-blue);">Damage Cost</th>
+                        <th style="width: 30%; color: var(--accent-blue);">Source</th>
+                    </tr></thead>
+                    <tbody id="infra-tbody"><tr><td colspan="3" class="empty-state">Loading data...</td></tr></tbody>
                 </table>
             </div>
 
@@ -505,17 +523,10 @@
         if (e.key === 'Escape') closeNarrativeModal();
     });
 
-    // ATLAS: ULTIMATE PDF CLEANER UTILITY (Fixes squished numbers & protects lists)
     function formatNarrative(text) {
         if (!text) return '<span class="sub-text">N/A</span>';
-        
-        // 0. Pre-Scrubber: Fix squished PDF numbers (e.g., "10.Deployed" -> "10. Deployed")
         let cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
-
-        // 1. Force a line break before bullet points (➤, •, ●, ❖) OR numbered/lettered lists
         cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
-        
-        // 2. Remove single line breaks, BUT ignore lines starting with bullets, numbers, or letters
         cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
 
         if (cleanedText.length < 80) return `<div class="truncate-box expanded">${cleanedText}</div>`;
@@ -528,7 +539,7 @@
 
     function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
     function formatActionTime(dateString) { if(!dateString) return `<span class="sub-text">N/A</span>`; const d = new Date(dateString); return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`; }
-    function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount); }
+    function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount || 0); }
     function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text">${lat}, ${lng}</span>` : ``; }
     function buildTag(cause, sr) { if(!cause && !sr) return ""; let text = cause || "Unknown Incident"; if(sr) text += ` - SR#${sr}`; return `<br><span class="sitrep-tag">${text}</span>`; }
 
@@ -543,7 +554,24 @@
     }
 
     function updateSectionVisibility() {
-        const sections = [ { id: "sec-weather", icon: "fa-cloud-sun-rain" }, { id: "sec-actions", icon: "fa-clipboard-list" }, { id: "sec-flood", icon: "fa-water" }, { id: "sec-evac", icon: "fa-users-rays" }, { id: "sec-preemptive", icon: "fa-person-walking-arrow-right" }, { id: "sec-lifeline", icon: "fa-bolt" }, { id: "sec-infra", icon: "fa-building-shield" }, { id: "sec-cas", icon: "fa-truck-medical" }, { id: "sec-complement", icon: "fa-clipboard-user" }, { id: "sec-deployed", icon: "fa-truck-fast" }, { id: "sec-sus", icon: "fa-school" }, { id: "sec-agri", icon: "fa-wheat-awn" }, { id: "sec-residential", icon: "fa-house-chimney-crack" }, { id: "sec-ast", icon: "fa-hand-holding-hand" }, { id: "sec-inc", icon: "fa-triangle-exclamation" } ];
+        const sections = [ 
+            { id: "sec-weather", icon: "fa-cloud-sun-rain" }, 
+            { id: "sec-actions", icon: "fa-clipboard-list" }, 
+            { id: "sec-flood", icon: "fa-water" }, 
+            { id: "sec-evac", icon: "fa-users-rays" }, 
+            { id: "sec-preemptive", icon: "fa-person-walking-arrow-right" }, 
+            { id: "sec-lifeline", icon: "fa-bolt" }, 
+            { id: "sec-road", icon: "fa-road-barrier" }, 
+            { id: "sec-infra", icon: "fa-building-shield" }, 
+            { id: "sec-cas", icon: "fa-truck-medical" }, 
+            { id: "sec-complement", icon: "fa-clipboard-user" }, 
+            { id: "sec-deployed", icon: "fa-truck-fast" }, 
+            { id: "sec-sus", icon: "fa-school" }, 
+            { id: "sec-agri", icon: "fa-wheat-awn" }, 
+            { id: "sec-residential", icon: "fa-house-chimney-crack" }, 
+            { id: "sec-ast", icon: "fa-hand-holding-hand" }, 
+            { id: "sec-inc", icon: "fa-triangle-exclamation" } 
+        ];
         document.querySelectorAll('.section-title').forEach(header => {
             const container = header.nextElementSibling; let show = activeSection === "ALL";
             if (!show) { const target = sections.find(s => s.id === activeSection); if (target && header.querySelector(`.${target.icon}`)) show = true; }
@@ -598,10 +626,71 @@
         filtered.forEach(data => { let badgeClass = data.status.includes("Not Passable") || data.status.includes("Outage") ? "bg-danger" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
+    // ATLAS: UPDATED ROAD RENDERER TO ONLY SHOW PASSABILITY RECORDS
+    function renderRoads() {
+        const tb = document.getElementById('road-tbody'); tb.innerHTML = ''; 
+        const filtered = dbData.infrastructure.filter(matchesFilter).filter(d => {
+            if(d.recordType === 'Passability') return true;
+            if(!d.recordType && (d.category === 'Road' || d.category === 'Bridge') && d.status && d.status.includes('Passable')) return true; // Legacy fallback
+            return false;
+        });
+        
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching data found.</td></tr>'; return; }
+        
+        filtered.forEach(data => { 
+            let badgeClass = data.status.includes("Not Passable") ? "bg-danger" : "bg-success"; 
+            let statusHtml = `<span class="badge ${badgeClass}">${data.status}</span>`;
+            
+            tb.innerHTML += `<tr>
+                <td><span class="strong-text">${data.specificArea}</span><span class="sub-text">${data.municipality}</span></td>
+                <td>${formatActionTime(data.dateReported)}</td>
+                <td>${statusHtml}</td>
+                <td>${formatNarrative(data.remarks)}</td>
+            </tr>`; 
+        });
+    }
+
+    // ATLAS: UPDATED INFRASTRUCTURE RENDERER TO ONLY SHOW DAMAGE RECORDS
     function renderInfrastructure() {
-        const tb = document.getElementById('infra-tbody'); tb.innerHTML = ''; const filtered = dbData.infrastructure.filter(matchesFilter);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { let badgeClass = data.status.includes("Damaged") || data.status.includes("Breached") ? "bg-danger" : data.status.includes("Repair") ? "bg-warning" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        const tb = document.getElementById('infra-tbody'); tb.innerHTML = ''; 
+        const filtered = dbData.infrastructure.filter(matchesFilter).filter(d => {
+            if(d.recordType === 'Damage') return true;
+            if(!d.recordType) {
+                if(d.cost > 0) return true;
+                if(d.category !== 'Road' && d.category !== 'Bridge' && (!d.status || !d.status.includes('Passable'))) return true; // Legacy fallback
+            }
+            return false;
+        });
+
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="3" class="empty-state">No matching data found.</td></tr>'; return; }
+        
+        let grandTotal = 0;
+        
+        filtered.forEach(data => {
+            let cost = parseFloat(data.cost) || 0;
+            grandTotal += cost;
+            
+            let nameDisplay = `<span class="strong-text" style="color:var(--accent-blue); font-size:14px;">${data.specificArea}</span>`;
+            let remarksDisplay = data.remarks ? `<div class="sub-text" style="margin-top: 8px; font-size: 12px; white-space: pre-wrap;">${data.remarks}</div>` : '';
+            
+            let costDisplay = `<span class="strong-text" style="color:var(--accent-blue); font-size:14px;">${formatCurrency(cost)}</span>`;
+            
+            let source = data.source || 'Unknown Source';
+            let dateDisplay = data.dateReported ? `<br><span style="font-size:11px; color:var(--text-muted); margin-top:4px; display:inline-block;">as of ${new Date(data.dateReported).toLocaleString('en-US', { hour: 'numeric', minute: '2-digit', hour12: true })},<br>${new Date(data.dateReported).toLocaleString('en-US', { month: 'long', day: 'numeric' })}</span>` : '';
+            let sourceDisplay = `<span class="strong-text" style="color:var(--accent-blue); font-size:13px;">${source},</span>${dateDisplay}`;
+
+            tb.innerHTML += `<tr>
+                <td style="padding-top:20px; padding-bottom:20px;">${nameDisplay}${remarksDisplay}</td>
+                <td style="padding-top:20px; padding-bottom:20px;">${costDisplay}</td>
+                <td style="padding-top:20px; padding-bottom:20px; text-align:center;">${sourceDisplay}</td>
+            </tr>`;
+        });
+
+        tb.innerHTML += `<tr style="border-top: 2px solid var(--text-main);">
+            <td style="padding-top:20px; padding-bottom:20px;"><span class="strong-text" style="color:var(--accent-blue); font-size:14px; text-transform:uppercase; text-align:center;">Grand Total</span></td>
+            <td style="padding-top:20px; padding-bottom:20px;"><span class="strong-text" style="color:var(--accent-blue); font-size:14px; font-weight:800;">${formatCurrency(grandTotal)}</span></td>
+            <td></td>
+        </tr>`;
     }
 
     function renderCasualties() {
@@ -653,7 +742,6 @@
         filtered.forEach(data => { let badgeClass = data.category.includes("Totally") ? "bg-danger" : "bg-warning"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(data.count || 0).toLocaleString()}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.description)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
-    // ATLAS: SMART SWAP FIX FOR FINANCIAL ASSISTANCE
     function renderAssistance() {
         const tb = document.getElementById('ast-tbody'); tb.innerHTML = ''; const filtered = dbData.assistance.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
@@ -681,11 +769,10 @@
     }
 
     function renderAll() {
-        renderWeather(); renderActions(); renderFloods(); renderEvacs(); renderPreemptive(); renderLifelines(); renderInfrastructure(); renderCasualties(); 
+        renderWeather(); renderActions(); renderFloods(); renderEvacs(); renderPreemptive(); renderLifelines(); renderRoads(); renderInfrastructure(); renderCasualties(); 
         renderComplement(); renderDeployed(); renderSuspensions(); renderAgri(); renderResidential(); renderAssistance(); renderIncidents();
         updateLatestSitrepIndicator(); 
         
-        // FADE OUT LOADER
         const loader = document.getElementById('global-loader');
         if (loader) {
             loader.style.opacity = '0';
