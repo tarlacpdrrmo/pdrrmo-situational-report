@@ -381,7 +381,6 @@
                 </table>
             </div>
 
-            <!-- UPDATED SUSPENSIONS TABLE (4 Columns with Type) -->
             <h2 class="section-title"><i class="fa-solid fa-school"></i> 6. Class & Work Suspensions</h2>
             <div class="table-container" id="sec-sus">
                 <table style="table-layout: auto;">
@@ -623,7 +622,6 @@
         filtered.forEach(data => { let badgeClass = (data.status === 'Deployed') ? "bg-primary" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary"; let pax = data.personnel !== undefined ? data.personnel : 0; let gpsDiv = formatGPS(data.latitude, data.longitude) ? `<div style="margin-top:4px;">${formatGPS(data.latitude, data.longitude)}</div>` : ''; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span><span class="sub-text">${data.barangay}</span>${gpsDiv}</td><td><span class="strong-text">${data.agency}</span><span class="sub-text">${data.quantity}x ${data.assetType} | ${pax} Pax</span></td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
-    // UPDATED SUSPENSIONS RENDERER (Includes Type Badges)
     function renderSuspensions() {
         const tb = document.getElementById('sus-tbody'); tb.innerHTML = ''; const filtered = dbData.suspensions.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching data found.</td></tr>'; return; }
@@ -655,10 +653,25 @@
         filtered.forEach(data => { let badgeClass = data.category.includes("Totally") ? "bg-danger" : "bg-warning"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(data.count || 0).toLocaleString()}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.description)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
+    // ATLAS: SMART SWAP FIX FOR FINANCIAL ASSISTANCE
     function renderAssistance() {
         const tb = document.getElementById('ast-tbody'); tb.innerHTML = ''; const filtered = dbData.assistance.filter(matchesFilter);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge bg-primary">${data.source}</span></td><td><span class="strong-text">${data.quantity}x</span> ${data.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        filtered.forEach(data => { 
+            let item = data.reliefItem || 'Unknown Item';
+            let qty = data.quantity || 0;
+            let cost = data.cost || 0;
+
+            let isFinancial = item.toLowerCase().includes('financial') || item.toLowerCase().includes('cash') || item.toLowerCase().includes('aics') || item.toLowerCase().includes('peso');
+            if (isFinancial && cost === 0 && qty > 0) {
+                cost = qty;
+                qty = 0; 
+            }
+
+            let qtyDisplay = qty > 0 ? `<span class="strong-text">${qty}x</span> ` : '';
+
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge bg-primary">${data.source}</span></td><td>${qtyDisplay}${item}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; 
+        });
     }
 
     function renderIncidents() {
