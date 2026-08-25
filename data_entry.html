@@ -42,7 +42,6 @@
         .context-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end; }
         .form-group { display: flex; flex-direction: column; margin-bottom: 15px; width: 100%;}
         
-        /* MAGIC UI ELEMENTS */
         .flex-label { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 8px; font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.3px; text-transform: uppercase;}
         .magic-btn { background: rgba(139, 92, 246, 0.1); color: var(--accent-purple); border: 1px solid rgba(139, 92, 246, 0.2); border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
         .magic-btn:hover { background: var(--accent-purple); color: #fff; }
@@ -140,7 +139,8 @@
         <button class="tab-btn" onclick="openTab('complement')"><i class="fa-solid fa-clipboard-user"></i> OpCen Complement</button>
         <button class="tab-btn" onclick="openTab('deployed')"><i class="fa-solid fa-truck-fast"></i> Deployed Assets</button>
         <button class="tab-btn" onclick="openTab('lifelines')"><i class="fa-solid fa-bolt"></i> Status of Lifelines</button>
-        <button class="tab-btn" onclick="openTab('infrastructure')"><i class="fa-solid fa-building-shield"></i> Public Infra (Dams/Dikes)</button>
+        <button class="tab-btn" onclick="openTab('roads')"><i class="fa-solid fa-road-barrier"></i> Roads & Bridges</button>
+        <button class="tab-btn" onclick="openTab('infrastructure')"><i class="fa-solid fa-building-shield"></i> Damaged Infra</button>
         <button class="tab-btn" onclick="openTab('casualties')"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
         <button class="tab-btn" onclick="openTab('suspensions')"><i class="fa-solid fa-school"></i> Suspensions</button>
         <button class="tab-btn" onclick="openTab('agri')"><i class="fa-solid fa-wheat-awn"></i> Agriculture Damages</button>
@@ -194,6 +194,8 @@
             </div>
         </div>
 
+        <!-- OTHER FORMS OMITTED FOR BREVITY, FOCUSING ON INFRASTRUCTURE -->
+        <!-- (All other form HTML code remains exactly the same as the previous step) -->
         <div id="weather" class="form-section active">
             <h2><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather Conditions</h2>
             <form id="form-weather">
@@ -409,33 +411,70 @@
             </form>
         </div>
 
-        <div id="infrastructure" class="form-section">
-            <h2><i class="fa-solid fa-building-shield"></i> Public Infrastructure Report</h2>
-            <form id="form-infrastructure">
+        <div id="roads" class="form-section">
+            <h2><i class="fa-solid fa-road-barrier"></i> Status of Roads & Bridges</h2>
+            <form id="form-roads">
                 <div class="row">
                     <div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required placeholder="Select Municipality..."><option value=""></option></select></div>
-                    <div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" placeholder="e.g., Romulo Highway, Camiling River Dike" required></div>
+                    <div class="col form-group"><label>Road Section / Bridge Name</label><input type="text" class="f-area" placeholder="e.g., Romulo Highway Cacamilingan Section" required></div>
                 </div>
                 <div class="row">
-                    <div class="col form-group"><label>Infrastructure Category</label>
-                        <select class="f-cat" required placeholder="Select Category..."><option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Dam">Dam</option><option value="Dike / Barricade">Dike / Barricade</option><option value="Slope Protection">Slope Protection</option><option value="Government Building">Government Building</option><option value="Other Public Infra">Other Public Infra</option></select>
+                    <div class="col form-group"><label>Category</label>
+                        <select class="f-cat f-road-cat" required placeholder="Select Category...">
+                            <option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option>
+                        </select>
                     </div>
                     <div class="col form-group"><label>Status</label>
-                        <select class="f-status" required placeholder="Select Status...">
-                            <option value=""></option>
-                            <optgroup label="Roads & Bridges"><option value="Passable">Passable (All)</option><option value="Not Passable (Light)">Not Passable (Light)</option><option value="Not Passable (All)">Not Passable (All)</option></optgroup>
-                            <optgroup label="Dams, Dikes & Buildings"><option value="Intact / Monitored">Intact / Monitored</option><option value="Partially Damaged">Partially Damaged</option><option value="Totally Damaged">Totally Damaged</option><option value="Breached / Collapsed">Breached / Collapsed</option><option value="Ongoing Repair">Ongoing Repair</option></optgroup>
+                        <select class="f-status f-road-status" required placeholder="Select Status...">
+                            <option value=""></option><option value="Passable">Passable (All)</option><option value="Not Passable (Light)">Not Passable (Light)</option><option value="Not Passable (All)">Not Passable (All)</option>
                         </select>
                     </div>
                     <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
                 </div>
-                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Water level critical, 5 meters breached" required></div>
+                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Passable to all types of Vehicles, 0.20m depth" required></div>
                 <div class="row gps-row">
                     <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
                     <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
                     <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
                 </div>
-                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Infrastructure Report</button>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Roads & Bridges Report</button>
+                <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
+                <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
+            </form>
+        </div>
+
+        <!-- ATLAS: UPDATED DAMAGED INFRASTRUCTURE FORM -->
+        <div id="infrastructure" class="form-section">
+            <h2><i class="fa-solid fa-building-shield"></i> Damage to Infrastructure</h2>
+            <form id="form-infrastructure">
+                <div class="row">
+                    <div class="col form-group">
+                        <label>Affected Municipalities</label>
+                        <select class="f-muni-multi" multiple required placeholder="Select Municipalities..."><option value=""></option></select>
+                    </div>
+                    <div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" placeholder="e.g., 1 Local Road (San Jose)" required></div>
+                </div>
+                <div class="row">
+                    <!-- ADDED ROAD AND BRIDGE TO CATEGORY -->
+                    <div class="col form-group"><label>Infrastructure Category</label>
+                        <select class="f-cat" required placeholder="Select Category...">
+                            <option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Slope Protection">Slope Protection</option><option value="Dike / Barricade">Dike / Barricade</option><option value="Dam">Dam</option><option value="Government Building">Government Building</option><option value="Flood Control">Flood Control</option><option value="Other Public Infra">Other Public Infra</option>
+                        </select>
+                    </div>
+                    <!-- REMOVED STATUS FIELD -->
+                    <div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div>
+                </div>
+                <div class="row">
+                    <div class="col form-group"><label>Damage Cost (PHP - Optional)</label><input type="number" step="0.01" class="f-cost" placeholder="e.g., 9000000.00"></div>
+                    <div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" placeholder="e.g., DPWH Tarlac 1st DEO" required></div>
+                </div>
+                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" placeholder="e.g., Nine (9) in Tarlac City, Four (4) in Camiling..."></div>
+                <div class="row gps-row">
+                    <div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input" placeholder="e.g., 15.4827"></div>
+                    <div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input" placeholder="e.g., 120.5985"></div>
+                    <div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> Capture GPS</button></div>
+                </div>
+                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Damaged Infra Report</button>
                 <div class="alert msg-success"><i class="fa-solid fa-circle-check"></i> Record successfully saved to system.</div>
                 <div class="error-alert msg-error"><i class="fa-solid fa-triangle-exclamation"></i> Error: Lock Incident Context first!</div>
             </form>
@@ -670,6 +709,12 @@
     const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
     document.querySelectorAll('.f-coverage').forEach(el => { coverages.forEach(c => el.add(new Option(c, c))); new TomSelect(el, { create: false, delimiter: '|', plugins: ['remove_button'], ...tsClearOptions }); });
 
+    // ATLAS: MULTI-SELECT INITIALIZATION FOR DAMAGED INFRASTRUCTURE
+    document.querySelectorAll('.f-muni-multi').forEach(el => { 
+        municipalities.forEach(m => el.add(new Option(m, m))); 
+        new TomSelect(el, { create: false, delimiter: ',', plugins: ['remove_button'], ...tsClearOptions }); 
+    });
+
     const globalAgencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
     document.querySelectorAll('.f-agency').forEach(el => { globalAgencies.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
 
@@ -725,7 +770,7 @@
     
     document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
     document.querySelectorAll('.f-weather-cond').forEach(el => { new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
-    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
+    document.querySelectorAll('.f-status, .f-cat, .f-class, .f-type, .f-road-cat, .f-road-status').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
 
     flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K", time_24hr: false, minuteIncrement: 1, monthSelectorType: "dropdown", prevArrow: `<svg viewBox="0 0 24 24"><polyline points="15 18 9 12 15 6"></polyline></svg>`, nextArrow: `<svg viewBox="0 0 24 24"><polyline points="9 18 15 12 9 6"></polyline></svg>`, position: "auto" });
 
@@ -917,8 +962,42 @@
         handleSubmission(e, "lifeline_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
     });
 
+    // ATLAS: PASSABILITY TAG FOR ROADS
+    document.getElementById('form-roads').addEventListener('submit', (e) => {
+        handleSubmission(e, "infrastructure_data", (f) => ({ 
+            recordType: 'Passability',
+            municipality: f.querySelector('.f-muni').value, 
+            specificArea: f.querySelector('.f-area').value, 
+            category: f.querySelector('.f-cat').value, 
+            status: f.querySelector('.f-status').value, 
+            remarks: f.querySelector('.f-remarks').value.trim(), 
+            latitude: f.querySelector('.lat-input').value, 
+            longitude: f.querySelector('.lng-input').value, 
+            dateReported: f.querySelector('.f-report-time').value,
+            cost: 0,
+            source: 'LDRRMO'
+        }));
+    });
+
+    // ATLAS: DAMAGE TAG FOR INFRASTRUCTURE
     document.getElementById('form-infrastructure').addEventListener('submit', (e) => {
-        handleSubmission(e, "infrastructure_data", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }));
+        handleSubmission(e, "infrastructure_data", (f) => {
+            const muniSelect = f.querySelector('.f-muni-multi');
+            const selectedMunis = Array.from(muniSelect.selectedOptions).map(opt => opt.value).join(', ');
+            return { 
+                recordType: 'Damage',
+                municipality: selectedMunis, 
+                specificArea: f.querySelector('.f-area').value, 
+                category: f.querySelector('.f-cat').value, 
+                status: "Assessed for Damage", 
+                cost: parseFloat(f.querySelector('.f-cost').value) || 0,
+                source: f.querySelector('.f-infra-source').value.trim(),
+                remarks: f.querySelector('.f-remarks').value.trim(), 
+                latitude: f.querySelector('.lat-input').value, 
+                longitude: f.querySelector('.lng-input').value, 
+                dateReported: f.querySelector('.f-report-time').value 
+            };
+        });
     });
 
     document.getElementById('form-casualties').addEventListener('submit', (e) => {
