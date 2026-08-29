@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDRRMO System Admin | Dark Pro</title>
+    <title>PDRRMO System Admin | Workspace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- SECURITY: Hides page until authenticated -->
@@ -13,56 +13,113 @@
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
 
-        :root { --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e; --bg-hover: #262626; --text-main: #ffffff; --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981; --accent-red: #ef4444; --accent-blue: #3b82f6; --border-subtle: #2e2e2e; }
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
-        
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
-        .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
-        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
-        
-        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;}
-        .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
-        .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
-        .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
-        .dashboard-link:active { transform: translateX(4px) scale(0.98); }
-        .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--accent-red); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(239, 68, 68, 0.2); }
-        .active-tab i { color: var(--accent-red); transform: scale(1.1); }
+        :root { 
+            --bg-body: #F2F2F7; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF; --bg-input: #F2F2F7; --bg-hover: #E5E5EA; 
+            --text-main: #1C1C1E; --text-muted: #86868B; 
+            --accent-blue: #007AFF; --accent-green: #34C759; --accent-orange: #FF9500; --accent-red: #FF3B30; --accent-purple: #AF52DE; --accent-teal: #5AC8FA; --accent-yellow: #FFCC00;
+            --border-subtle: #D1D1D6; --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04); --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
+        body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased;}
         
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px;}
+        /* SIDEBAR */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid #E5E5EA; z-index: 10; padding: 20px 10px; flex-shrink: 0; overflow-y: auto;}
+        .sidebar::-webkit-scrollbar { width: 0px; }
+        .sidebar-brand { font-size: 20px; font-weight: 800; color: var(--text-main); padding: 10px 15px 30px 15px; letter-spacing: -0.5px;}
+        .nav-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 15px 8px 15px; margin-top: 20px;}
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 10px 15px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-main); border-radius: var(--radius-md); margin-bottom: 2px;}
+        .dashboard-link i { width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s; }
+        .dashboard-link:hover { background-color: var(--bg-hover); }
+        .active-tab { background-color: #FFEBEB; font-weight: 600; color: var(--accent-red); }
+        .active-tab i { color: var(--accent-red); }
+
+        .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; }
+        
+        /* NOVA FIX: Reverted to 900px wide canvas */
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; max-width: 900px; margin-left: auto; margin-right: auto;}
         .header-left { display: flex; align-items: center; gap: 15px;}
-        .header-left .avatar { width: 45px; height: 45px; border-radius: 10px; background-color: rgba(239, 68, 68, 0.1); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--accent-red); border: 1px solid rgba(239,68,68,0.2);}
-        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .header-left .avatar { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%); display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;}
         .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
 
-        .lock-btn { background-color: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.2); padding: 10px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px;}
-        .lock-btn:hover { background-color: var(--accent-red); color: #fff; }
+        .lock-btn { background-color: #FFEBEB; color: var(--accent-red); border: none; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-family: var(--font-stack);}
+        .lock-btn:hover { background-color: #FFD6D6; }
 
-        .admin-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 12px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); max-width: 800px; margin: 0 auto; margin-top: 20px;}
-        .admin-card-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;}
-        .admin-card-header i { font-size: 28px; color: var(--accent-orange); }
-        .admin-card-header h3 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700;}
+        /* NOVA FIX: Reverted to 900px wide canvas */
+        .admin-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-soft); max-width: 900px; margin: 0 auto; margin-bottom: 30px;}
+        .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;}
+        .header-title-group { display: flex; align-items: center; gap: 15px; }
+        .header-title-group i { font-size: 24px; color: var(--accent-blue); }
+        .header-title-group h3 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; letter-spacing: -0.3px;}
         .admin-card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;}
         
+        /* AUDIT ENGINE STYLES */
+        .health-score-container { display: flex; align-items: center; gap: 20px; background: #F9F9FB; padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom: 25px; }
+        
+        /* NOVA FIX: Added flex-shrink: 0 to mathematically lock it as a perfect circle */
+        .health-score-circle { width: 70px; height: 70px; flex-shrink: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 800; border: 4px solid var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(52, 199, 89, 0.2); transition: all 0.3s ease; background: #fff;}
+        
+        .health-score-circle.warning { border-color: var(--accent-orange); color: var(--accent-orange); box-shadow: 0 0 15px rgba(255, 149, 0, 0.2); }
+        .health-score-circle.critical { border-color: var(--accent-red); color: var(--accent-red); box-shadow: 0 0 15px rgba(255, 59, 48, 0.2); }
+        .health-details h4 { margin: 0 0 5px 0; font-size: 15px; color: var(--text-main); font-weight: 700;}
+        .health-details p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+
+        .flag-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;}
+        .flag-list::-webkit-scrollbar { width: 6px; }
+        .flag-list::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+        .flag-item { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-subtle); padding: 15px; border-radius: var(--radius-sm); transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
+        .flag-item:hover { background: #F9F9FB; }
+        .flag-item.critical { border-left: 4px solid var(--accent-red); }
+        .flag-item.warning { border-left: 4px solid var(--accent-orange); }
+        
+        .flag-info { display: flex; flex-direction: column; gap: 6px; }
+        .flag-title { font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+        .badge-red { font-size: 9px; font-weight: 800; background: #FFEBEB; color: var(--accent-red); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255, 59, 48, 0.2);}
+        .badge-yellow { font-size: 9px; font-weight: 800; background: #FFF4E5; color: var(--accent-orange); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255, 149, 0, 0.2);}
+        .flag-context { font-size: 11px; color: var(--text-muted); font-family: 'Fira Code', monospace; font-weight: 600;}
+        
+        .btn-action-group { display: flex; gap: 8px; }
+        .btn-fix { background: #E5F0FF; color: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
+        .btn-fix:hover { background: #CCE0FF; }
+        .btn-delete { background: #FFEBEB; color: var(--accent-red); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-delete:hover { background: #FFD6D6; }
+
         .input-group { margin-bottom: 25px; }
         .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .input-group input { width: 100%; padding: 14px 15px; border: 1px solid var(--border-subtle); border-radius: 8px; font-family: 'Inter', sans-serif; font-size: 14px; color: var(--text-main); background-color: var(--bg-input); box-sizing: border-box; outline: none; transition: 0.2s;}
-        .input-group input:focus { border-color: var(--accent-orange); }
+        .input-group input { width: 100%; padding: 14px 15px; border: 1px solid #C7C7CC; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 14px; color: var(--text-main); background-color: #fff; box-sizing: border-box; outline: none; transition: 0.2s;}
+        .input-group input:focus { border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
 
-        .btn-archive { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border: 1px solid rgba(239, 68, 68, 0.3); padding: 16px 25px; border-radius: 8px; font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; letter-spacing: 0.5px; }
-        .btn-archive:hover { background: var(--accent-red); color: #fff; box-shadow: 0 4px 15px rgba(239, 68, 68, 0.4); transform: translateY(-2px); }
-        .btn-archive:active { transform: translateY(0); }
+        .btn-archive { background: #FF3B30; color: #fff; border: none; padding: 16px 25px; border-radius: var(--radius-md); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; letter-spacing: 0.5px; font-family: var(--font-stack);}
+        .btn-archive:hover { background: #D92D20; transform: scale(0.99); }
+        
+        /* RAW EDITOR MODAL STYLES (KEPT DARK MODE FOR "DEVELOPER" FEEL) */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card { background: #1C1C1E; border: 1px solid #333; border-radius: var(--radius-lg); width: 90%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-modal); transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #333; background: #121212; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
+        .modal-header h3 { margin: 0; color: #fff; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
+        .modal-close { background: rgba(255,255,255,0.1); border: none; color: #a0a0a0; font-size: 16px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; }
+        .modal-close:hover { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .modal-body { padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;}
+        
+        .json-editor { width: 100%; height: 350px; background: #000; color: #34C759; font-family: 'Fira Code', monospace; font-size: 13px; padding: 15px; border: 1px solid #333; border-radius: var(--radius-sm); outline: none; resize: vertical; box-sizing: border-box; line-height: 1.6; }
+        .json-editor:focus { border-color: var(--accent-blue); }
+        
+        .btn-save-edit { background: var(--accent-blue); color: #fff; border: none; border-radius: var(--radius-sm); padding: 14px 20px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; font-size: 14px; font-family: var(--font-stack);}
+        .btn-save-edit:hover { background: #0056B3; }
 
-        /* OVERLAY AND ANIMATION STYLES */
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
+        /* OVERLAY AND ANIMATION STYLES (DARK TERMINAL) */
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
         .loading-overlay.active { opacity: 1; visibility: visible; }
         
-        .terminal-box { background: #0a0a0a; border: 1px solid #333; border-radius: 12px; width: 500px; max-width: 90%; box-shadow: 0 20px 50px rgba(0,0,0,0.8); overflow: hidden; transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .terminal-box { background: #1C1C1E; border: 1px solid #333; border-radius: var(--radius-lg); width: 550px; max-width: 90%; box-shadow: var(--shadow-modal); overflow: hidden; transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .loading-overlay.active .terminal-box { transform: translateY(0); }
         
-        .terminal-header { background: #1a1a1a; padding: 12px 20px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
-        .terminal-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;}
+        .terminal-header { background: #121212; padding: 12px 20px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
+        .terminal-title { font-size: 11px; font-weight: 700; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;}
         .terminal-dots { display: flex; gap: 6px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
         .dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
@@ -70,31 +127,28 @@
         .terminal-body { padding: 25px; }
         
         .progress-wrapper { margin-bottom: 25px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-orange); font-weight: 600; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
-        .progress-track { width: 100%; height: 6px; background: #222; border-radius: 3px; overflow: hidden; }
-        .progress-fill { height: 100%; background: var(--accent-orange); width: 0%; box-shadow: 0 0 10px var(--accent-orange); transition: width 0.3s ease; }
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-blue); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        .progress-track { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
+        .progress-fill { height: 100%; background: var(--accent-blue); width: 0%; box-shadow: 0 0 10px var(--accent-blue); transition: width 0.3s ease; }
         
-        .console-logs { background: #000; border-radius: 6px; padding: 15px; height: 180px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 12px; color: #10b981; line-height: 1.6; border: 1px solid #222; }
+        .console-logs { background: #000; border-radius: 6px; padding: 15px; height: 200px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 12px; color: #34C759; line-height: 1.6; border: 1px solid #222; }
         .console-logs::-webkit-scrollbar { width: 4px; }
         .console-logs::-webkit-scrollbar-track { background: #000; }
         .console-logs::-webkit-scrollbar-thumb { background: #333; border-radius: 4px;}
         
         .log-line { margin: 0; opacity: 0; animation: slideUpFade 0.3s forwards; }
-        .log-highlight { color: #fcd34d; font-weight: 600; }
-        .log-error { color: #ef4444; }
-        .log-system { color: #3b82f6; }
+        .log-highlight { color: #FFCC00; font-weight: 600; }
+        .log-error { color: #FF3B30; }
+        .log-system { color: #5AC8FA; }
         
-        @keyframes slideUpFade {
-            from { opacity: 0; transform: translateY(5px); }
-            to { opacity: 1; transform: translateY(0); }
-        }
+        @keyframes slideUpFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
         .success-icon { font-size: 60px; color: var(--accent-green); margin-bottom: 15px; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .success-text { font-size: 18px; font-weight: 700; color: #fff; margin-bottom: 8px;}
-        .success-subtext { font-size: 13px; color: var(--text-muted); margin-bottom: 25px;}
-        .btn-done { background: var(--bg-hover); color: var(--text-main); border: 1px solid var(--border-subtle); padding: 10px 20px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 13px; transition: 0.2s;}
-        .btn-done:hover { background: #333; }
+        .success-text { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px;}
+        .success-subtext { font-size: 14px; color: #a0a0a0; margin-bottom: 25px;}
+        .btn-done { background: #333; color: #fff; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; font-family: var(--font-stack);}
+        .btn-done:hover { background: #444; }
 
         @keyframes scaleIn { 0% { transform: scale(0); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
 
@@ -103,19 +157,21 @@
 <body>
 
     <div class="sidebar">
-        <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
-        <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
+        <div class="sidebar-brand">Tarlac PDRRMO</div>
+        <div class="nav-section-title">Monitoring System</div>
         
-        <div style="margin-top: 10px;">
+        <div style="margin-top: 5px; padding: 0 10px;">
             <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
-            <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>            <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
-            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
+            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i> Command Workspace</a>
             <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
             <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
         </div>
 
-        <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
-        <a href="admin.html" class="dashboard-link active-tab"><i class="fa-solid fa-server"></i> System Admin</a>
+        <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;">SECURE ACCESS</div>
+        <div style="padding: 0 10px;">
+            <a href="admin.html" class="dashboard-link active-tab"><i class="fa-solid fa-server"></i> System Admin</a>
+        </div>
     </div>
 
     <div class="main-content">
@@ -124,22 +180,51 @@
                 <div class="avatar"><i class="fa-solid fa-shield-halved"></i></div>
                 <div class="top-header-text">
                     <h2>System Administration Center</h2>
-                    <p>Database Management & Historical Logging</p>
+                    <p>Database Management, Automated Audits & Historical Logging</p>
                 </div>
             </div>
             <button onclick="logoutUser()" class="lock-btn"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
         </div>
 
+        <!-- SYSTEM AUDIT ENGINE UI -->
         <div class="admin-card">
             <div class="admin-card-header">
-                <i class="fa-solid fa-box-archive"></i>
-                <h3>Archive Active Incident Data</h3>
+                <div class="header-title-group">
+                    <i class="fa-solid fa-stethoscope"></i>
+                    <h3>System Audit & Diagnostics</h3>
+                </div>
+                <div style="font-size: 11px; font-family: monospace; color: var(--accent-green); font-weight: 700;"><i class="fa-solid fa-circle-dot fa-fade" style="margin-right: 4px;"></i> LIVE FEED ACTIVE</div>
+            </div>
+            
+            <div class="health-score-container">
+                <div class="health-score-circle" id="healthScoreCircle">100%</div>
+                <div class="health-details">
+                    <h4>Database Integrity Score</h4>
+                    <p>The system actively scans all unarchived entries for logic errors, fat-finger anomalies (e.g., extra zeros in costs), and identical duplicate submissions.</p>
+                </div>
+            </div>
+
+            <ul class="flag-list" id="auditFlagsList">
+                <li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: #E8F8EE; border: 1px dashed rgba(52, 199, 89, 0.4); border-radius: 12px; gap: 12px;">
+                    <i class="fa-solid fa-check-double" style="font-size: 32px; opacity: 0.8;"></i> 
+                    <span style="font-size: 14px; font-weight: 600;">No logic errors, anomalies, or duplicates detected in the active database.</span>
+                </li>
+            </ul>
+        </div>
+
+        <!-- ARCHIVE CARD -->
+        <div class="admin-card">
+            <div class="admin-card-header">
+                <div class="header-title-group">
+                    <i class="fa-solid fa-box-archive" style="color: var(--accent-red);"></i>
+                    <h3>Archive Active Incident Data</h3>
+                </div>
             </div>
             
             <p class="admin-card-desc">
                 Executing this protocol will finalize the current disaster response logs. All active data entries currently populating the live dashboards will be securely compiled, time-stamped, and transferred to the Historical Logs. 
                 <br><br>
-                <strong style="color: var(--accent-orange);"><i class="fa-solid fa-triangle-exclamation"></i> Notice:</strong> The live monitoring dashboards will be cleared and reset to await the next operational incident. This action cannot be easily undone.
+                <strong style="color: var(--accent-red);"><i class="fa-solid fa-triangle-exclamation"></i> Notice:</strong> The live monitoring dashboards will be cleared and reset to await the next operational incident. This action cannot be easily undone.
             </p>
 
             <div class="input-group">
@@ -148,6 +233,26 @@
             </div>
 
             <button class="btn-archive" onclick="triggerArchiveProtocol()"><i class="fa-solid fa-power-off"></i> Execute Archiving Protocol</button>
+        </div>
+    </div>
+
+    <!-- RAW JSON EDITOR MODAL FOR AUDIT FIXES -->
+    <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-code" style="color: var(--accent-blue);"></i> Raw Database Editor</h3>
+                <button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body">
+                <div style="font-size: 13px; color: #a0a0a0; margin-bottom: 5px;">
+                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-orange); margin-right: 4px;"></i> 
+                    Modify the raw JSON payload below to fix typos. Be careful not to delete quotation marks or commas.
+                </div>
+                <input type="hidden" id="editDocId">
+                <input type="hidden" id="editCollectionName">
+                <textarea class="json-editor" id="rawJsonEditor" spellcheck="false"></textarea>
+                <button class="btn-save-edit" id="saveEditBtn" onclick="saveRecordEdit()"><i class="fa-solid fa-cloud-arrow-up"></i> Push Changes to Database</button>
+            </div>
         </div>
     </div>
 
@@ -187,7 +292,7 @@
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { initializeFirestore, collection, getDocs, writeBatch, doc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { initializeFirestore, collection, getDocs, writeBatch, doc, onSnapshot, query, updateDoc, deleteDoc } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
     const firebaseConfig = {
@@ -203,37 +308,224 @@
     const db = initializeFirestore(app, { experimentalForceLongPolling: true });
     const auth = getAuth(app);
 
-    // SECURITY CHECK: Bounces unauthenticated users to login page
     onAuthStateChanged(auth, (user) => {
-        if (user) { 
-            document.body.style.visibility = "visible"; 
-        } else { 
-            window.location.href = "login.html?redirect=admin.html"; 
-        }
+        if (user) { document.body.style.visibility = "visible"; } 
+        else { window.location.href = "login.html?redirect=admin.html"; }
     });
 
-    window.logoutUser = function() { 
-        signOut(auth).then(() => { window.location.href = "index.html"; }); 
-    };
+    window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 
-    // Internal mapping of all active collections used in the system
     const systemCollections = [
-        { id: "weather_conditions", name: "Weather Observations" },
-        { id: "actions_data", name: "Preparedness Actions" },
-        { id: "flooded_areas", name: "Flooded Area Vectors" },
-        { id: "evacuation_data", name: "Evacuation Center Logs" },
-        { id: "preemptive_data", name: "Pre-Emptive Evac Logs" },
-        { id: "complement_data", name: "OpCen Complement Logs" },
-        { id: "lifeline_data", name: "Utility Lifeline Status" },
-        { id: "infrastructure_data", name: "Public Infrastructure" },
-        { id: "casualties_data", name: "Reported Casualties" },
-        { id: "resource_data", name: "Deployed Asset Tracking" },
-        { id: "suspensions_data", name: "Official Suspensions" },
-        { id: "agri_damages", name: "Agricultural Damages" },
-        { id: "residential_damages", name: "Residential Damages" },
-        { id: "assistance_data", name: "Relief Assistance Value" },
+        { id: "weather_conditions", name: "Weather Observations" }, { id: "actions_data", name: "Preparedness Actions" },
+        { id: "flooded_areas", name: "Flooded Area Vectors" }, { id: "evacuation_data", name: "Evacuation Center Logs" },
+        { id: "preemptive_data", name: "Pre-Emptive Evac Logs" }, { id: "complement_data", name: "OpCen Complement Logs" },
+        { id: "lifeline_data", name: "Utility Lifeline Status" }, { id: "infrastructure_data", name: "Public Infrastructure" },
+        { id: "casualties_data", name: "Reported Casualties" }, { id: "resource_data", name: "Deployed Asset Tracking" },
+        { id: "suspensions_data", name: "Official Suspensions" }, { id: "agri_damages", name: "Agricultural Damages" },
+        { id: "residential_damages", name: "Residential Damages" }, { id: "assistance_data", name: "Relief Assistance Value" },
         { id: "related_incidents", name: "Hazard Monitoring Logs" }
     ];
+
+    // ==========================================
+    // ATLAS: LIVE SYSTEM AUDIT & DIAGNOSTIC ENGINE
+    // ==========================================
+    
+    let liveAuditData = {};
+    let auditFlags = [];
+
+    // Initialize listeners for the major collections prone to human error
+    const collectionsToAudit = ['evacuation_data', 'casualties_data', 'infrastructure_data', 'assistance_data'];
+    
+    collectionsToAudit.forEach(colName => {
+        onSnapshot(query(collection(db, colName)), (snap) => {
+            liveAuditData[colName] = snap.docs.map(doc => ({ id: doc.id, ...doc.data() })).filter(d => d.isArchived !== true);
+            runSystemAudit();
+        });
+    });
+
+    function runSystemAudit() {
+        auditFlags = [];
+        let totalRecordsScanned = 0;
+        let globalDuplicateMap = new Set();
+
+        // 1. Audit Evacuation Centers (Ghost Check)
+        if (liveAuditData.evacuation_data) {
+            liveAuditData.evacuation_data.forEach(d => {
+                totalRecordsScanned++;
+                let status = d.status || '';
+                let ecFamNow = d.insideEcFamiliesNow !== undefined ? d.insideEcFamiliesNow : (d.insideEcFamilies || 0); 
+                let ecIndvNow = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0);
+                
+                if (status === 'Active' && ecFamNow === 0 && ecIndvNow === 0) {
+                    auditFlags.push({ type: 'critical', col: 'evacuation_data', doc: d, title: 'Ghost Evacuation Center', context: `${d.municipality} | SitRep ${d.sitrepNo}`, reason: 'Center marked Active but contains 0 individuals.' });
+                }
+
+                // Duplicate Hash
+                let hash = `EVAC_${d.sitrepNo}_${d.municipality}_${d.evacCenterCount}`;
+                if (globalDuplicateMap.has(hash)) { auditFlags.push({ type: 'critical', col: 'evacuation_data', doc: d, title: 'Duplicate Submission', context: `${d.municipality} | SitRep ${d.sitrepNo}`, reason: 'Identical record found for this municipality in the same SitRep.' }); }
+                globalDuplicateMap.add(hash);
+            });
+        }
+
+        // 2. Audit Casualties (Zero Check)
+        if (liveAuditData.casualties_data) {
+            liveAuditData.casualties_data.forEach(d => {
+                totalRecordsScanned++;
+                if (d.count === 0) {
+                    auditFlags.push({ type: 'critical', col: 'casualties_data', doc: d, title: 'Zero Casualty Record', context: `${d.municipality} - ${d.barangay} | SitRep ${d.sitrepNo}`, reason: 'Casualty record submitted with 0 count.' });
+                }
+                let hash = `CAS_${d.sitrepNo}_${d.municipality}_${d.barangay}_${d.classification}`;
+                if (globalDuplicateMap.has(hash)) { auditFlags.push({ type: 'critical', col: 'casualties_data', doc: d, title: 'Duplicate Submission', context: `${d.municipality} - ${d.barangay} | SitRep ${d.sitrepNo}`, reason: 'Identical casualty class found for this location.' }); }
+                globalDuplicateMap.add(hash);
+            });
+        }
+
+        // 3. Audit Infrastructure (Fat Finger Check & Type Check)
+        if (liveAuditData.infrastructure_data) {
+            liveAuditData.infrastructure_data.forEach(d => {
+                totalRecordsScanned++;
+                let cost = parseFloat(d.cost) || 0;
+                if (cost > 500000000) {
+                    auditFlags.push({ type: 'warning', col: 'infrastructure_data', doc: d, title: 'Extreme Infrastructure Cost', context: `${d.specificArea} | SitRep ${d.sitrepNo}`, reason: `Cost is ₱${cost.toLocaleString()} (Over ₱500M). Check for extra zeros.` });
+                }
+                // Duplicate check accounts for recordType (Passability vs Damage)
+                let hash = `INFRA_${d.sitrepNo}_${d.municipality}_${d.specificArea}_${d.recordType || 'legacy'}`;
+                if (globalDuplicateMap.has(hash)) { auditFlags.push({ type: 'critical', col: 'infrastructure_data', doc: d, title: 'Duplicate Submission', context: `${d.specificArea} | SitRep ${d.sitrepNo}`, reason: 'Identical infrastructure item type found in same SitRep.' }); }
+                globalDuplicateMap.add(hash);
+            });
+        }
+
+        // 4. Audit Assistance (Fat Finger Check > 5M)
+        if (liveAuditData.assistance_data) {
+            liveAuditData.assistance_data.forEach(d => {
+                totalRecordsScanned++;
+                let cost = parseFloat(d.cost) || 0;
+                if (cost > 5000000) {
+                    auditFlags.push({ type: 'warning', col: 'assistance_data', doc: d, title: 'Extreme Relief Cost', context: `${d.municipality} - ${d.reliefItem} | SitRep ${d.sitrepNo}`, reason: `Cost is ₱${cost.toLocaleString()} (Over ₱5M). Check for extra zeros.` });
+                }
+            });
+        }
+
+        renderAuditUI();
+    }
+
+    function renderAuditUI() {
+        const listEl = document.getElementById('auditFlagsList');
+        const scoreEl = document.getElementById('healthScoreCircle');
+        listEl.innerHTML = '';
+
+        // Calculate Health Score
+        let score = 100;
+        let critCount = auditFlags.filter(f => f.type === 'critical').length;
+        let warnCount = auditFlags.filter(f => f.type === 'warning').length;
+        score -= (critCount * 5) + (warnCount * 2);
+        if (score < 0) score = 0;
+
+        scoreEl.innerText = `${score}%`;
+        scoreEl.className = 'health-score-circle'; // reset
+        if (score < 80) scoreEl.classList.add('warning');
+        if (score < 60) scoreEl.classList.add('critical');
+
+        if (auditFlags.length === 0) {
+            listEl.innerHTML = `<li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: #E8F8EE; border: 1px dashed rgba(52, 199, 89, 0.4); border-radius: 12px; gap: 12px;">
+                <i class="fa-solid fa-check-double" style="font-size: 32px; opacity: 0.8;"></i> 
+                <span style="font-size: 14px; font-weight: 600;">No logic errors, anomalies, or duplicates detected in the active database.</span>
+            </li>`;
+            return;
+        }
+
+        // Render Flags
+        auditFlags.forEach(flag => {
+            let badgeObj = flag.type === 'critical' ? `<span class="badge-red">CRITICAL</span>` : `<span class="badge-yellow">WARNING</span>`;
+            
+            // Serialize doc cleanly for the editor button
+            let cleanDoc = { ...flag.doc };
+            delete cleanDoc.timeMonitored; // remove complex timestamp object for JSON editing
+
+            listEl.innerHTML += `
+                <li class="flag-item ${flag.type}">
+                    <div class="flag-info">
+                        <div class="flag-title">${badgeObj} ${flag.title}</div>
+                        <div style="font-size: 13px; color: var(--text-main); margin-top: 2px;">${flag.reason}</div>
+                        <div class="flag-context"><i class="fa-solid fa-code-branch" style="margin-right:4px;"></i>${flag.context}</div>
+                    </div>
+                    <div class="btn-action-group">
+                        <button class="btn-fix" onclick='openEditModal("${flag.col}", "${flag.doc.id}", ${JSON.stringify(cleanDoc)})'><i class="fa-solid fa-pen-to-square"></i> Review</button>
+                        <button class="btn-delete" onclick='deleteFlaggedRecord("${flag.col}", "${flag.doc.id}")'><i class="fa-solid fa-trash-can"></i></button>
+                    </div>
+                </li>
+            `;
+        });
+    }
+
+    window.openEditModal = function(colName, docId, docData) {
+        document.getElementById('editDocId').value = docId;
+        document.getElementById('editCollectionName').value = colName;
+        // Format JSON cleanly for editing
+        document.getElementById('rawJsonEditor').value = JSON.stringify(docData, null, 4);
+        
+        const modal = document.getElementById('editModal');
+        modal.style.display = 'flex';
+        setTimeout(() => modal.classList.add('active'), 10);
+    };
+
+    window.closeEditModal = function(e) {
+        if(e && e.target.id !== 'editModal' && e.target.className !== 'modal-close' && e.target.parentElement.className !== 'modal-close') return;
+        const modal = document.getElementById('editModal');
+        modal.classList.remove('active');
+        setTimeout(() => modal.style.display = 'none', 300); 
+    };
+
+    window.saveRecordEdit = async function() {
+        const btn = document.getElementById('saveEditBtn');
+        const originalText = btn.innerHTML;
+        
+        try {
+            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pushing...';
+            btn.disabled = true;
+
+            const docId = document.getElementById('editDocId').value;
+            const colName = document.getElementById('editCollectionName').value;
+            const rawJson = document.getElementById('rawJsonEditor').value;
+            
+            // Validate JSON
+            const updatedData = JSON.parse(rawJson);
+            delete updatedData.id; // ensure ID isn't written into fields
+
+            const docRef = doc(db, colName, docId);
+            await updateDoc(docRef, updatedData);
+
+            btn.innerHTML = '<i class="fa-solid fa-check"></i> Fixed Successfully';
+            btn.style.background = 'var(--accent-green)';
+            setTimeout(() => {
+                closeEditModal();
+                btn.innerHTML = originalText;
+                btn.style.background = '';
+                btn.disabled = false;
+            }, 1000);
+
+        } catch (error) {
+            console.error("JSON Edit Error:", error);
+            alert("Error saving record. Check if your JSON syntax is valid (keep quotation marks around keys and string values).");
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+        }
+    };
+
+    window.deleteFlaggedRecord = async function(colName, docId) {
+        if(confirm("Are you sure you want to permanently delete this duplicate/erroneous record?")) {
+            try {
+                await deleteDoc(doc(db, colName, docId));
+            } catch(e) {
+                console.error("Delete failed:", e);
+                alert("Failed to delete record.");
+            }
+        }
+    };
+
+    // ==========================================
+    // ORIGINAL ARCHIVE LOGIC
+    // ==========================================
 
     window.triggerArchiveProtocol = async function() {
         const incidentName = document.getElementById('archiveIncidentName').value.trim();
@@ -246,7 +538,6 @@
         const confirmMsg = `WARNING: You are about to archive all live data for "${incidentName}".\n\nThis will clear the live dashboards and move records to the Historical Logs. Do you wish to proceed?`;
         if (!confirm(confirmMsg)) return;
 
-        // UI Setup
         const overlay = document.getElementById('loadingOverlay');
         const consoleLogs = document.getElementById('consoleLogs');
         const progressFill = document.getElementById('progressFill');
@@ -265,7 +556,6 @@
         
         overlay.classList.add('active');
 
-        // Function to smoothly add lines to the terminal
         const addLog = (msg, styleClass = '') => {
             const p = document.createElement('p');
             p.className = `log-line ${styleClass}`;
@@ -281,7 +571,6 @@
             await new Promise(r => setTimeout(r, 1000));
             addLog(`Connection established. Scanning ${systemCollections.length} active data pathways...`);
 
-            // Loop through collections, artificially pacing it for the visual feedback
             for (let i = 0; i < systemCollections.length; i++) {
                 const colInfo = systemCollections[i];
                 
@@ -298,12 +587,11 @@
                     }
                 });
 
-                // Visual Animation Pacing
                 await new Promise(r => setTimeout(r, 400 + Math.random() * 400)); 
                 
                 addLog(`Compressing <span class="log-highlight">${colInfo.name}</span>... [Found ${colRecordCount} records]`);
                 
-                const percent = Math.round(((i + 1) / systemCollections.length) * 90); // Go up to 90%
+                const percent = Math.round(((i + 1) / systemCollections.length) * 90); 
                 progressFill.style.width = `${percent}%`;
                 progressPercent.innerText = `${percent}%`;
             }
@@ -312,32 +600,29 @@
             addLog(`All pathways scanned. Total records ready for transfer: <span class="log-highlight">${totalRecordsProcessed}</span>`);
             addLog(`Committing batch update to system archive...`, 'log-system');
 
-            // EXECUTE FIRESTORE BATCH
             if (totalRecordsProcessed > 0) {
                 await batch.commit();
             }
 
             await new Promise(r => setTimeout(r, 1000));
             
-            // Finish Animation
             progressFill.style.width = `100%`;
             progressPercent.innerText = `100%`;
             addLog(`Batch commit successful. Data securely logged.`, 'log-highlight');
             
-            // Wait a second, then show success screen
             setTimeout(() => {
                 processingUI.style.display = 'none';
                 successUI.style.display = 'flex';
                 document.getElementById('archiveIncidentName').value = '';
-                localStorage.setItem('sitrepContextLocked', 'false'); // Unlock Data Entry Context automatically
+                localStorage.setItem('sitrepContextLocked', 'false'); 
             }, 1200);
 
         } catch (error) {
             console.error("Archive Error:", error);
             addLog(`SYSTEM ERROR: Sequence failed.`, 'log-error');
             addLog(`${error.message}`, 'log-error');
-            progressFill.style.backgroundColor = '#ef4444';
-            progressFill.style.boxShadow = '0 0 10px #ef4444';
+            progressFill.style.backgroundColor = '#FF3B30';
+            progressFill.style.boxShadow = '0 0 10px #FF3B30';
         }
     };
 
