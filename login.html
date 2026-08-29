@@ -7,28 +7,171 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        body { font-family: 'Inter', sans-serif; background-color: #121212; margin: 0; display: flex; height: 100vh; justify-content: center; align-items: center; color: #ffffff; }
-        .login-card { background: #1e1e1e; padding: 40px; border-radius: 12px; border: 1px solid #2e2e2e; box-shadow: 0 10px 30px rgba(0,0,0,0.5); width: 100%; max-width: 350px; text-align: center; }
-        .login-card i.fa-shield-halved { font-size: 40px; color: #ff8c00; margin-bottom: 20px; }
-        .login-card h2 { margin: 0 0 5px 0; font-size: 22px; font-weight: 700; }
-        .login-card p { margin: 0 0 25px 0; font-size: 13px; color: #a0a0a0; }
-        .form-group { display: flex; flex-direction: column; text-align: left; margin-bottom: 15px; }
-        .form-group label { font-size: 11px; font-weight: 600; color: #a0a0a0; text-transform: uppercase; margin-bottom: 6px; }
-        .form-group input { padding: 12px 15px; border: 1px solid #2e2e2e; border-radius: 8px; background: #121212; color: #fff; font-family: 'Inter'; font-size: 14px; outline: none; transition: 0.2s; }
-        .form-group input:focus { border-color: #ff8c00; }
-        .login-btn { background: #ff8c00; color: #000; border: none; width: 100%; padding: 14px; border-radius: 8px; font-weight: 700; font-size: 14px; cursor: pointer; transition: 0.2s; margin-top: 10px; display: flex; justify-content: center; align-items: center; gap: 8px; }
-        .login-btn:hover { background: #e67e00; }
-        .error-msg { color: #ef4444; font-size: 12px; margin-top: 15px; display: none; background: rgba(239, 68, 68, 0.1); padding: 10px; border-radius: 6px; border: 1px solid rgba(239, 68, 68, 0.2); }
-        .back-link { display: inline-block; margin-top: 20px; color: #a0a0a0; font-size: 12px; text-decoration: none; transition: 0.2s; }
-        .back-link:hover { color: #ffffff; }
+        
+        :root { 
+            --bg-body: #F2F2F7; --bg-card: #FFFFFF; 
+            --text-main: #1C1C1E; --text-muted: #86868B; 
+            --accent-blue: #007AFF; --accent-red: #FF3B30; 
+            --border-subtle: #D1D1D6; --input-border: #C7C7CC;
+            --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
+            --radius-lg: 14px; --radius-md: 10px;
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+        }
+
+        body { 
+            font-family: var(--font-stack); 
+            background-color: var(--bg-body); 
+            margin: 0; 
+            display: flex; 
+            height: 100vh; 
+            justify-content: center; 
+            align-items: center; 
+            color: var(--text-main); 
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .login-card { 
+            background: var(--bg-card); 
+            padding: 40px 45px; 
+            border-radius: var(--radius-lg); 
+            border: 1px solid var(--border-subtle); 
+            box-shadow: var(--shadow-soft); 
+            width: 100%; 
+            max-width: 340px; 
+            text-align: center; 
+        }
+
+        .icon-container {
+            width: 70px;
+            height: 70px;
+            border-radius: 18px;
+            background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0 auto 20px auto;
+            box-shadow: 0 8px 20px rgba(0, 122, 255, 0.25);
+        }
+
+        .login-card i.fa-shield-halved { 
+            font-size: 32px; 
+            color: #ffffff; 
+        }
+
+        .login-card h2 { 
+            margin: 0 0 6px 0; 
+            font-size: 22px; 
+            font-weight: 800; 
+            letter-spacing: -0.5px;
+        }
+
+        .login-card p { 
+            margin: 0 0 30px 0; 
+            font-size: 13px; 
+            color: var(--text-muted); 
+            font-weight: 500;
+        }
+
+        .form-group { 
+            display: flex; 
+            flex-direction: column; 
+            text-align: left; 
+            margin-bottom: 18px; 
+        }
+
+        .form-group label { 
+            font-size: 11px; 
+            font-weight: 700; 
+            color: var(--text-muted); 
+            text-transform: uppercase; 
+            letter-spacing: 0.5px;
+            margin-bottom: 8px; 
+        }
+
+        .form-group input { 
+            padding: 12px 15px; 
+            border: 1px solid var(--input-border); 
+            border-radius: var(--radius-md); 
+            background: #ffffff; 
+            color: var(--text-main); 
+            font-family: var(--font-stack); 
+            font-size: 14px; 
+            font-weight: 500;
+            outline: none; 
+            transition: all 0.2s ease; 
+        }
+
+        .form-group input::placeholder {
+            color: #AEAEB2;
+            font-weight: 400;
+        }
+
+        .form-group input:focus { 
+            border-color: var(--accent-blue); 
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.15); 
+        }
+
+        .login-btn { 
+            background: var(--accent-blue); 
+            color: #ffffff; 
+            border: none; 
+            width: 100%; 
+            padding: 14px; 
+            border-radius: var(--radius-md); 
+            font-family: var(--font-stack);
+            font-weight: 600; 
+            font-size: 14px; 
+            cursor: pointer; 
+            transition: 0.2s; 
+            margin-top: 10px; 
+            display: flex; 
+            justify-content: center; 
+            align-items: center; 
+            gap: 8px; 
+        }
+
+        .login-btn:hover { 
+            background: #0056B3; 
+            transform: scale(0.98);
+        }
+
+        .error-msg { 
+            color: var(--accent-red); 
+            font-size: 13px; 
+            font-weight: 500;
+            margin-top: 15px; 
+            display: none; 
+            background: #FFEBEB; 
+            padding: 12px; 
+            border-radius: var(--radius-md); 
+            border: 1px solid rgba(255, 59, 48, 0.2); 
+        }
+
+        .back-link { 
+            display: inline-flex;
+            align-items: center;
+            gap: 6px; 
+            margin-top: 25px; 
+            color: var(--text-muted); 
+            font-size: 12px; 
+            font-weight: 600;
+            text-decoration: none; 
+            transition: 0.2s; 
+        }
+
+        .back-link:hover { 
+            color: var(--accent-blue); 
+        }
     </style>
 </head>
 <body>
 
     <div class="login-card">
-        <i class="fa-solid fa-shield-halved"></i>
+        <div class="icon-container">
+            <i class="fa-solid fa-shield-halved"></i>
+        </div>
         <h2>Restricted Access</h2>
-        <p>PDRRMO Data Entry Portal</p>
+        <p>PDRRMO Operational Workspace</p>
 
         <form id="loginForm">
             <div class="form-group">
@@ -40,7 +183,7 @@
                 <input type="password" id="password" required placeholder="••••••••">
             </div>
             <button type="submit" class="login-btn" id="submitBtn"><i class="fa-solid fa-right-to-bracket"></i> Authenticate</button>
-            <div class="error-msg" id="errorMsg">Invalid credentials.</div>
+            <div class="error-msg" id="errorMsg"><i class="fa-solid fa-circle-exclamation"></i> Invalid credentials.</div>
         </form>
         <a href="index.html" class="back-link"><i class="fa-solid fa-arrow-left"></i> Return to Dashboard</a>
     </div>
