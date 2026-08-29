@@ -3,325 +3,363 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDRRMO Historical Archives | Dark Pro</title>
+    <title>PDRRMO Historical Archives | Workspace</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
-
-        :root {
-            --bg-body: #121212; --bg-sidebar: #181818; --bg-card: #1e1e1e;
-            --bg-input: #121212; --bg-hover: #262626; --text-main: #ffffff;
-            --text-muted: #a0a0a0; --accent-orange: #ff8c00; --accent-green: #10b981;
-            --accent-red: #ef4444; --accent-blue: #3b82f6; --accent-teal: #14b8a6; --accent-purple: #8b5cf6; --accent-yellow: #fcd34d; --border-subtle: #2e2e2e;
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        
+        :root { 
+            --bg-body: #F2F2F7; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF; --bg-input: #F2F2F7; --bg-hover: #E5E5EA; 
+            --text-main: #1C1C1E; --text-muted: #86868B; 
+            --accent-blue: #007AFF; --accent-green: #34C759; --accent-orange: #FF9500; --accent-red: #FF3B30; --accent-purple: #AF52DE; --accent-teal: #5AC8FA; --accent-yellow: #FFCC00;
+            --border-subtle: #D1D1D6; --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04); --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
+            --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
+            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
         }
 
-        body { font-family: 'Inter', sans-serif; background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); }
+        body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased; }
         
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid var(--border-subtle); z-index: 10; padding: 20px 0; flex-shrink: 0;}
-        .sidebar-brand { font-size: 24px; font-weight: 700; color: var(--text-main); padding: 0 25px 30px 25px; letter-spacing: 1px;}
-        .nav-section-title { font-size: 11px; font-weight: 600; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; padding: 0 25px 10px 25px;}
+        /* SIDEBAR */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid #E5E5EA; z-index: 10; padding: 20px 10px; flex-shrink: 0; overflow-y: auto;}
+        .sidebar::-webkit-scrollbar { width: 0px; }
+        .sidebar-brand { font-size: 20px; font-weight: 800; color: var(--text-main); padding: 10px 15px 30px 15px; letter-spacing: -0.5px;}
+        .nav-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 15px 8px 15px; margin-top: 20px;}
+        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 10px 15px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-main); border-radius: var(--radius-md); margin-bottom: 2px;}
+        .dashboard-link i { width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s; }
+        .dashboard-link:hover { background-color: var(--bg-hover); }
+        .active-tab { background-color: var(--bg-hover); font-weight: 600; color: var(--accent-blue); }
+        .active-tab i { color: var(--accent-blue); }
         
-        .dashboard-link { 
-            display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 12px 25px; font-size: 14px; font-weight: 500; color: var(--text-muted); position: relative; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); overflow: hidden; border-left: 4px solid transparent;
-        }
-        .dashboard-link i { transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); width: 20px; text-align: center; }
-        .dashboard-link:hover { color: var(--text-main); background-color: var(--bg-hover); transform: translateX(6px); }
-        .dashboard-link:hover i { color: var(--accent-orange); transform: scale(1.15); }
-        .dashboard-link:active { transform: translateX(4px) scale(0.98); }
-        .active-tab { background-color: var(--bg-hover); color: var(--text-main); border-left-color: var(--text-muted); font-weight: 600; box-shadow: inset 4px 0 12px -2px rgba(255, 255, 255, 0.1); }
-        .active-tab i { color: var(--text-main); transform: scale(1.1); }
+        /* MAIN CONTENT */
+        .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; position: relative; }
+        .main-content::-webkit-scrollbar { width: 6px; }
+        .main-content::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+        .workspace-wrapper { width: 100%; margin: 0 auto; display: flex; flex-direction: column; min-height: 100%; }
 
-        .main-content { flex: 1; display: flex; flex-direction: column; overflow-y: auto; padding: 30px 40px; }
-        
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 25px;}
         .header-left { display: flex; align-items: center; gap: 15px;}
-        .header-left .avatar { width: 45px; height: 45px; border-radius: 10px; background-color: rgba(160, 160, 160, 0.1); display: flex; justify-content: center; align-items: center; font-size: 20px; color: var(--text-main); border: 1px solid rgba(160,160,160,0.2);}
-        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; }
+        .header-left .avatar { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #8E8E93 0%, #3A3A3C 100%); display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;}
         .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
 
-        .filter-panel { background: var(--bg-card); padding: 25px 30px; border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 30px; display: flex; align-items: flex-end; gap: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.2);}
+        /* FILTER PANEL */
+        .filter-panel { background: var(--bg-card); padding: 25px 30px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 30px; display: flex; align-items: flex-end; gap: 15px; box-shadow: var(--shadow-soft);}
         .filter-group { display: flex; flex-direction: column; flex: 1;}
         .filter-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
         
-        .ts-wrapper { width: 100%; position: relative; } 
-        .ts-control, .ts-control input { color: var(--text-main) !important; font-family: 'Inter', sans-serif; font-size: 14px; }
-        .ts-wrapper.single .ts-control { background-color: var(--bg-input); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 12px 15px; box-shadow: none; cursor: pointer; transition: 0.2s;}
-        .ts-wrapper.single.focus .ts-control { border-color: var(--text-muted); }
-        .ts-dropdown { position: absolute !important; z-index: 9999 !important; background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; box-shadow: 0 15px 35px rgba(0,0,0,0.8); margin-top: 5px; }
+        /* TOM SELECT OVERRIDES */
+        .ts-wrapper { width: 100%; position: relative; font-family: var(--font-stack) !important; } 
+        .ts-control, .ts-control input { color: var(--text-main) !important; font-family: var(--font-stack) !important; font-size: 14px; }
+        .ts-wrapper.single .ts-control { background-color: #fff !important; border: 1px solid #C7C7CC; border-radius: var(--radius-md); padding: 12px 15px; box-shadow: none; cursor: pointer; transition: 0.2s;}
+        .ts-wrapper.single.focus .ts-control { border-color: var(--accent-blue) !important; box-shadow: 0 0 0 3px rgba(0,122,255,0.15) !important; }
+        .ts-dropdown { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 4px; overflow: hidden; }
         .ts-dropdown .option { padding: 12px 15px; color: var(--text-main); font-size: 13px; cursor: pointer; }
-        .ts-dropdown .active { background-color: var(--bg-hover) !important; color: var(--text-main) !important; font-weight: 600;}
-        .ts-wrapper.single .ts-control:after { border-color: var(--text-muted) transparent transparent transparent; }
-        .ts-wrapper.focus .ts-control, .ts-control.focus, .ts-control.input-active { background-color: var(--bg-input) !important; color: var(--text-main) !important; }
+        .ts-dropdown .active { background-color: #E5F0FF !important; color: var(--accent-blue) !important; font-weight: 600;}
+        .ts-wrapper.focus .ts-control { background-color: #fff !important; color: var(--text-main) !important; }
         
-        .btn-apply { background: var(--text-main); color: #000; border: none; padding: 12px 30px; border-radius: 8px; font-weight: 700; cursor: pointer; transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; align-items: center; gap: 8px; font-size: 14px; }
-        .btn-apply:hover { background: #e0e0e0; transform: translateY(-2px); box-shadow: 0 6px 16px rgba(255, 255, 255, 0.1); }
-        .btn-apply:active { transform: translateY(0); }
+        .btn-apply { background: var(--accent-blue); color: #fff; border: none; padding: 12px 30px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 14px; font-family: var(--font-stack); }
+        .btn-apply:hover { background: #0056B3; transform: scale(0.98); }
+        
+        .btn-export { background-color: #E8F8EE; color: var(--accent-green); border: 1px solid rgba(52, 199, 89, 0.3); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 600; cursor: pointer; transition: 0.2s; display: flex; align-items: center; gap: 8px; font-size: 13px; font-family: var(--font-stack);}
+        .btn-export:hover { background-color: var(--accent-green); color: #fff; }
 
-        .btn-export { background-color: rgba(16, 185, 129, 0.1); color: var(--accent-green); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 20px; border-radius: 8px; font-weight: 600; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; gap: 8px; font-size: 13px; }
-        .btn-export:hover { background-color: var(--accent-green); color: #000; box-shadow: 0 4px 12px rgba(16, 185, 129, 0.3); transform: translateY(-1px); }
+        /* TABLES */
+        .section-title { color: var(--text-main); margin-top: 20px; margin-bottom: 15px; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; letter-spacing: -0.3px;}
+        
+        .table-container { background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 35px; box-shadow: var(--shadow-soft); max-height: 500px; overflow-y: auto; overflow-x: auto; }
+        .table-container::-webkit-scrollbar { width: 6px; height: 8px;}
+        .table-container::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+        
+        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: auto; white-space: nowrap; }
+        th { background-color: #F9F9FB; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--border-subtle);}
+        td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; }
+        tr:hover { background-color: #F9F9FB; }
+        
+        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; font-size: 13px; color: var(--text-main); line-height: 1.5; max-width: 400px;}
+        .read-more-btn { background: #E5F0FF; border: none; border-radius: 6px; padding: 6px 10px; color: var(--accent-blue); font-size: 10px; font-weight: 700; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: inline-flex; align-items: center; font-family: var(--font-stack);}
+        .read-more-btn:hover { background: #CCE0FF; }
 
-        .section-title { color: var(--text-main); margin-top: 20px; margin-bottom: 15px; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        
-        .table-container { background: var(--bg-card); border-radius: 12px; border: 1px solid var(--border-subtle); margin-bottom: 35px; box-shadow: 0 4px 15px rgba(0,0,0,0.2); max-height: 500px; overflow-y: auto; overflow-x: hidden; }
-        .table-container::-webkit-scrollbar { width: 6px; }
-        .table-container::-webkit-scrollbar-track { background: var(--bg-card); border-radius: 12px; }
-        .table-container::-webkit-scrollbar-thumb { background: var(--border-subtle); border-radius: 12px; }
-        .table-container::-webkit-scrollbar-thumb:hover { background: var(--text-muted); }
-        
-        table { width: 100%; border-collapse: collapse; text-align: left; table-layout: fixed; }
-        
-        th { background-color: #1a1a1a; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 15px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; }
-        td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: #e2e8f0; vertical-align: top; word-wrap: break-word; word-break: break-word; }
-        tr:last-child td { border-bottom: none; }
-        tr:hover { background-color: rgba(255, 255, 255, 0.02); }
-        
-        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; transition: all 0.3s ease; white-space: pre-wrap; font-size: 12px; color: var(--text-main); }
-        .truncate-box.expanded { -webkit-line-clamp: unset; }
-        .read-more-btn { background: none; border: none; padding: 0; color: var(--accent-orange); font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 5px; text-transform: uppercase; transition: 0.2s;}
-        .read-more-btn:hover { color: var(--accent-green); text-decoration: underline; }
-
-        .strong-text { font-weight: 600; color: white; display: block; }
+        .strong-text { font-weight: 600; color: var(--text-main); display: block; }
         .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-        .gps-text { font-family: monospace; color: var(--accent-blue); font-size: 11px; background: rgba(59, 130, 246, 0.1); padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(59, 130, 246, 0.2);}
-        .sitrep-tag { font-size: 10px; font-weight: 700; color: var(--accent-orange); background: rgba(255, 140, 0, 0.1); padding: 2px 6px; border-radius: 4px; border: 1px solid rgba(255, 140, 0, 0.2); display: inline-block; margin-top: 6px;}
-        .action-time { font-family: monospace; color: var(--accent-green); font-size: 12px;}
+        .gps-text { font-family: monospace; color: var(--accent-blue); font-size: 11px; background: #E5F0FF; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(0, 122, 255, 0.2); display: inline-block; margin-top: 4px;}
         
-        .badge { padding: 5px 10px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; text-align: center; border: 1px solid transparent;}
+        .sitrep-tag { font-size: 10px; font-weight: 600; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; background: #F2F2F7; color: var(--text-muted); border: 1px solid #D1D1D6;}
+        .action-time { font-family: monospace; color: var(--accent-green); font-size: 12px; display: block;}
         
-        .bg-danger { background: rgba(239, 68, 68, 0.1); color: var(--accent-red); border-color: rgba(239, 68, 68, 0.2); }
-        .bg-warning { background: rgba(245, 158, 11, 0.1); color: #fcd34d; border-color: rgba(245, 158, 11, 0.2); }
-        .bg-success { background: rgba(16, 185, 129, 0.1); color: var(--accent-green); border-color: rgba(16, 185, 129, 0.2); }
-        .bg-secondary { background: rgba(160, 160, 160, 0.1); color: var(--text-muted); border-color: rgba(160, 160, 160, 0.2); }
-        .bg-primary { background: rgba(59, 130, 246, 0.1); color: var(--accent-blue); border-color: rgba(59, 130, 246, 0.2); }
+        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; text-align: center; border: 1px solid transparent; margin-top: 2px;}
+        .bg-danger { background: #FFEBEB; color: var(--accent-red); border-color: rgba(255, 59, 48, 0.2); }
+        .bg-warning { background: #FFF4E5; color: var(--accent-orange); border-color: rgba(255, 149, 0, 0.2); }
+        .bg-success { background: #E8F8EE; color: var(--accent-green); border-color: rgba(52, 199, 89, 0.2); }
+        .bg-secondary { background: #F2F2F7; color: var(--text-muted); border-color: rgba(142, 142, 147, 0.2); }
+        .bg-primary { background: #E5F0FF; color: var(--accent-blue); border-color: rgba(0, 122, 255, 0.2); }
 
         .empty-state { text-align: center; padding: 50px !important; color: var(--text-muted); font-style: italic; }
-        .instruction-state { text-align: center; padding: 100px 40px; color: var(--text-muted); background: var(--bg-card); border-radius: 12px; border: 1px dashed var(--border-subtle); margin-top: 20px;}
-        .instruction-state i { font-size: 48px; color: #333; margin-bottom: 20px;}
+        .instruction-state { text-align: center; padding: 100px 40px; color: var(--text-muted); background: var(--bg-card); border-radius: var(--radius-lg); border: 1px dashed var(--border-subtle); margin-top: 20px;}
+        .instruction-state i { font-size: 48px; color: #D1D1D6; margin-bottom: 20px;}
+
+        /* NARRATIVE MODAL OVERLAY */
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 90%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: var(--shadow-modal); transform: translateY(-50px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--border-subtle); background: #F9F9FB; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
+        .modal-header h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
+        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
+        .modal-close:hover { background: #FFEBEB; color: var(--accent-red); }
+        .modal-body { padding: 25px; overflow-y: auto; color: var(--text-main); font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
+        .modal-body::-webkit-scrollbar { width: 4px; }
+        .modal-body::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+
     </style>
 </head>
 <body>
 
+    <!-- NARRATIVE READING MODAL -->
+    <div class="modal-overlay" id="narrativeModal" onclick="closeNarrativeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-lines" style="color: var(--accent-blue);"></i> Detailed Narrative</h3>
+                <button class="modal-close" onclick="closeNarrativeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                Loading details...
+            </div>
+        </div>
+    </div>
+
     <div class="sidebar">
-       <div class="sidebar-brand" style="padding-bottom: 5px; font-size: 21px;">Tarlac PDRRMO</div>
-        <div class="nav-section-title" style="line-height: 1.5; padding-bottom: 20px;">Situation Report<br>Monitoring System</div>
+       <div class="sidebar-brand">Tarlac PDRRMO</div>
+        <div class="nav-section-title">Monitoring System</div>
         
-        <div style="margin-top: 10px;">
+        <div style="margin-top: 5px; padding: 0 10px;">
             <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
-<a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>            <a href="dashboard.html" class="dashboard-link"><i class="fa-solid fa-list-check"></i> Detailed SitRep</a>
-            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-keyboard"></i> Data Entry</a>
+            <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
+            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i> Command Workspace</a>
             <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
             <a href="archives.html" class="dashboard-link active-tab"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
         </div>
 
-        <div class="nav-section-title" style="margin-top: 30px;">SECURE ACCESS</div>
-        <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
+        <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;">SECURE ACCESS</div>
+        <div style="padding: 0 10px;">
+            <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
+        </div>
     </div>
 
     <div class="main-content">
-        
-        <div class="top-header">
-            <div class="header-left">
-                <div class="avatar"><i class="fa-solid fa-book-journal-whills"></i></div>
-                <div class="top-header-text">
-                    <h2>Historical Disaster Archives</h2>
-                    <p>Read-only access to finalized incident reports</p>
+        <div class="workspace-wrapper">
+            
+            <div class="top-header">
+                <div class="header-left">
+                    <div class="avatar"><i class="fa-solid fa-book-journal-whills"></i></div>
+                    <div class="top-header-text">
+                        <h2>Historical Disaster Archives</h2>
+                        <p>Read-only access to finalized incident reports</p>
+                    </div>
                 </div>
             </div>
-        </div>
 
-        <div class="filter-panel">
-            <div class="filter-group" style="flex: 2;">
-                <label>Select Archived Incident to Review</label>
-                <select id="archiveSelector">
-                    <option value="">Scanning Archives...</option>
-                </select>
+            <div class="filter-panel">
+                <div class="filter-group" style="flex: 2;">
+                    <label>Select Archived Incident to Review</label>
+                    <select id="archiveSelector">
+                        <option value="">Scanning Archives...</option>
+                    </select>
+                </div>
+                
+                <div style="display: flex; gap: 12px; align-items: center;">
+                    <button class="btn-apply" id="retrieveBtn"><i class="fa-solid fa-magnifying-glass"></i> Retrieve Records</button>
+                    <button class="btn-export" id="exportCsvBtn" style="display: none;"><i class="fa-solid fa-file-csv"></i> Export Data</button>
+                </div>
             </div>
             
-            <div style="display: flex; gap: 12px; align-items: center;">
-                <button class="btn-apply" id="retrieveBtn"><i class="fa-solid fa-magnifying-glass"></i> Retrieve Records</button>
-                <button class="btn-export" id="exportCsvBtn" style="display: none;"><i class="fa-solid fa-file-csv"></i> Export Data</button>
+            <div id="instructionPanel" class="instruction-state">
+                <i class="fa-solid fa-box-archive"></i>
+                <h3>Archive Database Ready</h3>
+                <p style="font-size: 14px; max-width: 500px; margin: 0 auto; line-height: 1.6;">Select an incident from the retrieval console above and click <b>Retrieve Records</b> to generate the finalized situational data tables.</p>
+            </div>
+
+            <div id="tables-wrapper" style="display: none;">
+
+                <h2 class="section-title"><i class="fa-solid fa-cloud-sun-rain" style="color: var(--accent-blue);"></i> Local Weather Conditions</h2>
+                <div class="table-container" id="sec-weather">
+                    <table class="data-table">
+                        <thead><tr><th>Municipality</th><th>Weather Condition</th><th>Reported Date/Time</th><th>Information Source</th><th style="min-width: 250px;">Remarks</th><th>System Info</th></tr></thead>
+                        <tbody id="weather-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+                
+                <h2 class="section-title"><i class="fa-solid fa-clipboard-list" style="color: var(--accent-orange);"></i> Preparedness & Actions Taken</h2>
+                <div class="table-container" id="sec-actions">
+                    <table class="data-table">
+                        <thead><tr><th>Agency / Office</th><th>Action Category</th><th style="min-width: 300px;">Narrative / Details</th><th>Date/Time of Action</th><th>Report Info</th></tr></thead>
+                        <tbody id="act-tbody"><tr><td colspan="5" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> 1. Flooded Areas</h2>
+                <div class="table-container" id="sec-flood">
+                    <table class="data-table">
+                        <thead><tr><th>Municipality</th><th>Barangay / Area</th><th>Depth (ft)</th><th>Reported Date/Time</th><th>Coordinates</th><th>Status</th><th>Report Info</th></tr></thead>
+                        <tbody id="flood-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-users-rays" style="color: var(--accent-orange);"></i> 2a. Affected Population & ECs</h2>
+                <div class="table-container" id="sec-evac">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Municipality</th>
+                            <th>Affected Brgys</th>
+                            <th>Active ECs</th>
+                            <th>Total Affected</th>
+                            <th>Total Served</th>
+                            <th>Inside ECs<br><span style="font-size:9px; font-weight:800; color:var(--accent-blue);">CUM | NOW</span></th>
+                            <th>Status</th>
+                            <th>Report Info</th>
+                        </tr></thead>
+                        <tbody id="evac-tbody"><tr><td colspan="8" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-person-walking-arrow-right" style="color: var(--accent-teal);"></i> 2b. Pre-Emptive Evacuations</h2>
+                <div class="table-container" id="sec-preemptive">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Municipality</th>
+                            <th>Barangay</th>
+                            <th>Families</th>
+                            <th>Persons</th>
+                            <th style="min-width: 200px;">Destination / Remarks</th>
+                            <th>Report Info</th>
+                        </tr></thead>
+                        <tbody id="preemptive-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-bolt" style="color: var(--accent-yellow);"></i> 3. Status of Lifelines</h2>
+                <div class="table-container" id="sec-lifeline">
+                    <table class="data-table">
+                        <thead><tr><th>Municipality</th><th>Specific Area / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="min-width: 200px;">Remarks</th><th>Report Info</th></tr></thead>
+                        <tbody id="lifeline-tbody"><tr><td colspan="8" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-road-barrier" style="color: var(--accent-orange);"></i> Status of Roads & Bridges</h2>
+                <div class="table-container" id="sec-road">
+                    <table class="data-table">
+                        <thead><tr><th>Road Section</th><th>Date/Time Reported</th><th>Status</th><th style="min-width: 250px;">Remarks</th><th>Report Info</th></tr></thead>
+                        <tbody id="road-tbody"><tr><td colspan="5" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-building-shield" style="color: var(--accent-blue);"></i> Damage to Infrastructure</h2>
+                <div class="table-container" id="sec-infra">
+                    <table class="data-table">
+                        <thead><tr><th style="color: var(--accent-blue);">Infrastructure</th><th style="color: var(--accent-blue);">Damage Cost</th><th style="color: var(--accent-blue);">Source</th><th>Report Info</th></tr></thead>
+                        <tbody id="infra-tbody"><tr><td colspan="4" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-truck-medical" style="color: var(--accent-red);"></i> 4. Casualties & Human Impact</h2>
+                <div class="table-container" id="sec-cas">
+                    <table class="data-table">
+                        <thead><tr><th>Municipality</th><th>Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="min-width: 250px;">Particulars & Actions</th><th>Report Info</th></tr></thead>
+                        <tbody id="cas-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-clipboard-user" style="color: var(--accent-purple);"></i> 5a. Manpower / Resources Complement</h2>
+                <div class="table-container" id="sec-complement">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Agency / Office</th>
+                            <th>Personnel</th>
+                            <th style="min-width: 250px;">Assets Details</th>
+                            <th>Status</th>
+                            <th>Date/Time Check-In</th>
+                            <th>Report Info</th>
+                        </tr></thead>
+                        <tbody id="complement-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-truck-fast" style="color: var(--accent-blue);"></i> 5b. Deployed Assets & Personnel</h2>
+                <div class="table-container" id="sec-deployed">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Deployed Area</th>
+                            <th>Agency & Assets</th>
+                            <th>Status</th>
+                            <th>Reported Date/Time</th>
+                            <th style="min-width: 200px;">Remarks / Action Taken</th>
+                            <th>Report Info</th>
+                        </tr></thead>
+                        <tbody id="deployed-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-school" style="color: var(--accent-orange);"></i> 6. Class & Work Suspensions</h2>
+                <div class="table-container" id="sec-sus">
+                    <table class="data-table">
+                        <thead><tr><th>Coverage Area</th><th>Type</th><th style="min-width: 350px;">Suspension Details / Narrative</th><th>Report Info</th></tr></thead>
+                        <tbody id="sus-tbody"><tr><td colspan="4" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-wheat-awn" style="color: var(--accent-yellow);"></i> 7a. Damage & Losses to Agriculture</h2>
+                <div class="table-container" id="sec-agri">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>No. of Affected LGUs</th>
+                            <th>Commodity</th>
+                            <th>Farmers Affected</th>
+                            <th>Partially Damaged (ha)</th>
+                            <th>Totally Damaged (ha)</th>
+                            <th>Total Value Losses (PHP)</th>
+                            <th>Report Info</th>
+                        </tr></thead>
+                        <tbody id="agri-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-house-chimney-crack" style="color: var(--accent-red);"></i> 7b. Residential Damages & Infrastructure</h2>
+                <div class="table-container" id="sec-residential">
+                    <table class="data-table">
+                        <thead><tr>
+                            <th>Municipality</th>
+                            <th>Barangay</th>
+                            <th>Classification</th>
+                            <th>Number of Damaged Units</th>
+                            <th>Reported Date/Time</th>
+                            <th style="min-width: 200px;">Description</th>
+                            <th>Report Info</th>
+                        </tr></thead>
+                        <tbody id="residential-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-hand-holding-hand" style="color: var(--accent-green);"></i> 8. Cost of Assistance & Relief</h2>
+                <div class="table-container" id="sec-ast">
+                    <table class="data-table">
+                        <thead><tr><th>Municipality</th><th>Barangay</th><th>Source</th><th>Relief Item & Qty</th><th>Total Cost (PHP)</th><th>Reported Date/Time</th><th>Report Info</th></tr></thead>
+                        <tbody id="ast-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
+                <h2 class="section-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-red);"></i> 9. Related Incidents & Hazards</h2>
+                <div class="table-container" id="sec-inc">
+                    <table class="data-table">
+                        <thead><tr><th>Municipality</th><th style="min-width: 200px;">Particulars / Hazard</th><th style="min-width: 250px;">Actions Taken</th><th>Reported Date/Time</th><th>Report Info</th></tr></thead>
+                        <tbody id="inc-tbody"><tr><td colspan="5" class="empty-state">No matching data found.</td></tr></tbody>
+                    </table>
+                </div>
+
             </div>
         </div>
-        
-        <div id="instructionPanel" class="instruction-state">
-            <i class="fa-solid fa-box-archive"></i>
-            <h3>Archive Database Ready</h3>
-            <p style="font-size: 14px; max-width: 500px; margin: 0 auto; line-height: 1.6;">Select an incident from the retrieval console above and click <b>Retrieve Records</b> to generate the finalized situational data tables.</p>
-        </div>
-
-        <div id="tables-wrapper" style="display: none;">
-
-            <h2 class="section-title"><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather Conditions</h2>
-            <div class="table-container" id="sec-weather">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Municipality</th><th>Weather Condition</th><th>Reported Date/Time</th><th>Information Source</th><th style="width: 25%;">Remarks</th><th>System Info</th></tr></thead>
-                    <tbody id="weather-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-            
-            <h2 class="section-title"><i class="fa-solid fa-clipboard-list"></i> Preparedness & Actions Taken</h2>
-            <div class="table-container" id="sec-actions">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 20%;">Agency / Office</th><th style="width: 20%;">Action Category</th><th style="width: 35%;">Narrative / Details</th><th>Date/Time of Action</th><th>Report Info</th></tr></thead>
-                    <tbody id="act-tbody"><tr><td colspan="5" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-water"></i> 1. Flooded Areas</h2>
-            <div class="table-container" id="sec-flood">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Municipality</th><th>Barangay / Area</th><th>Depth (ft)</th><th>Reported Date/Time</th><th>Coordinates</th><th>Status</th><th>Report Info</th></tr></thead>
-                    <tbody id="flood-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-users-rays"></i> 2a. Affected Population & ECs</h2>
-            <div class="table-container" id="sec-evac">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th>Affected Brgys</th>
-                        <th>Active ECs</th>
-                        <th>Total Affected</th>
-                        <th>Inside ECs<br><span style="font-size:9px; font-weight:800; color:var(--accent-blue);">CUM | NOW</span></th>
-                        <th>Status</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="evac-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-person-walking-arrow-right"></i> 2b. Pre-Emptive Evacuations</h2>
-            <div class="table-container" id="sec-preemptive">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th style="width: 15%;">Barangay</th>
-                        <th>Families</th>
-                        <th>Persons</th>
-                        <th style="width: 25%;">Destination / Remarks</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="preemptive-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-bolt"></i> 3. Status of Lifelines</h2>
-            <div class="table-container" id="sec-lifeline">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 20%;">Specific Area / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="width: 20%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="lifeline-tbody"><tr><td colspan="8" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-building-shield"></i> Public Infrastructure Report</h2>
-            <div class="table-container" id="sec-infra">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 20%;">Specific Infra / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="width: 20%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="infra-tbody"><tr><td colspan="8" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-truck-medical"></i> 4. Casualties & Human Impact</h2>
-            <div class="table-container" id="sec-cas">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 15%;">Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="width: 25%;">Remarks</th><th>Report Info</th></tr></thead>
-                    <tbody id="cas-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-clipboard-user"></i> 5a. Manpower / Resources Complement</h2>
-            <div class="table-container" id="sec-complement">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 20%;">Agency / Office</th>
-                        <th>Personnel</th>
-                        <th style="width: 30%;">Assets Details</th>
-                        <th>Status</th>
-                        <th>Date/Time Check-In</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="complement-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-truck-fast"></i> 5b. Deployed Assets & Personnel</h2>
-            <div class="table-container" id="sec-deployed">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Deployed Area</th>
-                        <th style="width: 20%;">Agency & Assets</th>
-                        <th>Status</th>
-                        <th>Reported Date/Time</th>
-                        <th style="width: 25%;">Remarks / Action Taken</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="deployed-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-school"></i> 6. Class & Work Suspensions</h2>
-            <div class="table-container" id="sec-sus">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Coverage Area</th><th>Suspension Type</th><th>Status</th><th>Reported Date/Time</th><th style="width: 25%;">Remarks / Details</th><th>Report Info</th></tr></thead>
-                    <tbody id="sus-tbody"><tr><td colspan="6" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-wheat-awn" style="color: var(--accent-yellow);"></i> 7a. Damage & Losses to Agriculture</h2>
-            <div class="table-container" id="sec-agri">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th>Commodity</th>
-                        <th>Farmers Affected</th>
-                        <th>Partially Damaged (ha)</th>
-                        <th>Totally Damaged (ha)</th>
-                        <th>Total Value Losses (PHP)</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="agri-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-house-chimney-crack" style="color: var(--accent-red);"></i> 7b. Residential Damages & Infrastructure</h2>
-            <div class="table-container" id="sec-residential">
-                <table style="table-layout: auto;">
-                    <thead><tr>
-                        <th style="width: 15%;">Municipality</th>
-                        <th style="width: 15%;">Barangay</th>
-                        <th>Classification</th>
-                        <th>Number of Damaged Units</th>
-                        <th>Reported Date/Time</th>
-                        <th style="width: 25%;">Description</th>
-                        <th>Report Info</th>
-                    </tr></thead>
-                    <tbody id="residential-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-hand-holding-hand"></i> 8. Cost of Assistance & Relief</h2>
-            <div class="table-container" id="sec-ast">
-                <table style="table-layout: auto;">
-                    <thead><tr><th>Municipality</th><th>Barangay</th><th>Source</th><th>Relief Item & Qty</th><th>Total Cost (PHP)</th><th>Reported Date/Time</th><th>Report Info</th></tr></thead>
-                    <tbody id="ast-tbody"><tr><td colspan="7" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-            <h2 class="section-title"><i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-red);"></i> 9. Related Incidents & Hazards</h2>
-            <div class="table-container" id="sec-inc">
-                <table style="table-layout: auto;">
-                    <thead><tr><th style="width: 15%;">Municipality</th><th style="width: 30%;">Particulars / Hazard</th><th style="width: 35%;">Actions Taken</th><th>Reported Date/Time</th><th>Report Info</th></tr></thead>
-                    <tbody id="inc-tbody"><tr><td colspan="5" class="empty-state">No matching data found.</td></tr></tbody>
-                </table>
-            </div>
-
-        </div>
-
     </div>
 
 <script type="module">
@@ -342,39 +380,47 @@
 
     const tsSelector = new TomSelect("#archiveSelector", { create: false, placeholder: "Select an Archived Incident..." });
 
-    const dbData = { weather: [], floods: [], evacs: [], preemptives: [], complements: [], lifelines: [], infrastructure: [], casualties: [], resources: [], suspensions: [], agri: [], residential: [], assistance: [], actions: [], incidents: [] };
+    const dbData = { weather: [], floods: [], evacs: [], preemptives: [], complements: [], lifelines: [], infra: [], roads: [], casualties: [], resources: [], suspensions: [], agri: [], residential: [], assistance: [], incidents: [] };
     let uniqueTags = new Set();
     let activeArchiveTag = "";
 
-    window.toggleText = function(btn) {
-        const box = btn.previousElementSibling;
-        box.classList.toggle('expanded');
-        btn.innerHTML = box.classList.contains('expanded') ? 'See less details' : 'See more details';
+    // ATLAS FIX: NARRATIVE MODAL ENGINE INSTEAD OF INLINE EXPANSION
+    window.openNarrativeModal = function(btn) {
+        const hiddenText = btn.previousElementSibling.innerHTML;
+        document.getElementById('modalBodyContent').innerHTML = hiddenText;
+        document.getElementById('narrativeModal').classList.add('active');
+    };
+
+    window.closeNarrativeModal = function(e) {
+        if (e && e.target.id !== 'narrativeModal' && e.target.className !== 'modal-close' && !e.target.closest('.modal-close')) return;
+        document.getElementById('narrativeModal').classList.remove('active');
     };
 
     function formatNarrative(text) {
         if (!text) return '<span class="sub-text">N/A</span>';
-        if (text.length < 80) return `<div class="truncate-box expanded">${text}</div>`;
-        return `<div class="truncate-box">${text}</div><button class="read-more-btn" onclick="toggleText(this)">See more details</button>`;
+        let cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+        cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
+        cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
+        
+        if (cleanedText.length <= 100) return `<div class="truncate-box" style="-webkit-line-clamp: unset;">${cleanedText}</div>`;
+        return `<div class="truncate-box">${cleanedText}</div><div class="full-text-hidden" style="display:none;">${cleanedText}</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>`;
     }
 
     function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
-    
     function formatActionTime(dateString) { 
         if(!dateString) return `<span class="sub-text">N/A</span>`;
         const d = new Date(dateString);
         return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`;
     }
     
-    function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount); }
-    
-    function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text">${lat}, ${lng}</span>` : ``; }
+    function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount || 0); }
+    function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text"><i class="fa-solid fa-location-dot"></i> ${lat}, ${lng}</span>` : ``; }
     
     function buildTag(cause, sr) { 
         if(!cause && !sr) return "";
         let text = cause || "Unknown Incident";
         if(sr) text += ` - SR#${sr}`;
-        return `<br><span class="sitrep-tag" style="background:rgba(255,255,255,0.1); color:var(--text-muted); border-color:#444;">${text}</span>`;
+        return `<br><span class="sitrep-tag">${text}</span>`;
     }
 
     function matchesArchive(data) {
@@ -385,8 +431,7 @@
         let currentVal = tsSelector.getValue();
         tsSelector.clearOptions();
         
-        let sortedTags = Array.from(uniqueTags).sort((a,b) => b.localeCompare(a)); // Sort Z-A (usually puts newest dates first if formatted well)
-        
+        let sortedTags = Array.from(uniqueTags).sort((a,b) => b.localeCompare(a)); 
         sortedTags.forEach(tag => { tsSelector.addOption({value: tag, text: tag}); });
         
         if (currentVal && Array.from(uniqueTags).includes(currentVal)) {
@@ -407,133 +452,137 @@
 
     // --- RENDER FUNCTIONS ---
     function renderWeather() {
-        const tb = document.getElementById('weather-tbody'); tb.innerHTML = '';
-        const filtered = dbData.weather.filter(matchesArchive);
+        const tb = document.getElementById('weather-tbody'); tb.innerHTML = ''; const filtered = dbData.weather.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${data.weatherCondition}</span></td><td>${formatActionTime(data.dateReported)}</td><td><span class="badge bg-secondary">${data.source || 'LDRRMO'}</span></td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderActions() {
-        const tb = document.getElementById('act-tbody'); tb.innerHTML = '';
-        const filtered = dbData.actions.filter(matchesArchive);
+        const tb = document.getElementById('act-tbody'); tb.innerHTML = ''; const filtered = dbData.actions.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td><span class="badge bg-secondary">${data.category}</span></td><td>${formatNarrative(data.description)}</td><td>${formatActionTime(data.actionTime)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td><span class="badge bg-secondary">${data.category||'N/A'}</span></td><td>${formatNarrative(data.description)}</td><td>${formatActionTime(data.actionTime)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderFloods() {
-        const tb = document.getElementById('flood-tbody'); tb.innerHTML = '';
-        const filtered = dbData.floods.filter(matchesArchive);
+        const tb = document.getElementById('flood-tbody'); tb.innerHTML = ''; const filtered = dbData.floods.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { let badgeClass = (data.status === 'Still Flooded' || data.status === 'Rising') ? "bg-danger" : (data.status === 'Receding') ? "bg-warning" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="strong-text">${data.waterDepth_ft} ft</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderEvacs() {
-        const tb = document.getElementById('evac-tbody'); tb.innerHTML = '';
-        const filtered = dbData.evacs.filter(matchesArchive);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Active') ? "bg-danger" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary";
-            let affFam = data.affectedFamilies || 0; let affPax = data.affectedIndividuals || 0;
-            let ecFamCum = data.insideEcFamiliesCum !== undefined ? data.insideEcFamiliesCum : (data.insideEcFamilies || 0); let ecFamNow = data.insideEcFamiliesNow !== undefined ? data.insideEcFamiliesNow : (data.insideEcFamilies || 0);
-            let ecPaxCum = data.insideEcIndividualsCum !== undefined ? data.insideEcIndividualsCum : (data.insideEcIndividuals || data.individuals || 0); let ecPaxNow = data.insideEcIndividualsNow !== undefined ? data.insideEcIndividualsNow : (data.insideEcIndividuals || data.individuals || 0);
-            let brgyCount = data.affectedBarangays || 0; let ecCount = data.evacCenterCount || 0;
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-purple);">${brgyCount} Brgys</span></td><td><span class="strong-text" style="color: var(--accent-orange);">${ecCount} ECs</span></td><td><span class="strong-text">${affFam} Fam</span><span class="sub-text">${affPax} Persons</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${ecFamCum} | ${ecFamNow} Fam</span><span class="sub-text">${ecPaxCum} | ${ecPaxNow} Persons</span></td><td><span class="badge ${badgeClass}">${data.status || 'Unknown'}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
+        const tb = document.getElementById('evac-tbody'); tb.innerHTML = ''; const filtered = dbData.evacs.filter(matchesArchive);
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
+        filtered.forEach(data => { 
+            let badgeClass = (data.status === 'Active') ? "bg-danger" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary"; 
+            let affFam = data.affectedFamilies || 0; let affPax = data.affectedIndividuals || 0; let servedFam = data.servedFamilies || 0; let servedPax = data.servedIndividuals || 0; let ecFamCum = data.insideEcFamiliesCum !== undefined ? data.insideEcFamiliesCum : (data.insideEcFamilies || 0); let ecFamNow = data.insideEcFamiliesNow !== undefined ? data.insideEcFamiliesNow : (data.insideEcFamilies || 0); let ecPaxCum = data.insideEcIndividualsCum !== undefined ? data.insideEcIndividualsCum : (data.insideEcIndividuals || data.individuals || 0); let ecPaxNow = data.insideEcIndividualsNow !== undefined ? data.insideEcIndividualsNow : (data.insideEcIndividuals || data.individuals || 0); let brgyCount = data.affectedBarangays || 0; let ecCount = data.evacCenterCount || 0; 
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-purple);">${brgyCount} Brgys</span></td><td><span class="strong-text" style="color: var(--accent-orange);">${ecCount} ECs</span></td><td><span class="strong-text">${affFam} Fam</span><span class="sub-text">${affPax} Persons</span></td><td><span class="strong-text" style="color: var(--accent-green);">${servedFam} Fam</span><span class="sub-text">${servedPax} Persons</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${ecFamCum} | ${ecFamNow} Fam</span><span class="sub-text">${ecPaxCum} | ${ecPaxNow} Persons</span></td><td><span class="badge ${badgeClass}">${data.status || 'Unknown'}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; 
         });
     }
 
     function renderPreemptive() {
-        const tb = document.getElementById('preemptive-tbody'); tb.innerHTML = '';
-        const filtered = dbData.preemptives.filter(matchesArchive);
+        const tb = document.getElementById('preemptive-tbody'); tb.innerHTML = ''; const filtered = dbData.preemptives.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { let brgyDisplay = data.barangayOrigin ? data.barangayOrigin : '<span class="sub-text">N/A</span>'; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text">${brgyDisplay}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveFamilies || 0}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${data.preEmptiveIndividuals || 0}</span></td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderLifelines() {
-        const tb = document.getElementById('lifeline-tbody'); tb.innerHTML = '';
-        const filtered = dbData.lifelines.filter(matchesArchive);
+        const tb = document.getElementById('lifeline-tbody'); tb.innerHTML = ''; const filtered = dbData.lifelines.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { let badgeClass = data.status.includes("Not Passable") || data.status.includes("Outage") ? "bg-danger" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
+    // ATLAS FIX: NEW ROAD RENDERER FOR SPLIT SCHEMA
+    function renderRoads() {
+        const tb = document.getElementById('road-tbody'); tb.innerHTML = ''; 
+        const filtered = dbData.roads.filter(matchesArchive);
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
+        filtered.forEach(data => { 
+            let badgeClass = data.status.includes("Not Passable") ? "bg-danger" : "bg-success"; 
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.specificArea}</span><span class="sub-text">${data.municipality}</span></td><td>${formatActionTime(data.dateReported)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; 
+        });
+    }
+
+    // ATLAS FIX: NEW INFRASTRUCTURE RENDERER FOR SPLIT SCHEMA
     function renderInfrastructure() {
-        const tb = document.getElementById('infra-tbody'); tb.innerHTML = '';
-        const filtered = dbData.infrastructure.filter(matchesArchive);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="8" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { let badgeClass = data.status.includes("Damaged") || data.status.includes("Breached") ? "bg-danger" : data.status.includes("Repair") ? "bg-warning" : "bg-success"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.specificArea}</td><td>${data.category}</td><td>${formatGPS(data.latitude, data.longitude)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        const tb = document.getElementById('infra-tbody'); tb.innerHTML = ''; 
+        const filtered = dbData.infra.filter(matchesArchive);
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching data found.</td></tr>'; return; }
+        filtered.forEach(data => {
+            let cost = parseFloat(data.cost) || 0;
+            let sourceDisplay = `<span class="strong-text" style="color:var(--accent-blue);">${data.source || 'Unknown'}</span><span class="sub-text">As of ${formatActionTime(data.dateReported)}</span>`;
+            tb.innerHTML += `<tr><td><span class="strong-text" style="color:var(--accent-blue);">${data.specificArea}</span><div class="sub-text">${data.remarks||''}</div></td><td><span class="strong-text" style="color:var(--accent-blue);">${formatCurrency(cost)}</span></td><td>${sourceDisplay}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
+        });
     }
 
     function renderCasualties() {
-        const tb = document.getElementById('cas-tbody'); tb.innerHTML = '';
-        const filtered = dbData.casualties.filter(matchesArchive);
+        const tb = document.getElementById('cas-tbody'); tb.innerHTML = ''; const filtered = dbData.casualties.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { let badgeClass = (data.classification.includes("Dead")) ? "bg-secondary" : "bg-danger"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        filtered.forEach(data => { let badgeClass = (data.classification.includes("Dead")) ? "bg-secondary" : "bg-danger"; let narrative = data.remarks || ''; if (data.actionsTaken) { narrative += `\nActions Taken: ${data.actionsTaken}`; } tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.classification}</span> <span class="strong-text" style="margin-left:5px;">${data.count}</span></td><td>${formatGPS(data.latitude, data.longitude)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(narrative)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderComplement() {
-        const tb = document.getElementById('complement-tbody'); tb.innerHTML = '';
-        const filtered = dbData.complements.filter(matchesArchive);
+        const tb = document.getElementById('complement-tbody'); tb.innerHTML = ''; const filtered = dbData.complements.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { let badgeClass = (data.status === 'Checked-In') ? "bg-primary" : (data.status === 'Demobilized') ? "bg-secondary" : "bg-warning"; tb.innerHTML += `<tr><td><span class="strong-text">${data.agency}</span></td><td><span class="strong-text">${data.personnel} Pax</span></td><td>${formatNarrative(data.assetDetails)}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderDeployed() {
-        const tb = document.getElementById('deployed-tbody'); tb.innerHTML = '';
-        const filtered = dbData.resources.filter(matchesArchive);
+        const tb = document.getElementById('deployed-tbody'); tb.innerHTML = ''; const filtered = dbData.resources.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => {
-            let badgeClass = (data.status === 'Deployed') ? "bg-primary" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary";
-            let pax = data.personnel !== undefined ? data.personnel : 0;
-            let gpsDiv = formatGPS(data.latitude, data.longitude) ? `<div style="margin-top:4px;">${formatGPS(data.latitude, data.longitude)}</div>` : ''; 
-            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span><span class="sub-text">${data.barangay}</span>${gpsDiv}</td><td><span class="strong-text">${data.agency}</span><span class="sub-text">${data.quantity}x ${data.assetType} | ${pax} Pax</span></td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`;
-        });
+        filtered.forEach(data => { let badgeClass = (data.status === 'Deployed') ? "bg-primary" : (data.status === 'Standby') ? "bg-warning" : "bg-secondary"; let pax = data.personnel !== undefined ? data.personnel : 0; let gpsDiv = formatGPS(data.latitude, data.longitude) ? `<div style="margin-top:4px;">${formatGPS(data.latitude, data.longitude)}</div>` : ''; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span><span class="sub-text">${data.barangay}</span>${gpsDiv}</td><td><span class="strong-text">${data.agency}</span><span class="sub-text">${data.quantity||0}x ${data.assetType} | ${pax} Pax</span></td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderSuspensions() {
-        const tb = document.getElementById('sus-tbody'); tb.innerHTML = '';
-        const filtered = dbData.suspensions.filter(matchesArchive);
-        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="6" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { let badgeClass = (data.status === 'Suspended') ? "bg-danger" : "bg-success"; let remarksText = data.remarks ? data.remarks : '<span class="sub-text">N/A</span>'; tb.innerHTML += `<tr><td><span class="strong-text">${data.coverage}</span></td><td>${data.type}</td><td><span class="badge ${badgeClass}">${data.status}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${remarksText}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        const tb = document.getElementById('sus-tbody'); tb.innerHTML = ''; const filtered = dbData.suspensions.filter(matchesArchive);
+        if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="4" class="empty-state">No matching data found.</td></tr>'; return; }
+        filtered.forEach(data => { 
+            let typeBadge = '';
+            if(data.type && data.type.includes('Classes') && data.type.includes('Work')) typeBadge = '<span class="badge bg-danger"><i class="fa-solid fa-school" style="margin-right:4px;"></i> Classes & Work</span>';
+            else if(data.type && data.type.includes('Classes')) typeBadge = '<span class="badge bg-warning"><i class="fa-solid fa-school" style="margin-right:4px;"></i> Classes</span>';
+            else if(data.type && data.type.includes('Work')) typeBadge = '<span class="badge bg-primary"><i class="fa-solid fa-briefcase" style="margin-right:4px;"></i> Work</span>';
+            else typeBadge = `<span class="badge bg-secondary">${data.type || 'N/A'}</span>`;
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.coverage}</span></td><td>${typeBadge}</td><td>${formatNarrative(data.remarks)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; 
+        });
     }
 
     function renderAgri() {
-        const tb = document.getElementById('agri-tbody'); tb.innerHTML = '';
-        const filtered = dbData.agri.filter(matchesArchive);
+        const tb = document.getElementById('agri-tbody'); tb.innerHTML = ''; const filtered = dbData.agri.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color:var(--accent-yellow);">${data.commodity}</span></td><td><span class="strong-text">${(data.farmersAffected || 0).toLocaleString()} Farmers</span></td><td>${(data.partialHa || 0).toFixed(2)} ha</td><td>${(data.totalHa || 0).toFixed(2)} ha</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        filtered.forEach(data => { let lguDisplay = data.lguCount || data.municipality || 0; tb.innerHTML += `<tr><td><span class="strong-text">${lguDisplay}</span></td><td><span class="strong-text" style="color:var(--accent-yellow);">${data.commodity}</span></td><td><span class="strong-text">${(data.farmersAffected || 0).toLocaleString()} Farmers</span></td><td>${(data.partialHa || 0).toFixed(2)} ha</td><td>${(data.totalHa || 0).toFixed(2)} ha</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderResidential() {
-        const tb = document.getElementById('residential-tbody'); tb.innerHTML = '';
-        const filtered = dbData.residential.filter(matchesArchive);
+        const tb = document.getElementById('residential-tbody'); tb.innerHTML = ''; const filtered = dbData.residential.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { let badgeClass = data.category.includes("Totally") ? "bg-danger" : "bg-warning"; tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge ${badgeClass}">${data.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(data.count || 0).toLocaleString()}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatNarrative(data.description)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderAssistance() {
-        const tb = document.getElementById('ast-tbody'); tb.innerHTML = '';
-        const filtered = dbData.assistance.filter(matchesArchive);
+        const tb = document.getElementById('ast-tbody'); tb.innerHTML = ''; const filtered = dbData.assistance.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="7" class="empty-state">No matching data found.</td></tr>'; return; }
-        filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay}</td><td><span class="badge bg-primary">${data.source}</span></td><td><span class="strong-text">${data.quantity}x</span> ${data.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(data.cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
+        filtered.forEach(data => { 
+            let item = data.reliefItem || 'Unknown Item'; let qty = data.quantity || 0; let cost = data.cost || 0;
+            let isFinancial = item.toLowerCase().includes('financial') || item.toLowerCase().includes('cash') || item.toLowerCase().includes('aics') || item.toLowerCase().includes('peso');
+            if (isFinancial && cost === 0 && qty > 0) { cost = qty; qty = 0; }
+            let qtyDisplay = qty > 0 ? `<span class="strong-text">${qty}x</span> ` : '';
+            tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td>${data.barangay||'N/A'}</td><td><span class="badge bg-primary">${data.source}</span></td><td>${qtyDisplay}${item}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(cost)}</span></td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; 
+        });
     }
 
     function renderIncidents() {
-        const tb = document.getElementById('inc-tbody'); tb.innerHTML = '';
-        const filtered = dbData.incidents.filter(matchesArchive);
+        const tb = document.getElementById('inc-tbody'); tb.innerHTML = ''; const filtered = dbData.incidents.filter(matchesArchive);
         if(filtered.length === 0) { tb.innerHTML = '<tr><td colspan="5" class="empty-state">No matching data found.</td></tr>'; return; }
         filtered.forEach(data => { tb.innerHTML += `<tr><td><span class="strong-text">${data.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-red);">${data.particulars}</span></td><td>${formatNarrative(data.actionsTaken)}</td><td>${formatActionTime(data.dateReported)}</td><td>${formatTime(data.timeMonitored)}${buildTag(data.incidentCause, data.sitrepNo)}</td></tr>`; });
     }
 
     function renderAll() {
-        renderWeather(); renderActions(); renderFloods(); renderEvacs(); renderPreemptive(); renderLifelines(); renderInfrastructure(); renderCasualties(); 
+        renderWeather(); renderActions(); renderFloods(); renderEvacs(); renderPreemptive(); renderLifelines(); renderRoads(); renderInfrastructure(); renderCasualties(); 
         renderComplement(); renderDeployed(); renderSuspensions(); renderAgri(); renderResidential(); renderAssistance(); renderIncidents();
     }
 
     document.getElementById('retrieveBtn').addEventListener('click', () => {
         const selected = tsSelector.getValue();
-        if(!selected) {
-            alert("Please select an incident from the dropdown.");
-            return;
-        }
+        if(!selected) { alert("Please select an incident from the dropdown."); return; }
         
         activeArchiveTag = selected;
         document.getElementById('instructionPanel').style.display = 'none';
@@ -557,8 +606,7 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     });
 
-    // DATABASE LISTENERS: Only fetch records that are explicitly marked as isArchived: true
-    // Then sort them in Javascript so we don't force complex Firestore indexes
+    // DATABASE LISTENERS
     function processSnapshot(snap, collectionName) {
         let docs = snap.docs.map(d => d.data());
         docs.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
@@ -574,7 +622,6 @@
     onSnapshot(query(collection(db, "preemptive_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'preemptives'));
     onSnapshot(query(collection(db, "complement_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'complements'));
     onSnapshot(query(collection(db, "lifeline_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'lifelines'));
-    onSnapshot(query(collection(db, "infrastructure_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'infrastructure'));
     onSnapshot(query(collection(db, "casualties_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'casualties'));
     onSnapshot(query(collection(db, "resource_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'resources'));
     onSnapshot(query(collection(db, "suspensions_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'suspensions'));
@@ -582,6 +629,16 @@
     onSnapshot(query(collection(db, "residential_damages"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'residential'));
     onSnapshot(query(collection(db, "assistance_data"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'assistance'));
     onSnapshot(query(collection(db, "related_incidents"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'incidents'));
+
+    // ATLAS FIX: Split Infrastructure pull into Roads and Infra matching the new schema
+    onSnapshot(query(collection(db, "infrastructure_data"), where("isArchived", "==", true)), (snap) => {
+        let docs = snap.docs.map(d => d.data());
+        docs.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
+        dbData.roads = docs.filter(d => d.recordType === 'Passability' || d.category === 'Road' || d.category === 'Bridge'); 
+        dbData.infra = docs.filter(d => d.recordType === 'Damage' || (!d.recordType && d.cost > 0)); 
+        extractTags(docs);
+        if (activeArchiveTag !== "") renderAll();
+    });
 
 </script>
 </body>
