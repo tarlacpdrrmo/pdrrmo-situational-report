@@ -24,20 +24,47 @@
 
         body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased;}
         
-        /* SIDEBAR */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid #E5E5EA; z-index: 10; padding: 20px 10px; flex-shrink: 0; overflow-y: auto;}
-        .sidebar::-webkit-scrollbar { width: 0px; }
-        .sidebar-brand { font-size: 20px; font-weight: 800; color: var(--text-main); padding: 10px 15px 30px 15px; letter-spacing: -0.5px;}
-        .nav-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 15px 8px 15px; margin-top: 20px;}
-        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 10px 15px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-main); border-radius: var(--radius-md); margin-bottom: 2px;}
-        .dashboard-link i { width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s; }
+        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER (BULLETPROOF FLEXBOX) */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
+        .sidebar-inner::-webkit-scrollbar { width: 0px; }
+
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
+        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
+        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
+        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
+        
+        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0; margin-right: -4px;}
+        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        
+        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
+        
+        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
+        
+        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
+        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
         .dashboard-link:hover { background-color: var(--bg-hover); }
+        
+        /* Specific active tab for Admin */
         .active-tab { background-color: #FFEBEB; font-weight: 600; color: var(--accent-red); }
         .active-tab i { color: var(--accent-red); }
 
+        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
+        
+        /* COLLAPSED STATE LOGIC */
+        .sidebar.collapsed { width: 75px; }
+        .sidebar.collapsed .fade-text { opacity: 0; }
+        .sidebar.collapsed .sidebar-header { padding: 15px; justify-content: center; }
+        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; margin: 0; display: none; }
+        .sidebar.collapsed .sidebar-toggle { margin: 0; }
+        .sidebar.collapsed .sidebar-subtitle { border-color: transparent; height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 5px; overflow: hidden; opacity: 0; }
+        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
+        .sidebar.collapsed .dashboard-link { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
+        .sidebar.collapsed .dashboard-link i { width: auto; margin: 0; font-size: 18px; }
+        .sidebar.collapsed .link-text { display: none; }
+
         .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; }
         
-        /* NOVA FIX: Reverted to 900px wide canvas */
         .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; max-width: 900px; margin-left: auto; margin-right: auto;}
         .header-left { display: flex; align-items: center; gap: 15px;}
         .header-left .avatar { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%); display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
@@ -47,7 +74,6 @@
         .lock-btn { background-color: #FFEBEB; color: var(--accent-red); border: none; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-family: var(--font-stack);}
         .lock-btn:hover { background-color: #FFD6D6; }
 
-        /* NOVA FIX: Reverted to 900px wide canvas */
         .admin-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-soft); max-width: 900px; margin: 0 auto; margin-bottom: 30px;}
         .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;}
         .header-title-group { display: flex; align-items: center; gap: 15px; }
@@ -58,7 +84,6 @@
         /* AUDIT ENGINE STYLES */
         .health-score-container { display: flex; align-items: center; gap: 20px; background: #F9F9FB; padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom: 25px; }
         
-        /* NOVA FIX: Added flex-shrink: 0 to mathematically lock it as a perfect circle */
         .health-score-circle { width: 70px; height: 70px; flex-shrink: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 800; border: 4px solid var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(52, 199, 89, 0.2); transition: all 0.3s ease; background: #fff;}
         
         .health-score-circle.warning { border-color: var(--accent-orange); color: var(--accent-orange); box-shadow: 0 0 15px rgba(255, 149, 0, 0.2); }
@@ -78,12 +103,13 @@
         .flag-title { font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
         .badge-red { font-size: 9px; font-weight: 800; background: #FFEBEB; color: var(--accent-red); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255, 59, 48, 0.2);}
         .badge-yellow { font-size: 9px; font-weight: 800; background: #FFF4E5; color: var(--accent-orange); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255, 149, 0, 0.2);}
-        .flag-context { font-size: 11px; color: var(--text-muted); font-family: 'Fira Code', monospace; font-weight: 600;}
+        
+        .flag-context { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
         
         .btn-action-group { display: flex; gap: 8px; }
         .btn-fix { background: #E5F0FF; color: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
         .btn-fix:hover { background: #CCE0FF; }
-        .btn-delete { background: #FFEBEB; color: var(--accent-red); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; }
+        .btn-delete { background: #FFEBEB; color: var(--accent-red); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
         .btn-delete:hover { background: #FFD6D6; }
 
         .input-group { margin-bottom: 25px; }
@@ -94,7 +120,7 @@
         .btn-archive { background: #FF3B30; color: #fff; border: none; padding: 16px 25px; border-radius: var(--radius-md); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; letter-spacing: 0.5px; font-family: var(--font-stack);}
         .btn-archive:hover { background: #D92D20; transform: scale(0.99); }
         
-        /* RAW EDITOR MODAL STYLES (KEPT DARK MODE FOR "DEVELOPER" FEEL) */
+        /* RAW EDITOR MODAL STYLES */
         .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-card { background: #1C1C1E; border: 1px solid #333; border-radius: var(--radius-lg); width: 90%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-modal); transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -111,7 +137,7 @@
         .btn-save-edit { background: var(--accent-blue); color: #fff; border: none; border-radius: var(--radius-sm); padding: 14px 20px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; font-size: 14px; font-family: var(--font-stack);}
         .btn-save-edit:hover { background: #0056B3; }
 
-        /* OVERLAY AND ANIMATION STYLES (DARK TERMINAL) */
+        /* OVERLAY AND ANIMATION STYLES */
         .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
         .loading-overlay.active { opacity: 1; visibility: visible; }
         
@@ -144,33 +170,44 @@
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
-        .success-icon { font-size: 60px; color: var(--accent-green); margin-bottom: 15px; animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .success-text { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px;}
         .success-subtext { font-size: 14px; color: #a0a0a0; margin-bottom: 25px;}
         .btn-done { background: #333; color: #fff; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; font-family: var(--font-stack);}
         .btn-done:hover { background: #444; }
-
-        @keyframes scaleIn { 0% { transform: scale(0); opacity: 0;} 100% { transform: scale(1); opacity: 1;} }
-
     </style>
 </head>
 <body>
 
-    <div class="sidebar">
-        <div class="sidebar-brand">Tarlac PDRRMO</div>
-        <div class="nav-section-title">Monitoring System</div>
-        
-        <div style="margin-top: 5px; padding: 0 10px;">
-            <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
-            <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
-            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i> Command Workspace</a>
-            <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
-            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
-        </div>
+    <div class="sidebar" id="mainSidebar">
+        <div class="sidebar-inner">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-container">
+                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
+                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
+                </div>
+                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
+            
+            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
+            <div class="nav-links-container">
+                <a href="index.html" class="dashboard-link" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
+                <a href="trend_analysis.html" class="dashboard-link" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
+                <a href="data_entry.html" class="dashboard-link" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
+                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
+                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
+                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
+            </div>
 
-        <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;">SECURE ACCESS</div>
-        <div style="padding: 0 10px;">
-            <a href="admin.html" class="dashboard-link active-tab"><i class="fa-solid fa-server"></i> System Admin</a>
+            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
+            <div class="nav-links-container" style="padding-bottom: 20px;">
+                <a href="admin.html" class="dashboard-link active-tab" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
+            </div>
         </div>
     </div>
 
@@ -193,22 +230,18 @@
                     <i class="fa-solid fa-stethoscope"></i>
                     <h3>System Audit & Diagnostics</h3>
                 </div>
-                <div style="font-size: 11px; font-family: monospace; color: var(--accent-green); font-weight: 700;"><i class="fa-solid fa-circle-dot fa-fade" style="margin-right: 4px;"></i> LIVE FEED ACTIVE</div>
             </div>
             
             <div class="health-score-container">
                 <div class="health-score-circle" id="healthScoreCircle">100%</div>
                 <div class="health-details">
                     <h4>Database Integrity Score</h4>
-                    <p>The system actively scans all unarchived entries for logic errors, fat-finger anomalies (e.g., extra zeros in costs), and identical duplicate submissions.</p>
+                    <p>The system actively scans all unarchived entries for logic errors, anomalies, and duplicate submissions.</p>
                 </div>
             </div>
 
             <ul class="flag-list" id="auditFlagsList">
-                <li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: #E8F8EE; border: 1px dashed rgba(52, 199, 89, 0.4); border-radius: 12px; gap: 12px;">
-                    <i class="fa-solid fa-check-double" style="font-size: 32px; opacity: 0.8;"></i> 
-                    <span style="font-size: 14px; font-weight: 600;">No logic errors, anomalies, or duplicates detected in the active database.</span>
-                </li>
+                <li class="empty-state">System initializing...</li>
             </ul>
         </div>
 
@@ -222,9 +255,7 @@
             </div>
             
             <p class="admin-card-desc">
-                Executing this protocol will finalize the current disaster response logs. All active data entries currently populating the live dashboards will be securely compiled, time-stamped, and transferred to the Historical Logs. 
-                <br><br>
-                <strong style="color: var(--accent-red);"><i class="fa-solid fa-triangle-exclamation"></i> Notice:</strong> The live monitoring dashboards will be cleared and reset to await the next operational incident. This action cannot be easily undone.
+                Executing this protocol will finalize the current disaster response logs. All active data entries currently populating the live dashboards will be securely compiled, time-stamped, and transferred to the Historical Logs.
             </p>
 
             <div class="input-group">
@@ -232,7 +263,7 @@
                 <input type="text" id="archiveIncidentName" placeholder="e.g., SW Monsoon & Typhon Luis" required>
             </div>
 
-            <button class="btn-archive" onclick="triggerArchiveProtocol()"><i class="fa-solid fa-power-off"></i> Execute Archiving Protocol</button>
+            <button class="btn-archive" onclick="triggerArchiveProtocol()">Execute Archiving Protocol</button>
         </div>
     </div>
 
@@ -240,18 +271,17 @@
     <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-header">
-                <h3><i class="fa-solid fa-code" style="color: var(--accent-blue);"></i> Raw Database Editor</h3>
-                <button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
+                <h3>Raw Database Editor</h3>
+                <button class="modal-close" onclick="closeEditModal()">X</button>
             </div>
             <div class="modal-body">
                 <div style="font-size: 13px; color: #a0a0a0; margin-bottom: 5px;">
-                    <i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-orange); margin-right: 4px;"></i> 
                     Modify the raw JSON payload below to fix typos. Be careful not to delete quotation marks or commas.
                 </div>
                 <input type="hidden" id="editDocId">
                 <input type="hidden" id="editCollectionName">
                 <textarea class="json-editor" id="rawJsonEditor" spellcheck="false"></textarea>
-                <button class="btn-save-edit" id="saveEditBtn" onclick="saveRecordEdit()"><i class="fa-solid fa-cloud-arrow-up"></i> Push Changes to Database</button>
+                <button class="btn-save-edit" id="saveEditBtn" onclick="saveRecordEdit()">Push Changes to Database</button>
             </div>
         </div>
     </div>
@@ -260,7 +290,7 @@
     <div class="loading-overlay" id="loadingOverlay">
         <div class="terminal-box" id="terminalBox">
             <div class="terminal-header">
-                <div class="terminal-title"><i class="fa-solid fa-microchip fa-fade"></i> Secure System Link</div>
+                <div class="terminal-title">Secure System Link</div>
                 <div class="terminal-dots"><div class="dot dot-red"></div><div class="dot dot-yellow"></div><div class="dot dot-green"></div></div>
             </div>
             
@@ -277,12 +307,10 @@
                 
                 <div class="console-logs" id="consoleLogs">
                     <p class="log-line log-system">> INITIALIZING ARCHIVE PROTOCOL...</p>
-                    <p class="log-line">> Establishing secure connection to system database...</p>
                 </div>
             </div>
 
             <div class="terminal-body success-overlay" id="successUI">
-                <i class="fa-solid fa-circle-check success-icon"></i>
                 <div class="success-text">Archiving Complete</div>
                 <div class="success-subtext">All records successfully secured in Historical Logs.</div>
                 <button class="btn-done" onclick="closeOverlay()">Acknowledge & Return</button>
@@ -315,6 +343,19 @@
 
     window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 
+    // Added the smooth collapse JS listener
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        const sidebar = document.getElementById('mainSidebar');
+        if(localStorage.getItem('sidebarCollapsed') === 'true') { sidebar.classList.add('collapsed'); }
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+        }
+    });
+
     const systemCollections = [
         { id: "weather_conditions", name: "Weather Observations" }, { id: "actions_data", name: "Preparedness Actions" },
         { id: "flooded_areas", name: "Flooded Area Vectors" }, { id: "evacuation_data", name: "Evacuation Center Logs" },
@@ -326,15 +367,20 @@
         { id: "related_incidents", name: "Hazard Monitoring Logs" }
     ];
 
-    // ==========================================
-    // ATLAS: LIVE SYSTEM AUDIT & DIAGNOSTIC ENGINE
-    // ==========================================
-    
+    function formatDateStr(isoStr) {
+        if (!isoStr) return "Unknown Time";
+        const d = new Date(isoStr);
+        if (isNaN(d)) return isoStr;
+        return d.toLocaleDateString('en-US', { month: 'short', day: '2-digit', year: 'numeric' }) + " " + d.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+    }
+
     let liveAuditData = {};
     let auditFlags = [];
 
-    // Initialize listeners for the major collections prone to human error
-    const collectionsToAudit = ['evacuation_data', 'casualties_data', 'infrastructure_data', 'assistance_data'];
+    const collectionsToAudit = [
+        'evacuation_data', 'casualties_data', 'infrastructure_data', 'assistance_data', 
+        'flooded_areas', 'actions_data', 'resource_data', 'agri_damages', 'residential_damages'
+    ];
     
     collectionsToAudit.forEach(colName => {
         onSnapshot(query(collection(db, colName)), (snap) => {
@@ -343,12 +389,12 @@
         });
     });
 
+    /* STRICT STRING CONCATENATION - ZERO TEMPLATE LITERALS */
     function runSystemAudit() {
         auditFlags = [];
         let totalRecordsScanned = 0;
         let globalDuplicateMap = new Set();
 
-        // 1. Audit Evacuation Centers (Ghost Check)
         if (liveAuditData.evacuation_data) {
             liveAuditData.evacuation_data.forEach(d => {
                 totalRecordsScanned++;
@@ -357,52 +403,149 @@
                 let ecIndvNow = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0);
                 
                 if (status === 'Active' && ecFamNow === 0 && ecIndvNow === 0) {
-                    auditFlags.push({ type: 'critical', col: 'evacuation_data', doc: d, title: 'Ghost Evacuation Center', context: `${d.municipality} | SitRep ${d.sitrepNo}`, reason: 'Center marked Active but contains 0 individuals.' });
+                    auditFlags.push({ 
+                        type: 'critical', col: 'evacuation_data', doc: d, 
+                        title: "Ghost Evacuation Center (SitRep " + d.sitrepNo + ")", 
+                        context: "AFFECTED POPULATION | " + d.municipality + " | " + formatDateStr(d.dateReported), 
+                        reason: "Center marked Active but contains 0 individuals." 
+                    });
                 }
 
-                // Duplicate Hash
-                let hash = `EVAC_${d.sitrepNo}_${d.municipality}_${d.evacCenterCount}`;
-                if (globalDuplicateMap.has(hash)) { auditFlags.push({ type: 'critical', col: 'evacuation_data', doc: d, title: 'Duplicate Submission', context: `${d.municipality} | SitRep ${d.sitrepNo}`, reason: 'Identical record found for this municipality in the same SitRep.' }); }
+                let hash = "EVAC_" + d.sitrepNo + "_" + d.municipality + "_" + d.evacCenterCount;
+                if (globalDuplicateMap.has(hash)) { 
+                    auditFlags.push({ 
+                        type: 'critical', col: 'evacuation_data', doc: d, 
+                        title: "Duplicate Submission (SitRep " + d.sitrepNo + ")", 
+                        context: "AFFECTED POPULATION | " + d.municipality + " | " + formatDateStr(d.dateReported), 
+                        reason: "Identical record found for " + d.municipality + " (" + d.evacCenterCount + " ECs)." 
+                    }); 
+                }
                 globalDuplicateMap.add(hash);
             });
         }
 
-        // 2. Audit Casualties (Zero Check)
         if (liveAuditData.casualties_data) {
             liveAuditData.casualties_data.forEach(d => {
                 totalRecordsScanned++;
                 if (d.count === 0) {
-                    auditFlags.push({ type: 'critical', col: 'casualties_data', doc: d, title: 'Zero Casualty Record', context: `${d.municipality} - ${d.barangay} | SitRep ${d.sitrepNo}`, reason: 'Casualty record submitted with 0 count.' });
+                    auditFlags.push({ 
+                        type: 'critical', col: 'casualties_data', doc: d, 
+                        title: "Zero Casualty Record (SitRep " + d.sitrepNo + ")", 
+                        context: "CASUALTIES | " + d.municipality + " - Brgy. " + d.barangay + " | " + formatDateStr(d.dateReported), 
+                        reason: "Casualty record submitted with 0 count." 
+                    });
                 }
-                let hash = `CAS_${d.sitrepNo}_${d.municipality}_${d.barangay}_${d.classification}`;
-                if (globalDuplicateMap.has(hash)) { auditFlags.push({ type: 'critical', col: 'casualties_data', doc: d, title: 'Duplicate Submission', context: `${d.municipality} - ${d.barangay} | SitRep ${d.sitrepNo}`, reason: 'Identical casualty class found for this location.' }); }
+                let hash = "CAS_" + d.sitrepNo + "_" + d.municipality + "_" + d.barangay + "_" + d.classification;
+                if (globalDuplicateMap.has(hash)) { 
+                    auditFlags.push({ 
+                        type: 'critical', col: 'casualties_data', doc: d, 
+                        title: "Duplicate Submission (SitRep " + d.sitrepNo + ")", 
+                        context: "CASUALTIES | Class: " + d.classification + " | " + formatDateStr(d.dateReported), 
+                        reason: "Identical casualty record found for Brgy. " + d.barangay + "." 
+                    }); 
+                }
                 globalDuplicateMap.add(hash);
             });
         }
 
-        // 3. Audit Infrastructure (Fat Finger Check & Type Check)
         if (liveAuditData.infrastructure_data) {
             liveAuditData.infrastructure_data.forEach(d => {
                 totalRecordsScanned++;
                 let cost = parseFloat(d.cost) || 0;
                 if (cost > 500000000) {
-                    auditFlags.push({ type: 'warning', col: 'infrastructure_data', doc: d, title: 'Extreme Infrastructure Cost', context: `${d.specificArea} | SitRep ${d.sitrepNo}`, reason: `Cost is ₱${cost.toLocaleString()} (Over ₱500M). Check for extra zeros.` });
+                    auditFlags.push({ 
+                        type: 'warning', col: 'infrastructure_data', doc: d, 
+                        title: "Extreme Infrastructure Cost (SitRep " + d.sitrepNo + ")", 
+                        context: "DAMAGED INFRA | Cat: " + (d.category || 'Asset') + " | " + formatDateStr(d.dateReported), 
+                        reason: "Cost is PHP " + cost.toLocaleString() + " (Over 500M). Check for extra zeros." 
+                    });
                 }
-                // Duplicate check accounts for recordType (Passability vs Damage)
-                let hash = `INFRA_${d.sitrepNo}_${d.municipality}_${d.specificArea}_${d.recordType || 'legacy'}`;
-                if (globalDuplicateMap.has(hash)) { auditFlags.push({ type: 'critical', col: 'infrastructure_data', doc: d, title: 'Duplicate Submission', context: `${d.specificArea} | SitRep ${d.sitrepNo}`, reason: 'Identical infrastructure item type found in same SitRep.' }); }
+                let hash = "INFRA_" + d.sitrepNo + "_" + d.municipality + "_" + d.specificArea + "_" + (d.recordType || 'legacy');
+                if (globalDuplicateMap.has(hash)) { 
+                    auditFlags.push({ 
+                        type: 'critical', col: 'infrastructure_data', doc: d, 
+                        title: "Duplicate Submission (SitRep " + d.sitrepNo + ")", 
+                        context: "DAMAGED INFRA | Cat: " + (d.category || 'Asset') + " | " + formatDateStr(d.dateReported), 
+                        reason: "Identical record found for: " + d.specificArea + "." 
+                    }); 
+                }
                 globalDuplicateMap.add(hash);
             });
         }
 
-        // 4. Audit Assistance (Fat Finger Check > 5M)
         if (liveAuditData.assistance_data) {
             liveAuditData.assistance_data.forEach(d => {
                 totalRecordsScanned++;
                 let cost = parseFloat(d.cost) || 0;
                 if (cost > 5000000) {
-                    auditFlags.push({ type: 'warning', col: 'assistance_data', doc: d, title: 'Extreme Relief Cost', context: `${d.municipality} - ${d.reliefItem} | SitRep ${d.sitrepNo}`, reason: `Cost is ₱${cost.toLocaleString()} (Over ₱5M). Check for extra zeros.` });
+                    auditFlags.push({ 
+                        type: 'warning', col: 'assistance_data', doc: d, 
+                        title: "Extreme Relief Cost (SitRep " + d.sitrepNo + ")", 
+                        context: "ASSISTANCE | " + d.municipality + " | " + formatDateStr(d.dateReported), 
+                        reason: "Cost is PHP " + cost.toLocaleString() + " (Over 5M). Check for extra zeros." 
+                    });
                 }
+            });
+        }
+
+        if (liveAuditData.flooded_areas) {
+            liveAuditData.flooded_areas.forEach(d => {
+                totalRecordsScanned++;
+                let hash = "FLOOD_" + d.sitrepNo + "_" + d.municipality + "_" + d.barangay;
+                if (globalDuplicateMap.has(hash)) { 
+                    auditFlags.push({ 
+                        type: 'critical', col: 'flooded_areas', doc: d, 
+                        title: "Duplicate Submission (SitRep " + d.sitrepNo + ")", 
+                        context: "FLOODED AREAS | " + d.municipality + " - Brgy. " + d.barangay + " | " + formatDateStr(d.dateReported), 
+                        reason: "Identical flood record encoded for Brgy. " + d.barangay + "." 
+                    }); 
+                }
+                globalDuplicateMap.add(hash);
+                
+                let depth = parseFloat(d.waterDepth_ft) || 0;
+                if (depth > 30) {
+                    auditFlags.push({ 
+                        type: 'warning', col: 'flooded_areas', doc: d, 
+                        title: "Extreme Flood Depth (SitRep " + d.sitrepNo + ")", 
+                        context: "FLOODED AREAS | " + d.municipality + " - Brgy. " + d.barangay + " | " + formatDateStr(d.dateReported), 
+                        reason: "Depth is registered at " + depth + " ft. Please verify for typographical error." 
+                    });
+                }
+            });
+        }
+
+        if (liveAuditData.actions_data) {
+            liveAuditData.actions_data.forEach(d => {
+                totalRecordsScanned++;
+                let descClip = d.description ? d.description.substring(0, 20) : '';
+                let hash = "ACT_" + d.sitrepNo + "_" + d.agency + "_" + d.category + "_" + descClip;
+                
+                if (globalDuplicateMap.has(hash)) { 
+                    let snippet = d.description ? d.description.substring(0, 60) + (d.description.length > 60 ? '...' : '') : 'No narrative provided';
+                    auditFlags.push({ 
+                        type: 'critical', col: 'actions_data', doc: d, 
+                        title: "Duplicate Submission (SitRep " + d.sitrepNo + ")", 
+                        context: "ACTIONS TAKEN | Category: " + (d.category || 'Uncategorized') + " | " + formatDateStr(d.actionTime || d.dateReported), 
+                        reason: "Duplicate narrative: " + snippet 
+                    }); 
+                }
+                globalDuplicateMap.add(hash);
+            });
+        }
+
+        if (liveAuditData.resource_data) {
+            liveAuditData.resource_data.forEach(d => {
+                totalRecordsScanned++;
+                let hash = "RES_" + d.sitrepNo + "_" + d.municipality + "_" + d.barangay + "_" + d.agency + "_" + d.assetType;
+                if (globalDuplicateMap.has(hash)) { 
+                    auditFlags.push({ 
+                        type: 'critical', col: 'resource_data', doc: d, 
+                        title: "Duplicate Submission (SitRep " + d.sitrepNo + ")", 
+                        context: "DEPLOYED ASSETS | Agency: " + d.agency + " | " + formatDateStr(d.dateReported), 
+                        reason: "Identical deployment record for " + (d.quantity || d.personnel) + "x " + d.assetType + "." 
+                    }); 
+                }
+                globalDuplicateMap.add(hash);
             });
         }
 
@@ -414,54 +557,55 @@
         const scoreEl = document.getElementById('healthScoreCircle');
         listEl.innerHTML = '';
 
-        // Calculate Health Score
         let score = 100;
         let critCount = auditFlags.filter(f => f.type === 'critical').length;
         let warnCount = auditFlags.filter(f => f.type === 'warning').length;
         score -= (critCount * 5) + (warnCount * 2);
         if (score < 0) score = 0;
 
-        scoreEl.innerText = `${score}%`;
-        scoreEl.className = 'health-score-circle'; // reset
+        scoreEl.innerText = score + "%";
+        scoreEl.className = 'health-score-circle'; 
         if (score < 80) scoreEl.classList.add('warning');
         if (score < 60) scoreEl.classList.add('critical');
 
         if (auditFlags.length === 0) {
-            listEl.innerHTML = `<li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: #E8F8EE; border: 1px dashed rgba(52, 199, 89, 0.4); border-radius: 12px; gap: 12px;">
-                <i class="fa-solid fa-check-double" style="font-size: 32px; opacity: 0.8;"></i> 
-                <span style="font-size: 14px; font-weight: 600;">No logic errors, anomalies, or duplicates detected in the active database.</span>
-            </li>`;
+            let emptyHtml = '<li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: #E8F8EE; border: 1px dashed rgba(52, 199, 89, 0.4); border-radius: 12px; gap: 12px;">';
+            emptyHtml += '<span style="font-size: 14px; font-weight: 600;">No logic errors, anomalies, or duplicates detected in the active database.</span>';
+            emptyHtml += '</li>';
+            listEl.innerHTML = emptyHtml;
             return;
         }
 
-        // Render Flags
-        auditFlags.forEach(flag => {
-            let badgeObj = flag.type === 'critical' ? `<span class="badge-red">CRITICAL</span>` : `<span class="badge-yellow">WARNING</span>`;
+        auditFlags.forEach((flag, index) => {
+            let badgeObj = flag.type === 'critical' ? '<span class="badge-red">CRITICAL</span>' : '<span class="badge-yellow">WARNING</span>';
             
-            // Serialize doc cleanly for the editor button
-            let cleanDoc = { ...flag.doc };
-            delete cleanDoc.timeMonitored; // remove complex timestamp object for JSON editing
+            let html = '<li class="flag-item ' + flag.type + '">';
+            html += '<div class="flag-info">';
+            html += '<div class="flag-title">' + badgeObj + ' ' + flag.title + '</div>';
+            html += '<div style="font-size: 13px; color: var(--text-main); margin-top: 2px;">' + flag.reason + '</div>';
+            html += '<div class="flag-context">' + flag.context + '</div>';
+            html += '</div>';
+            html += '<div class="btn-action-group">';
+            html += '<button class="btn-fix" onclick="openEditModalFromIndex(' + index + ')">Review</button>';
+            html += '<button class="btn-delete" onclick="deleteFlaggedRecord(\'' + flag.col + '\', \'' + flag.doc.id + '\')">Delete</button>';
+            html += '</div>';
+            html += '</li>';
 
-            listEl.innerHTML += `
-                <li class="flag-item ${flag.type}">
-                    <div class="flag-info">
-                        <div class="flag-title">${badgeObj} ${flag.title}</div>
-                        <div style="font-size: 13px; color: var(--text-main); margin-top: 2px;">${flag.reason}</div>
-                        <div class="flag-context"><i class="fa-solid fa-code-branch" style="margin-right:4px;"></i>${flag.context}</div>
-                    </div>
-                    <div class="btn-action-group">
-                        <button class="btn-fix" onclick='openEditModal("${flag.col}", "${flag.doc.id}", ${JSON.stringify(cleanDoc)})'><i class="fa-solid fa-pen-to-square"></i> Review</button>
-                        <button class="btn-delete" onclick='deleteFlaggedRecord("${flag.col}", "${flag.doc.id}")'><i class="fa-solid fa-trash-can"></i></button>
-                    </div>
-                </li>
-            `;
+            listEl.innerHTML += html;
         });
     }
+
+    window.openEditModalFromIndex = function(index) {
+        let flag = auditFlags[index];
+        if (!flag) return;
+        let cleanDoc = { ...flag.doc };
+        delete cleanDoc.timeMonitored; 
+        openEditModal(flag.col, flag.doc.id, cleanDoc);
+    };
 
     window.openEditModal = function(colName, docId, docData) {
         document.getElementById('editDocId').value = docId;
         document.getElementById('editCollectionName').value = colName;
-        // Format JSON cleanly for editing
         document.getElementById('rawJsonEditor').value = JSON.stringify(docData, null, 4);
         
         const modal = document.getElementById('editModal');
@@ -481,21 +625,20 @@
         const originalText = btn.innerHTML;
         
         try {
-            btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Pushing...';
+            btn.innerHTML = 'Pushing...';
             btn.disabled = true;
 
             const docId = document.getElementById('editDocId').value;
             const colName = document.getElementById('editCollectionName').value;
             const rawJson = document.getElementById('rawJsonEditor').value;
             
-            // Validate JSON
             const updatedData = JSON.parse(rawJson);
-            delete updatedData.id; // ensure ID isn't written into fields
+            delete updatedData.id; 
 
             const docRef = doc(db, colName, docId);
             await updateDoc(docRef, updatedData);
 
-            btn.innerHTML = '<i class="fa-solid fa-check"></i> Fixed Successfully';
+            btn.innerHTML = 'Fixed Successfully';
             btn.style.background = 'var(--accent-green)';
             setTimeout(() => {
                 closeEditModal();
@@ -506,14 +649,14 @@
 
         } catch (error) {
             console.error("JSON Edit Error:", error);
-            alert("Error saving record. Check if your JSON syntax is valid (keep quotation marks around keys and string values).");
+            alert("Error saving record. Check if your JSON syntax is valid.");
             btn.innerHTML = originalText;
             btn.disabled = false;
         }
     };
 
     window.deleteFlaggedRecord = async function(colName, docId) {
-        if(confirm("Are you sure you want to permanently delete this duplicate/erroneous record?")) {
+        if(confirm("Are you sure you want to permanently delete this record?")) {
             try {
                 await deleteDoc(doc(db, colName, docId));
             } catch(e) {
@@ -523,20 +666,11 @@
         }
     };
 
-    // ==========================================
-    // ORIGINAL ARCHIVE LOGIC
-    // ==========================================
-
     window.triggerArchiveProtocol = async function() {
         const incidentName = document.getElementById('archiveIncidentName').value.trim();
-        
-        if (!incidentName) {
-            alert("Please input the Incident Name to confirm the archive process.");
-            return;
-        }
+        if (!incidentName) { alert("Please input the Incident Name."); return; }
 
-        const confirmMsg = `WARNING: You are about to archive all live data for "${incidentName}".\n\nThis will clear the live dashboards and move records to the Historical Logs. Do you wish to proceed?`;
-        if (!confirm(confirmMsg)) return;
+        if (!confirm("WARNING: Archiving will clear the live dashboards. Proceed?")) return;
 
         const overlay = document.getElementById('loadingOverlay');
         const consoleLogs = document.getElementById('consoleLogs');
@@ -549,17 +683,14 @@
         successUI.style.display = 'none';
         progressFill.style.width = '0%';
         progressPercent.innerText = '0%';
-        consoleLogs.innerHTML = `
-            <p class="log-line log-system">> INITIATING ARCHIVE PROTOCOL FOR: ${incidentName.toUpperCase()}</p>
-            <p class="log-line">> Establishing secure connection to system database...</p>
-        `;
+        consoleLogs.innerHTML = '<p class="log-line log-system">> INITIATING ARCHIVE PROTOCOL</p>';
         
         overlay.classList.add('active');
 
         const addLog = (msg, styleClass = '') => {
             const p = document.createElement('p');
-            p.className = `log-line ${styleClass}`;
-            p.innerHTML = `> ${msg}`;
+            p.className = "log-line " + styleClass;
+            p.innerHTML = "> " + msg;
             consoleLogs.appendChild(p);
             consoleLogs.scrollTop = consoleLogs.scrollHeight;
         };
@@ -569,11 +700,10 @@
             let totalRecordsProcessed = 0;
 
             await new Promise(r => setTimeout(r, 1000));
-            addLog(`Connection established. Scanning ${systemCollections.length} active data pathways...`);
+            addLog("Scanning " + systemCollections.length + " data pathways...");
 
             for (let i = 0; i < systemCollections.length; i++) {
                 const colInfo = systemCollections[i];
-                
                 const querySnapshot = await getDocs(collection(db, colInfo.id));
                 let colRecordCount = 0;
                 
@@ -588,27 +718,23 @@
                 });
 
                 await new Promise(r => setTimeout(r, 400 + Math.random() * 400)); 
-                
-                addLog(`Compressing <span class="log-highlight">${colInfo.name}</span>... [Found ${colRecordCount} records]`);
+                addLog("Compressing " + colInfo.name + "... [" + colRecordCount + " records]");
                 
                 const percent = Math.round(((i + 1) / systemCollections.length) * 90); 
-                progressFill.style.width = `${percent}%`;
-                progressPercent.innerText = `${percent}%`;
+                progressFill.style.width = percent + "%";
+                progressPercent.innerText = percent + "%";
             }
 
             await new Promise(r => setTimeout(r, 800));
-            addLog(`All pathways scanned. Total records ready for transfer: <span class="log-highlight">${totalRecordsProcessed}</span>`);
-            addLog(`Committing batch update to system archive...`, 'log-system');
+            addLog("Committing batch update to system archive...", "log-system");
 
-            if (totalRecordsProcessed > 0) {
-                await batch.commit();
-            }
+            if (totalRecordsProcessed > 0) { await batch.commit(); }
 
             await new Promise(r => setTimeout(r, 1000));
             
-            progressFill.style.width = `100%`;
-            progressPercent.innerText = `100%`;
-            addLog(`Batch commit successful. Data securely logged.`, 'log-highlight');
+            progressFill.style.width = "100%";
+            progressPercent.innerText = "100%";
+            addLog("Batch commit successful.", "log-system");
             
             setTimeout(() => {
                 processingUI.style.display = 'none';
@@ -619,8 +745,7 @@
 
         } catch (error) {
             console.error("Archive Error:", error);
-            addLog(`SYSTEM ERROR: Sequence failed.`, 'log-error');
-            addLog(`${error.message}`, 'log-error');
+            addLog("SYSTEM ERROR: Sequence failed.", "log-error");
             progressFill.style.backgroundColor = '#FF3B30';
             progressFill.style.boxShadow = '0 0 10px #FF3B30';
         }
