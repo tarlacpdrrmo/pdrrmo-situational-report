@@ -9,6 +9,15 @@
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
     <script src="https://cdn.jsdelivr.net/npm/flatpickr"></script>
+
+    <script type="importmap">
+      {
+        "imports": {
+          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+        }
+      }
+    </script>
+
     <style> body { visibility: hidden; } </style>
     
     <style>
@@ -25,21 +34,49 @@
 
         body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased; }
         
-        /* SIDEBAR */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid #E5E5EA; z-index: 10; padding: 20px 10px; flex-shrink: 0; overflow-y: auto;}
-        .sidebar::-webkit-scrollbar { width: 0px; }
-        .sidebar-brand { font-size: 20px; font-weight: 800; color: var(--text-main); padding: 10px 15px 30px 15px; letter-spacing: -0.5px;}
-        .nav-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 15px 8px 15px; margin-top: 20px;}
-        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 10px 15px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-main); border-radius: var(--radius-md); margin-bottom: 2px;}
-        .dashboard-link i { width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s; }
+        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER (BULLETPROOF FLEXBOX) */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
+        .sidebar-inner::-webkit-scrollbar { width: 0px; }
+
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
+        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
+        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
+        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
+        
+        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0; margin-right: -4px;}
+        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        
+        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
+        
+        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
+        
+        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
+        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
         .dashboard-link:hover { background-color: var(--bg-hover); }
+
         .active-tab { background-color: var(--bg-hover); font-weight: 600; color: var(--accent-blue); }
         .active-tab i { color: var(--accent-blue); }
-        .tab-btn { background: none; color: var(--text-main); border: none; padding: 10px 15px; text-align: left; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; width: 100%; margin-bottom: 2px;}
-        .tab-btn i { font-size: 14px; width: 20px; text-align: center; color: var(--text-muted);}
+        
+        .tab-btn { background: none; color: var(--text-main); border: none; padding: 10px 15px; margin: 0 12px 2px 12px; text-align: left; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; width: calc(100% - 24px); box-sizing: border-box; white-space: nowrap;}
+        .tab-btn i { font-size: 14px; width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s;}
         .tab-btn:hover { background-color: var(--bg-hover); }
         .tab-btn.active { background-color: var(--accent-blue); color: #fff; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);}
         .tab-btn.active i { color: #fff; }
+
+        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
+        
+        /* COLLAPSED STATE LOGIC */
+        .sidebar.collapsed { width: 70px; }
+        .sidebar.collapsed .sidebar-header { padding: 0; justify-content: center; }
+        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; display: none; }
+        .sidebar.collapsed .sidebar-toggle { margin-left: 0; }
+        .sidebar.collapsed .sidebar-subtitle { display: none; }
+        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
+        
+        .sidebar.collapsed .dashboard-link, .sidebar.collapsed .tab-btn { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
+        .sidebar.collapsed .dashboard-link i, .sidebar.collapsed .tab-btn i { width: auto; margin: 0; font-size: 18px; }
+        .sidebar.collapsed .link-text, .sidebar.collapsed .tab-text { display: none; }
         
         /* MAIN CONTENT & WORKSPACE WRAPPER */
         .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow: hidden; position: relative; }
@@ -71,12 +108,12 @@
         .workspace-toolbar { display: none; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 20px; box-shadow: var(--shadow-soft); flex-shrink: 0; animation: fadeIn 0.3s ease;}
         .workspace-toolbar.active { display: flex; }
         .toolbar-left { display: flex; gap: 15px; align-items: center; }
-        .toolbar-right { display: flex; justify-content: flex-end; }
-        .toolbar-input { width: 350px; padding: 10px 14px; border: 1px solid #C7C7CC; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; color: var(--text-main); background-color: #fff; transition: 0.2s; outline: none; }
+        .toolbar-right { display: flex; gap: 10px; justify-content: flex-end; }
+        .toolbar-input { width: 350px; padding: 10px 14px; border: 1px solid #C7C7CC; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; color: var(--text-main); background: #fff; transition: 0.2s; outline: none; }
         .toolbar-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
         .toolbar-left .ts-wrapper { width: 250px; }
         .btn-add { background: var(--accent-blue); color: white; border: none; padding: 10px 18px; border-radius: var(--radius-md); font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: var(--font-stack);}
-        .btn-add:hover { background: #0056B3; transform: scale(0.98); }
+        .btn-add:hover { filter: brightness(0.9); transform: scale(0.98); }
 
         /* FULL WIDTH TABLES & HORIZONTAL SCROLL */
         .form-section { display: none; flex: 1; min-height: 0; }
@@ -85,10 +122,21 @@
         .table-side::-webkit-scrollbar { width: 6px; height: 8px;}
         .table-side::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
 
-        /* DROP-DOWN MODAL ANIMATION */
-        .slide-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99999; display: flex; justify-content: center; align-items: flex-start; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding-top: 50px; }
+        /* LEDGER TYPOGRAPHY HIERARCHY */
+        .historical-row td { opacity: 0.65; font-style: italic; }
+        .historical-row .strong-text { font-weight: 500; }
+        .historical-row .btn-table-edit { opacity: 0.7; font-style: normal; }
+        .historical-row .badge { filter: grayscale(40%); font-style: normal; }
+        
+        .current-row td { opacity: 1; }
+        .current-row .strong-text { font-weight: 700; }
+        .current-row { background-color: rgba(0, 122, 255, 0.02); }
+
+        /* MODAL STYLES */
+        .slide-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99999; display: flex; justify-content: center; align-items: flex-start; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding-top: 40px; }
         .slide-modal-overlay.active { opacity: 1; visibility: visible; }
-        .slide-modal-card { background: var(--bg-card); width: 100%; max-width: 650px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-modal); transform: translateY(-100px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 85vh; }
+        .slide-modal-card { background: var(--bg-card); width: 100%; max-width: 650px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-modal); transform: translateY(-100px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 88vh; }
+        .slide-modal-card.wide-modal { max-width: 900px; }
         .slide-modal-overlay.active .slide-modal-card { transform: translateY(0); }
         .slide-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--border-subtle); background: #F9F9FB; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
         .slide-modal-header h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px;}
@@ -98,7 +146,25 @@
         .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
         .modal-close:hover { background: #FFEBEB; color: var(--accent-red); }
 
-        /* GLOBAL SAVING & SUCCESS OVERLAY */
+        /* SMART SCANNER & BATCH STAGING STYLES */
+        .scan-dropzone { border: 2px dashed var(--accent-purple); border-radius: var(--radius-md); padding: 35px 20px; text-align: center; cursor: pointer; transition: 0.2s; background: #F9F9FB; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
+        .scan-dropzone:hover, .scan-dropzone.dragover { background: #F3E8FF; border-color: var(--accent-purple); color: var(--accent-purple); }
+        .scan-preview-container { display: none; margin-top: 15px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-subtle); position: relative; background: #E5E5EA; }
+        .scan-preview-img { width: 100%; max-height: 250px; object-fit: contain; display: block; }
+        .btn-remove-scan { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .btn-remove-scan:hover { background: var(--accent-red); }
+        
+        .staging-table-wrapper { width: 100%; max-height: 380px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); margin-top: 15px; }
+        .staging-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
+        .staging-table th, .staging-table td { white-space: nowrap; }
+        .staging-table th { background: #F9F9FB; padding: 10px 12px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; }
+        .staging-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
+        .staging-table tr:hover { background: #F9F9FB; }
+        .staging-input { width: 100%; padding: 6px 8px; font-size: 12px; border: 1px solid var(--border-subtle); border-radius: 6px; background: #fff; box-sizing: border-box; min-width: 80px;}
+        .btn-row-delete { background: transparent; border: none; color: var(--accent-red); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; }
+        .btn-row-delete:hover { background: #FFEBEB; }
+
+        /* SAVING ANIMATION OVERLAY */
         .global-save-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); z-index: 999999; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .global-save-overlay.active { display: flex; opacity: 1; }
         .save-card { background: var(--bg-card); padding: 35px 50px; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); display: flex; flex-direction: column; align-items: center; gap: 15px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
@@ -108,7 +174,7 @@
         .save-text { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.2px; }
         @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
-        /* INPUTS & FORMS */
+        /* FORMS & INPUTS */
         .form-group { display: flex; flex-direction: column; margin-bottom: 14px; width: 100%;}
         label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.2px; text-transform: uppercase;}
         input, select, textarea { box-sizing: border-box; padding: 10px 14px; border: 1px solid transparent; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; color: var(--text-main); background: var(--bg-input); transition: all 0.2s ease; outline: none; resize: vertical; }
@@ -129,7 +195,7 @@
         .ts-wrapper .ts-control > input { color: var(--text-main) !important; background-color: transparent !important; }
         .ts-wrapper.multi .ts-control > div { background: #E5F0FF; color: var(--accent-blue); border: none; border-radius: 6px; padding: 4px 8px; margin: 2px 4px 2px 0; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center;}
         
-        /* APPLE/CUPERTINO FLATPICKR OVERRIDES */
+        /* FLATPICKR */
         .flatpickr-calendar { background: #FFFFFF; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important; border: 1px solid #E5E5EA !important; border-radius: 14px !important; padding: 15px !important; font-family: var(--font-stack) !important; width: 340px !important; max-width: 340px !important; box-sizing: border-box !important; }
         .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-days { width: 100% !important; max-width: 100% !important; min-width: 100% !important; }
         .flatpickr-months { margin-bottom: 10px; }
@@ -165,7 +231,6 @@
         .submit-btn { background-color: var(--accent-blue); color: #fff; padding: 14px 20px; border: none; border-radius: var(--radius-md); cursor: pointer; margin-top: 10px; width: 100%; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; font-family: var(--font-stack);}
         .submit-btn:hover { background-color: #0056B3; transform: scale(0.98);}
         
-        /* NOVA FIX: ENSURE EDIT MODE COLOR OVERRIDES INLINE STYLES */
         .submit-btn.edit-mode { background-color: var(--accent-orange) !important; color: #fff !important; }
         .submit-btn.edit-mode:hover { background-color: #E68A00 !important; }
         
@@ -174,8 +239,8 @@
         /* DATA TABLES */
         .data-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: auto; white-space: nowrap; }
         .data-table th { background-color: #F9F9FB; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--border-subtle); }
-        .data-table td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; }
-        .data-table tr:hover { background-color: #F9F9FB; }
+        .data-table td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; transition: all 0.2s ease;}
+        .data-table tr:hover { background-color: rgba(0,0,0,0.02); }
         
         .btn-table-edit { background: #F2F2F7; color: var(--accent-blue); border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-stack);}
         .btn-table-edit:hover { background: #E5E5EA; }
@@ -188,10 +253,6 @@
         .strong-text { font-weight: 600; color: var(--text-main); display: block; }
         .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
         .gps-text { font-family: monospace; color: var(--accent-blue); font-size: 11px; background: #E5F0FF; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(0, 122, 255, 0.2); display: inline-block; margin-top: 4px;}
-        
-        .sr-tag { font-size: 10px; font-weight: 600; padding: 3px 6px; border-radius: 4px; display: inline-block; margin-top: 4px; }
-        .sr-current { background: #E8F8EE; color: var(--accent-green); border: 1px solid rgba(52, 199, 89, 0.2); }
-        .sr-historical { background: #FFF4E5; color: var(--accent-orange); border: 1px solid rgba(255, 149, 0, 0.2); }
         
         .action-time { font-family: monospace; color: var(--accent-green); font-size: 12px; display: block;}
         
@@ -224,42 +285,58 @@
         </div>
     </div>
 
-    <div class="sidebar">
-        <div class="sidebar-brand">Tarlac PDRRMO</div>
-        <div class="nav-section-title">Monitoring System</div>
+    <!-- ATLAS FIX: New Gemini UI Sidebar Header & Modified Tabs -->
+    <div class="sidebar" id="mainSidebar">
+        <div class="sidebar-inner">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-container">
+                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
+                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
+                </div>
+                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
+            
+            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
+            <div class="nav-links-container">
+                <a href="index.html" class="dashboard-link" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
+                <a href="trend_analysis.html" class="dashboard-link" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
+                <a href="data_entry.html" class="dashboard-link active-tab" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
+                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
+                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
+                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
+            </div>
 
-        <div style="margin-top: 5px; padding: 0 10px;">
-            <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
-            <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
-            <a href="data_entry.html" class="dashboard-link active-tab"><i class="fa-solid fa-desktop"></i> Command Workspace</a>
-            <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
-            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
-        </div>
-
-        <div class="nav-section-title" style="margin-top: 25px;">Data Workspaces</div>
-        
-        <div style="padding: 0 10px;">
-            <button class="tab-btn active" onclick="openTab('weather')"><i class="fa-solid fa-cloud-sun-rain"></i> Local Weather</button>
-            <button class="tab-btn" onclick="openTab('actions')"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
-            <button class="tab-btn" onclick="openTab('flood')"><i class="fa-solid fa-water"></i> Flooded Areas</button>
-            <button class="tab-btn" onclick="openTab('evac')"><i class="fa-solid fa-users-rays"></i> Affected Pop & ECs</button>
-            <button class="tab-btn" onclick="openTab('preemptive')"><i class="fa-solid fa-person-walking-arrow-right"></i> Pre-Emptive Evacs</button>
-            <button class="tab-btn" onclick="openTab('complement')"><i class="fa-solid fa-clipboard-user"></i> OpCen Complement</button>
-            <button class="tab-btn" onclick="openTab('deployed')"><i class="fa-solid fa-truck-fast"></i> Deployed Assets</button>
-            <button class="tab-btn" onclick="openTab('lifelines')"><i class="fa-solid fa-bolt"></i> Status of Lifelines</button>
-            <button class="tab-btn" onclick="openTab('roads')"><i class="fa-solid fa-road-barrier"></i> Roads & Bridges</button>
-            <button class="tab-btn" onclick="openTab('infrastructure')"><i class="fa-solid fa-building-shield"></i> Damaged Infra</button>
-            <button class="tab-btn" onclick="openTab('casualties')"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
-            <button class="tab-btn" onclick="openTab('suspensions')"><i class="fa-solid fa-school"></i> Suspensions</button>
-            <button class="tab-btn" onclick="openTab('agri')"><i class="fa-solid fa-wheat-awn"></i> Agriculture Damages</button>
-            <button class="tab-btn" onclick="openTab('residential')"><i class="fa-solid fa-house-chimney-crack"></i> Residential Damages</button>
-            <button class="tab-btn" onclick="openTab('assistance')"><i class="fa-solid fa-hand-holding-hand"></i> Assistance</button>
-            <button class="tab-btn" onclick="openTab('incidents')"><i class="fa-solid fa-triangle-exclamation"></i> Related Incidents</button>
-        </div>
-        
-        <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;">Secure Access</div>
-        <div style="padding: 0 10px;">
-            <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
+            <div class="nav-section-title" style="margin-top: 25px;"><span class="fade-text">Data Workspaces</span></div>
+            
+            <div class="nav-links-container">
+                <button class="tab-btn active" onclick="openTab('weather')" title="Local Weather"><i class="fa-solid fa-cloud-sun-rain"></i> <span class="tab-text fade-text">Local Weather</span></button>
+                <button class="tab-btn" onclick="openTab('actions')" title="Actions Taken"><i class="fa-solid fa-clipboard-list"></i> <span class="tab-text fade-text">Actions Taken</span></button>
+                <button class="tab-btn" onclick="openTab('flood')" title="Flooded Areas"><i class="fa-solid fa-water"></i> <span class="tab-text fade-text">Flooded Areas</span></button>
+                <button class="tab-btn" onclick="openTab('evac')" title="Affected Pop & ECs"><i class="fa-solid fa-users-rays"></i> <span class="tab-text fade-text">Affected Pop & ECs</span></button>
+                <button class="tab-btn" onclick="openTab('preemptive')" title="Pre-Emptive Evacs"><i class="fa-solid fa-person-walking-arrow-right"></i> <span class="tab-text fade-text">Pre-Emptive Evacs</span></button>
+                <button class="tab-btn" onclick="openTab('complement')" title="OpCen Complement"><i class="fa-solid fa-clipboard-user"></i> <span class="tab-text fade-text">OpCen Complement</span></button>
+                <button class="tab-btn" onclick="openTab('deployed')" title="Deployed Assets"><i class="fa-solid fa-truck-fast"></i> <span class="tab-text fade-text">Deployed Assets</span></button>
+                <button class="tab-btn" onclick="openTab('lifelines')" title="Status of Lifelines"><i class="fa-solid fa-bolt"></i> <span class="tab-text fade-text">Status of Lifelines</span></button>
+                <button class="tab-btn" onclick="openTab('roads')" title="Roads & Bridges"><i class="fa-solid fa-road-barrier"></i> <span class="tab-text fade-text">Roads & Bridges</span></button>
+                <button class="tab-btn" onclick="openTab('infrastructure')" title="Damaged Infra"><i class="fa-solid fa-building-shield"></i> <span class="tab-text fade-text">Damaged Infra</span></button>
+                <button class="tab-btn" onclick="openTab('casualties')" title="Casualties"><i class="fa-solid fa-truck-medical"></i> <span class="tab-text fade-text">Casualties</span></button>
+                <button class="tab-btn" onclick="openTab('suspensions')" title="Suspensions"><i class="fa-solid fa-school"></i> <span class="tab-text fade-text">Suspensions</span></button>
+                <button class="tab-btn" onclick="openTab('agri')" title="Agriculture Damages"><i class="fa-solid fa-wheat-awn"></i> <span class="tab-text fade-text">Agriculture Damages</span></button>
+                <button class="tab-btn" onclick="openTab('residential')" title="Residential Damages"><i class="fa-solid fa-house-chimney-crack"></i> <span class="tab-text fade-text">Residential Damages</span></button>
+                <button class="tab-btn" onclick="openTab('assistance')" title="Assistance"><i class="fa-solid fa-hand-holding-hand"></i> <span class="tab-text fade-text">Assistance</span></button>
+                <button class="tab-btn" onclick="openTab('incidents')" title="Related Incidents"><i class="fa-solid fa-triangle-exclamation"></i> <span class="tab-text fade-text">Related Incidents</span></button>
+            </div>
+            
+            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
+            <div class="nav-links-container" style="padding-bottom: 20px;">
+                <a href="admin.html" class="dashboard-link" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
+            </div>
         </div>
     </div>
 
@@ -271,7 +348,7 @@
                     <div class="avatar"><i class="fa-solid fa-desktop"></i></div>
                     <div class="top-header-text">
                         <h2>Live Encoding Workspace</h2>
-                        <p>Modal-Driven Command Center with Smart Carry-Forward</p>
+                        <p>Modal-Driven Command Center with Strict Historical Archiving</p>
                     </div>
                 </div>
                 <button onclick="logoutUser()" class="lock-btn" style="background: #FFEBEB; color: var(--accent-red);"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
@@ -307,13 +384,12 @@
                     <input type="text" id="global-keyword-filter" class="toolbar-input" placeholder="Search active records...">
                 </div>
                 <div class="toolbar-right">
+                    <button class="btn-add" style="background: var(--accent-purple);" onclick="openScannerModal()"><i class="fa-solid fa-wand-magic-sparkles"></i> Smart Scan</button>
                     <button class="btn-add" id="btn-add-record" onclick="openActiveFormModal()"><i class="fa-solid fa-plus"></i> Add New Record</button>
                 </div>
             </div>
 
-            <!-- ========================================== -->
             <!-- FULL WIDTH DATA TABLES -->
-            <!-- ========================================== -->
             <div id="weather" class="form-section active"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Weather Condition</th><th>Reported Date/Time</th><th>Information Source</th><th style="min-width: 250px;">Remarks</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-weather"></tbody></table></div></div>
             <div id="actions" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Agency / Office</th><th>Action Category</th><th style="min-width: 300px;">Narrative / Details</th><th>Date/Time of Action</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-actions"></tbody></table></div></div>
             <div id="flood" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay / Area</th><th>Depth (ft)</th><th>Reported Date/Time</th><th>Coordinates</th><th>Status</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-flood"></tbody></table></div></div>
@@ -323,7 +399,7 @@
             <div id="deployed" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Deployed Area</th><th>Agency & Assets</th><th>Status</th><th>Reported Date/Time</th><th style="min-width: 200px;">Remarks / Action Taken</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-deployed"></tbody></table></div></div>
             <div id="lifelines" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Specific Area / Asset</th><th>Category</th><th>Coordinates</th><th>Status</th><th>Reported Date/Time</th><th style="min-width: 200px;">Remarks</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-lifelines"></tbody></table></div></div>
             <div id="roads" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Road Section</th><th>Date/Time Reported</th><th>Status</th><th style="min-width: 250px;">Remarks</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-roads"></tbody></table></div></div>
-            <div id="infrastructure" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th style="color: var(--accent-blue);">Infrastructure</th><th style="color: var(--accent-blue);">Damage Cost</th><th style="color: var(--accent-blue);">Source</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-infrastructure"></tbody></table></div></div>
+            <div id="infrastructure" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th style="color: var(--accent-blue);">Infrastructure</th><th style="color: var(--accent-blue);">Damage Cost</th><th style="color: var(--accent-blue);">Source / Info</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-infrastructure"></tbody></table></div></div>
             <div id="casualties" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="min-width: 250px;">Particulars & Actions</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-casualties"></tbody></table></div></div>
             <div id="suspensions" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Coverage Area</th><th>Type</th><th style="min-width: 350px;">Suspension Details / Narrative</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-suspensions"></tbody></table></div></div>
             <div id="agri" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>No. of Affected LGUs</th><th>Commodity</th><th>Farmers Affected</th><th>Partially Damaged (ha)</th><th>Totally Damaged (ha)</th><th>Total Value Losses (PHP)</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-agri"></tbody></table></div></div>
@@ -334,10 +410,95 @@
         </div>
     </div>
 
-    <!-- ========================================== -->
-    <!-- DROP-DOWN MODALS FOR FORMS                 -->
-    <!-- ========================================== -->
-    
+    <!-- SMART SCANNER MODAL -->
+    <div class="slide-modal-overlay" id="modal-scanner" onclick="closeScannerModal(event)">
+        <div class="slide-modal-card wide-modal" onclick="event.stopPropagation()">
+            <div class="slide-modal-header">
+                <h3><i class="fa-solid fa-wand-magic-sparkles" style="color: var(--accent-purple);"></i> AI Optical Scanner (Batch Processor)</h3>
+                <button class="modal-close" onclick="closeScannerModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="slide-modal-body">
+                
+                <!-- STEP 1: INTAKE & EXTRACTION -->
+                <div id="scan-step-intake">
+                    <div class="form-group">
+                        <label>Target Workspace Module</label>
+                        <select id="scan-target-module" class="f-muni" required>
+                            <option value="weather">Local Weather</option>
+                            <option value="actions">Actions Taken</option>
+                            <option value="flood">Flooded Areas</option>
+                            <option value="evac">Affected Pop & ECs</option>
+                            <option value="preemptive">Pre-Emptive Evacs</option>
+                            <option value="complement">OpCen Complement</option>
+                            <option value="deployed">Deployed Assets</option>
+                            <option value="lifelines">Status of Lifelines</option>
+                            <option value="roads">Roads & Bridges</option>
+                            <option value="infrastructure">Damaged Infra</option>
+                            <option value="casualties">Casualties</option>
+                            <option value="suspensions">Suspensions</option>
+                            <option value="agri">Agriculture Damages</option>
+                            <option value="residential">Residential Damages</option>
+                            <option value="assistance">Assistance</option>
+                            <option value="incidents">Related Incidents</option>
+                        </select>
+                    </div>
+                    
+                    <div class="scan-dropzone" id="scanDropzone">
+                        <i class="fa-solid fa-cloud-arrow-up" style="font-size: 32px;"></i>
+                        <div style="font-size: 14px; font-weight: 600;">Drag & Drop report table image here</div>
+                        <div style="font-size: 11px;">or click anywhere in this box and press <b>Ctrl+V</b> to paste screenshot</div>
+                        <input type="file" id="scanFileInput" accept="image/*" style="display:none;">
+                    </div>
+                    
+                    <div class="scan-preview-container" id="scanPreviewContainer">
+                        <img id="scanPreviewImg" class="scan-preview-img" src="" alt="Scan Preview">
+                        <button class="btn-remove-scan" onclick="clearScan()"><i class="fa-solid fa-trash"></i></button>
+                    </div>
+
+                    <div class="form-group" style="margin-top: 15px; background: #F3E8FF; padding: 15px; border-radius: var(--radius-sm); border: 1px dashed var(--accent-purple);">
+                        <label style="color: var(--accent-purple);"><i class="fa-solid fa-filter"></i> Custom AI Filter (Editable Template)</label>
+                        <textarea id="scan-custom-prompt" rows="2" style="border: 1px solid rgba(175, 82, 222, 0.3);">Only extract rows where the date is [Insert Date, e.g., August 27, 2026].</textarea>
+                        <div style="font-size: 10px; color: var(--text-muted); margin-top: 6px;">Change the bracketed text to filter the AI's extraction, or clear this box completely to extract everything.</div>
+                    </div>
+                    
+                    <button class="submit-btn" id="btnStartScan" style="background: var(--accent-purple); display: none;" onclick="processScan()">
+                        <i class="fa-solid fa-robot"></i> Extract Batch Records
+                    </button>
+                </div>
+
+                <!-- STEP 2: STAGING QUEUE & REVIEW -->
+                <div id="scan-step-staging" style="display: none;">
+                    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                        <div>
+                            <span style="font-size: 14px; font-weight: 700; color: var(--text-main);">Verification Queue</span>
+                            <span id="staging-count-badge" class="badge bg-primary" style="margin-left: 8px;">0 Records</span>
+                        </div>
+                        <button class="btn-table-edit" onclick="backToIntakeStep()"><i class="fa-solid fa-arrow-left"></i> Re-Scan Image</button>
+                    </div>
+                    
+                    <div class="staging-table-wrapper">
+                        <table class="staging-table" id="stagingTable">
+                            <thead id="stagingThead"></thead>
+                            <tbody id="stagingTbody"></tbody>
+                        </table>
+                    </div>
+
+                    <div style="display: flex; gap: 10px; margin-top: 15px;">
+                        <button class="submit-btn" style="background: var(--accent-green); flex: 2;" onclick="commitStagedRecords()">
+                            <i class="fa-solid fa-circle-check"></i> Approve & Save All to SitRep
+                        </button>
+                        <button class="submit-btn" style="background: var(--bg-hover); color: var(--text-main); flex: 1;" onclick="closeScannerModal()">
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+                
+                <div id="scanStatus" style="font-size: 12px; font-weight: 600; color: var(--accent-purple); text-align: center; margin-top: 12px; display: none;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STANDARD FORM MODALS -->
     <div class="slide-modal-overlay" id="modal-weather" onclick="closeFormModal('weather', event)">
         <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-cloud-sun-rain" style="color: var(--accent-blue);"></i> Weather Input</h3><button class="modal-close" onclick="closeFormModal('weather')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
             <form id="form-weather">
@@ -451,8 +612,8 @@
             <form id="form-infrastructure">
                 <div class="row"><div class="col form-group"><label>Affected Municipalities</label><select class="f-muni-multi" multiple required><option value=""></option></select></div><div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" required></div></div>
                 <div class="row"><div class="col form-group"><label>Infrastructure Category</label><select class="f-cat" required><option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Slope Protection">Slope Protection</option><option value="Dike / Barricade">Dike / Barricade</option><option value="Dam">Dam</option><option value="Government Building">Government Building</option><option value="Flood Control">Flood Control</option><option value="Other Public Infra">Other Public Infra</option></select></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
-                <div class="row"><div class="col form-group"><label>Damage Cost (PHP - Optional)</label><input type="number" step="0.01" class="f-cost"></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" required></div></div>
-                <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks"></div>
+                <div class="row"><div class="col form-group"><label>Damage Cost (PHP) <span style="text-transform: none; font-weight: normal; color: #AEAEB2;">(Leave blank for early reports)</span></label><input type="number" step="0.01" class="f-cost"></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" required></div></div>
+                <div class="form-group"><label class="flex-label">Actions Taken / Narrative <span style="text-transform: none; font-weight: normal; color: #AEAEB2;">(For early SitReps)</span> <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label><textarea class="f-action" rows="3"></textarea></div>
                 <div class="row gps-row"><div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input"></div><div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input"></div><div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> GPS</button></div></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
             </form>
@@ -538,34 +699,67 @@
             </div>
         </div>
     </div>
-
-
-<script type="module">
+    <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
+    
+    import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
 
     const firebaseConfig = { apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk", authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com", projectId: "tarlac-sitrep-backend-5000e", storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app", messagingSenderId: "575825350427", appId: "1:575825350427:web:d4e336b580e44a29900dbe" };
     const app = initializeApp(firebaseConfig);
     const db = getFirestore(app);
     const auth = getAuth(app);
 
+    const GEMINI_API_KEY = "AQ.Ab8RN6IPravkHOd_DkS9k8114rxJfGHUC2Ieq6B1L5SdbgG0pg";
+    const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
+    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
+
+    const EXTRACTION_SCHEMAS = {
+        weather: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, weatherCondition: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        actions: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { agency: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, description: { type: SchemaType.STRING } } } },
+        flood: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, waterDepth_ft: { type: SchemaType.STRING }, status: { type: SchemaType.STRING } } } },
+        evac: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, affectedBarangays: { type: SchemaType.STRING }, evacCenterCount: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, affectedFamilies: { type: SchemaType.STRING }, affectedIndividuals: { type: SchemaType.STRING }, servedFamilies: { type: SchemaType.STRING }, servedIndividuals: { type: SchemaType.STRING }, insideEcFamiliesCum: { type: SchemaType.STRING }, insideEcFamiliesNow: { type: SchemaType.STRING }, insideEcIndividualsCum: { type: SchemaType.STRING }, insideEcIndividualsNow: { type: SchemaType.STRING } } } },
+        preemptive: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangayOrigin: { type: SchemaType.STRING }, preEmptiveFamilies: { type: SchemaType.STRING }, preEmptiveIndividuals: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        complement: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { agency: { type: SchemaType.STRING }, personnel: { type: SchemaType.STRING }, assetDetails: { type: SchemaType.STRING }, status: { type: SchemaType.STRING } } } },
+        deployed: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, agency: { type: SchemaType.STRING }, assetType: { type: SchemaType.STRING }, quantity: { type: SchemaType.STRING }, personnel: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        lifelines: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        infrastructure: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } },
+        casualties: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, classification: { type: SchemaType.STRING }, count: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } },
+        roads: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        suspensions: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { coverage: { type: SchemaType.STRING }, type: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        agri: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { lguCount: { type: SchemaType.STRING }, commodity: { type: SchemaType.STRING }, farmersAffected: { type: SchemaType.STRING }, partialHa: { type: SchemaType.STRING }, totalHa: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING } } } },
+        residential: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, count: { type: SchemaType.STRING }, description: { type: SchemaType.STRING } } } },
+        assistance: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, source: { type: SchemaType.STRING }, reliefItem: { type: SchemaType.STRING }, quantity: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        incidents: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, particulars: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } }
+    };
+
     onAuthStateChanged(auth, (user) => { if (user) { document.body.style.visibility = "visible"; } else { window.location.href = "login.html?redirect=data_entry.html"; } });
     window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 
-    // ==========================================
-    // UI CONTROL ENGINE
-    // ==========================================
+    // ATLAS FIX: Injected the smooth collapse event listener & memory storage
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        const sidebar = document.getElementById('mainSidebar');
+        if(localStorage.getItem('sidebarCollapsed') === 'true') { sidebar.classList.add('collapsed'); }
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+        }
+    });
+
     const tsClearOptions = { onItemAdd: function() { this.setTextboxValue(''); }, onBlur: function() { this.setTextboxValue(''); } };
-    const municipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
+    const validMunicipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
     
-    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { municipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
+    document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { validMunicipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
     const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
     document.querySelectorAll('.f-muni-multi, .f-coverage').forEach(el => { coverages.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: ',', plugins: ['remove_button'], ...tsClearOptions }); });
     document.querySelectorAll('.f-status, .f-cat, .f-road-cat, .f-road-status, .f-weather-cond, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
     
     const tsGlobalFilter = new TomSelect("#global-muni-filter", { create: false, delimiter: '|', ...tsClearOptions });
-    municipalities.forEach(m => tsGlobalFilter.addOption({value: m, text: m}));
+    validMunicipalities.forEach(m => tsGlobalFilter.addOption({value: m, text: m}));
 
     const agencies = ["Provincial DRRM Council", "LDRRMC", "BFP", "PNP", "AFP", "Philippine Coast Guard (PCG)", "Red Cross", "NGO / Volunteer", "DSWD", "DPWH"];
     document.querySelectorAll('.f-agency, .f-action-agency').forEach(el => {
@@ -577,6 +771,7 @@
                     const lguGroup = document.getElementById('ldrmmc-lgu-group'); const lguInput = document.querySelector('.f-action-lgu');
                     const timeGroup = document.getElementById('action-time-group'); const timeInput = document.querySelector('.f-action-time');
                     const catGroup = document.getElementById('action-cat-group'); const catInput = document.querySelector('.f-action-cat');
+                    
                     if (value === 'LDRRMC' || value === '') { 
                         lguGroup.style.display = value === 'LDRRMC' ? 'flex' : 'none'; 
                         if (value === 'LDRRMC') { lguInput.setAttribute('required', 'required'); } else { lguInput.removeAttribute('required'); }
@@ -594,10 +789,8 @@
     
     const assets = ["Search & Rescue Personnel", "Rescue Boat", "Ambulance", "Fire Truck", "Relief/Supply Truck", "Heavy Equipment (Backhoe/Loader)", "Dump Truck"];
     document.querySelectorAll('.f-asset').forEach(el => { assets.forEach(a => el.add(new Option(a, a))); new TomSelect(el, { create: true, delimiter: '|', plugins: ['remove_button'], ...tsClearOptions }); });
-    
     const sources = ["DSWD", "Provincial LGU", "Municipal LGU", "NGO", "Red Cross"];
     document.querySelectorAll('.f-source').forEach(el => { sources.forEach(s => el.add(new Option(s, s))); new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
-    
     const reliefs = ["Family Food Packs (FFP)", "Hygiene Kits", "Financial Assistance"];
     document.querySelectorAll('.f-relief').forEach(el => { reliefs.forEach(r => el.add(new Option(r, r))); new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
     document.querySelectorAll('.f-action-cat').forEach(el => { new TomSelect(el, { create: true, delimiter: '|', ...tsClearOptions }); });
@@ -609,14 +802,216 @@
         activeTabId = tabId;
         document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
         document.querySelectorAll('.tab-btn').forEach(el => el.classList.remove('active'));
-        document.getElementById(tabId).classList.add('active');
-        event.currentTarget.classList.add('active');
+        const targetSection = document.getElementById(tabId);
+        if(targetSection) targetSection.classList.add('active');
+        const targetBtn = document.querySelector(`button[onclick="openTab('${tabId}')"]`);
+        if (targetBtn) targetBtn.classList.add('active');
     };
 
+    // ==========================================
+    // BATCH SCANNER & STAGING
+    // ==========================================
+    let currentScanImageBase64 = null; let currentScanMimeType = null; let stagedBatchData = []; let stagedTargetModule = null;
+    const collectionNameMap = { weather: "weather_conditions", actions: "actions_data", flood: "flooded_areas", evac: "evacuation_data", preemptive: "preemptive_data", complement: "complement_data", deployed: "resource_data", lifelines: "lifeline_data", roads: "infrastructure_data", infrastructure: "infrastructure_data", casualties: "casualties_data", suspensions: "suspensions_data", agri: "agri_damages", residential: "residential_damages", assistance: "assistance_data", incidents: "related_incidents" };
+
+    window.openScannerModal = function() {
+        if (!isLocked) { alert("Please lock context before scanning reports."); return; }
+        document.getElementById('modal-scanner').classList.add('active');
+        clearScan();
+        const targetSelect = document.getElementById('scan-target-module');
+        if (targetSelect && Array.from(targetSelect.options).some(opt => opt.value === activeTabId)) { targetSelect.value = activeTabId; }
+    };
+    window.closeScannerModal = function(e) { if (e && e.target.id !== 'modal-scanner' && !e.target.closest('.modal-close')) return; document.getElementById('modal-scanner').classList.remove('active'); clearScan(); };
+    window.clearScan = function() {
+        currentScanImageBase64 = null; currentScanMimeType = null; stagedBatchData = []; stagedTargetModule = null;
+        document.getElementById('scanPreviewContainer').style.display = 'none';
+        document.getElementById('scanPreviewImg').src = '';
+        document.getElementById('scanDropzone').style.display = 'flex';
+        document.getElementById('btnStartScan').style.display = 'none';
+        document.getElementById('scanStatus').style.display = 'none';
+        document.getElementById('scanFileInput').value = '';
+        document.getElementById('scan-custom-prompt').value = "Only extract rows where the date is [Insert Date, e.g., August 27, 2026].";
+        backToIntakeStep();
+    };
+    window.backToIntakeStep = function() { document.getElementById('scan-step-intake').style.display = 'block'; document.getElementById('scan-step-staging').style.display = 'none'; document.getElementById('scanStatus').style.display = 'none'; };
+
+    function handleImageFile(file) {
+        if (!file || !file.type.startsWith('image/')) return;
+        const reader = new FileReader();
+        reader.onload = function(e) {
+            currentScanImageBase64 = e.target.result.split(',')[1];
+            currentScanMimeType = file.type;
+            document.getElementById('scanDropzone').style.display = 'none';
+            document.getElementById('scanPreviewContainer').style.display = 'block';
+            document.getElementById('scanPreviewImg').src = e.target.result;
+            document.getElementById('btnStartScan').style.display = 'flex';
+        };
+        reader.readAsDataURL(file);
+    }
+
+    const dropzone = document.getElementById('scanDropzone');
+    dropzone.addEventListener('click', () => document.getElementById('scanFileInput').click());
+    document.getElementById('scanFileInput').addEventListener('change', (e) => handleImageFile(e.target.files[0]));
+    dropzone.addEventListener('dragover', (e) => { e.preventDefault(); dropzone.classList.add('dragover'); });
+    dropzone.addEventListener('dragleave', () => dropzone.classList.remove('dragover'));
+    dropzone.addEventListener('drop', (e) => { e.preventDefault(); dropzone.classList.remove('dragover'); handleImageFile(e.dataTransfer.files[0]); });
+    window.addEventListener('paste', e => { if (!document.getElementById('modal-scanner').classList.contains('active')) return; const items = (e.clipboardData || e.originalEvent.clipboardData).items; for (let item of items) { if (item.type.indexOf('image') === 0) handleImageFile(item.getAsFile()); } });
+
+    window.processScan = async function() {
+        if (!currentScanImageBase64 || !GEMINI_API_KEY) { alert("Valid image and API Key required."); return; }
+        const btn = document.getElementById('btnStartScan'); const status = document.getElementById('scanStatus');
+        stagedTargetModule = document.getElementById('scan-target-module').value;
+        const schema = EXTRACTION_SCHEMAS[stagedTargetModule] || EXTRACTION_SCHEMAS['weather'];
+
+        btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Document...'; btn.disabled = true; 
+        status.style.display = 'block'; status.innerText = "Extracting multi-row table via Gemini SDK...";
+
+        try {
+            const basePrompt = `You are a strict data extraction tool. Extract ALL data rows for '${stagedTargetModule}' from this table image into an array of JSON objects.
+CRITICAL RULES:
+1. DO NOT STOP AFTER ONE ROW. You MUST extract EVERY SINGLE ROW present in the table.
+2. If you see a hyphen ("-") or a blank cell, extract it exactly as an empty string "". Do not use "0".
+3. Remove commas from numbers (e.g., "1,517" becomes "1517").
+4. Ignore 'TOTAL' rows at the bottom.
+5. If a schema field does not visually exist in the image, leave it as an empty string "".`;
+            const customFilterText = document.getElementById('scan-custom-prompt').value.trim();
+            let finalPrompt = basePrompt;
+            if (customFilterText && !customFilterText.includes("[Insert Date")) { finalPrompt = `${basePrompt}\n\nSTRICT FILTERING RULE:\n${customFilterText}`; }
+
+            const imagePart = { inlineData: { data: currentScanImageBase64, mimeType: currentScanMimeType } };
+            const result = await model.generateContent({ contents: [{ role: "user", parts: [{ text: finalPrompt }, imagePart] }], generationConfig: { responseMimeType: "application/json", responseSchema: schema, temperature: 0.1 } });
+
+            const extractedArray = JSON.parse(result.response.text());
+            stagedBatchData = Array.isArray(extractedArray) ? extractedArray : [extractedArray];
+            renderStagingTable(stagedTargetModule, stagedBatchData);
+
+            document.getElementById('scan-step-intake').style.display = 'none';
+            document.getElementById('scan-step-staging').style.display = 'block';
+            status.style.display = 'none';
+        } catch (error) {
+            console.error(error); status.innerText = "Extraction failed. Check API key & connectivity."; status.style.color = "var(--accent-red)";
+        } finally { btn.innerHTML = '<i class="fa-solid fa-robot"></i> Extract Batch Records'; btn.disabled = false; }
+    };
+
+    const uiNum = (val) => {
+        if (val === undefined || val === null || val === '') return '';
+        let str = String(val).replace(/,/g, '').trim();
+        if (str === '-' || str === '' || str.toLowerCase() === 'none' || str.toLowerCase() === 'n/a') return '';
+        let n = parseFloat(str); return isNaN(n) ? '' : n;
+    };
+    const dbNum = (val) => { let n = parseFloat(val); return isNaN(n) ? 0 : n; };
+    const cleanMuni = (val) => { if (!val) return ''; return String(val).replace(/^\d+\.\s*/, '').trim(); };
+
+    function renderStagingTable(module, dataList) {
+        const thead = document.getElementById('stagingThead'); const tbody = document.getElementById('stagingTbody');
+        document.getElementById('staging-count-badge').innerText = `${dataList.length} Rows Extracted`;
+        thead.innerHTML = ''; tbody.innerHTML = '';
+        if(dataList.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No rows could be parsed.</td></tr>'; return; }
+
+        let headers = [];
+        if (module === 'weather') headers = ['Municipality', 'Condition', 'Remarks', 'Action'];
+        else if (module === 'flood') headers = ['Municipality', 'Barangay', 'Depth (ft)', 'Status', 'Action'];
+        else if (module === 'evac') headers = ['Municipality', 'Affected Brgys', 'No. of Evac Centers', 'Status', 'Aff (Fam)', 'Aff (Pax)', 'Served (Fam)', 'Served (Pax)', 'Inside ECs CUM (Fam)', 'Inside ECs NOW (Fam)', 'Inside ECs CUM (Pax)', 'Inside ECs NOW (Pax)', 'Action'];
+        else if (module === 'infrastructure') headers = ['Municipality', 'Specific Area', 'Category', 'Cost (PHP)', 'Actions Taken / Remarks', 'Action'];
+        else if (module === 'casualties') headers = ['Municipality', 'Classification', 'Count', 'Remarks', 'Actions Taken', 'Action'];
+        else if (module === 'roads') headers = ['Municipality', 'Road / Bridge Name', 'Category', 'Status', 'Remarks', 'Action'];
+        else if (module === 'actions') headers = ['Agency', 'Category', 'Description', 'Action'];
+        else if (module === 'preemptive') headers = ['Municipality', 'Barangay Origin', 'Families', 'Persons', 'Remarks', 'Action'];
+        else if (module === 'complement') headers = ['Agency', 'Personnel', 'Assets Details', 'Status', 'Action'];
+        else if (module === 'deployed') headers = ['Municipality', 'Barangay', 'Agency', 'Asset Type', 'Qty', 'Personnel', 'Status', 'Remarks', 'Action'];
+        else if (module === 'lifelines') headers = ['Municipality', 'Specific Area', 'Category', 'Status', 'Remarks', 'Action'];
+        else if (module === 'suspensions') headers = ['Coverage Area', 'Type', 'Remarks', 'Action'];
+        else if (module === 'agri') headers = ['LGU Count', 'Commodity', 'Farmers', 'Partial (ha)', 'Total (ha)', 'Cost (PHP)', 'Action'];
+        else if (module === 'residential') headers = ['Municipality', 'Barangay', 'Category', 'Count', 'Description', 'Action'];
+        else if (module === 'assistance') headers = ['Municipality', 'Source', 'Item', 'Qty', 'Cost (PHP)', 'Remarks', 'Action'];
+        else if (module === 'incidents') headers = ['Municipality', 'Particulars', 'Actions Taken', 'Action'];
+
+        thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
+
+        dataList.forEach((row, idx) => {
+            const gi = (f, t='text', step='') => {
+                let val = row[f] !== undefined ? row[f] : '';
+                if (t === 'number') val = uiNum(val); 
+                if (f === 'municipality') val = cleanMuni(val);
+                return `<input class="staging-input" type="${t}" ${step?`step="${step}"`:''} value="${val}" onchange="updateStagedRow(${idx}, '${f}', this.type==='number'?parseFloat(this.value):this.value)">`;
+            };
+            let rowHtml = '';
+            if (module === 'weather') rowHtml = `<td>${gi('municipality')}</td><td>${gi('weatherCondition')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'flood') rowHtml = `<td>${gi('municipality')}</td><td>${gi('barangay')}</td><td>${gi('waterDepth_ft','number','0.1')}</td><td>${gi('status')}</td>`;
+            else if (module === 'evac') rowHtml = `<td>${gi('municipality')}</td><td>${gi('affectedBarangays','number')}</td><td>${gi('evacCenterCount','number')}</td><td>${gi('status')}</td><td>${gi('affectedFamilies','number')}</td><td>${gi('affectedIndividuals','number')}</td><td>${gi('servedFamilies','number')}</td><td>${gi('servedIndividuals','number')}</td><td>${gi('insideEcFamiliesCum','number')}</td><td>${gi('insideEcFamiliesNow','number')}</td><td>${gi('insideEcIndividualsCum','number')}</td><td>${gi('insideEcIndividualsNow','number')}</td>`;
+            else if (module === 'infrastructure') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('cost','number')}</td><td>${gi('actionsTaken')}</td>`;
+            else if (module === 'casualties') rowHtml = `<td>${gi('municipality')}</td><td>${gi('classification')}</td><td>${gi('count','number')}</td><td>${gi('remarks')}</td><td>${gi('actionsTaken')}</td>`;
+            else if (module === 'roads') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('status')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'actions') rowHtml = `<td>${gi('agency')}</td><td>${gi('category')}</td><td>${gi('description')}</td>`;
+            else if (module === 'preemptive') rowHtml = `<td>${gi('municipality')}</td><td>${gi('barangayOrigin')}</td><td>${gi('preEmptiveFamilies','number')}</td><td>${gi('preEmptiveIndividuals','number')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'complement') rowHtml = `<td>${gi('agency')}</td><td>${gi('personnel','number')}</td><td>${gi('assetDetails')}</td><td>${gi('status')}</td>`;
+            else if (module === 'deployed') rowHtml = `<td>${gi('municipality')}</td><td>${gi('barangay')}</td><td>${gi('agency')}</td><td>${gi('assetType')}</td><td>${gi('quantity','number')}</td><td>${gi('personnel','number')}</td><td>${gi('status')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'lifelines') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('status')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'suspensions') rowHtml = `<td>${gi('coverage')}</td><td>${gi('type')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'agri') rowHtml = `<td>${gi('lguCount','number')}</td><td>${gi('commodity')}</td><td>${gi('farmersAffected','number')}</td><td>${gi('partialHa','number','0.01')}</td><td>${gi('totalHa','number','0.01')}</td><td>${gi('cost','number')}</td>`;
+            else if (module === 'residential') rowHtml = `<td>${gi('municipality')}</td><td>${gi('category')}</td><td>${gi('count','number')}</td><td>${gi('description')}</td>`;
+            else if (module === 'assistance') rowHtml = `<td>${gi('municipality')}</td><td>${gi('source')}</td><td>${gi('reliefItem')}</td><td>${gi('quantity','number')}</td><td>${gi('cost','number')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'incidents') rowHtml = `<td>${gi('municipality')}</td><td>${gi('particulars')}</td><td>${gi('actionsTaken')}</td>`;
+            tbody.innerHTML += `<tr>${rowHtml}<td><button class="btn-row-delete" onclick="deleteStagedRow(${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
+        });
+    }
+
+    window.updateStagedRow = function(index, field, value) { if(stagedBatchData[index]) stagedBatchData[index][field] = value; };
+    window.deleteStagedRow = function(index) { stagedBatchData.splice(index, 1); renderStagingTable(stagedTargetModule, stagedBatchData); };
+
+    window.commitStagedRecords = async function() {
+        if (!isLocked) { alert("Context is not locked. Please lock context first."); return; }
+        if (stagedBatchData.length === 0) { alert("No records in queue to commit."); return; }
+
+        const saveOverlay = document.getElementById('globalSaveOverlay'); 
+        const saveSpinner = document.getElementById('saveSpinner'); 
+        const saveSuccessIcon = document.getElementById('saveSuccessIcon'); 
+        const saveText = document.getElementById('saveText');
+        
+        saveSpinner.style.display = 'block'; saveSuccessIcon.style.display = 'none'; 
+        saveText.innerText = `Saving ${stagedBatchData.length} records to Cloud...`; saveOverlay.classList.add('active');
+
+        const contextPayload = getContextPayload();
+        const collectionName = collectionNameMap[stagedTargetModule] || "weather_conditions";
+        const targetDate = document.getElementById('ctx-datetime').value;
+
+        try {
+            const batch = writeBatch(db);
+            const colRef = collection(db, collectionName);
+
+            stagedBatchData.forEach(row => {
+                const docRef = doc(colRef);
+                let sanitizedRow = {...row};
+                Object.keys(sanitizedRow).forEach(k => {
+                    if (k === 'municipality') { sanitizedRow[k] = cleanMuni(sanitizedRow[k]); }
+                    if (['affectedBarangays','evacCenterCount','affectedFamilies','affectedIndividuals','servedFamilies','servedIndividuals','insideEcFamiliesCum','insideEcFamiliesNow','insideEcIndividualsCum','insideEcIndividualsNow','waterDepth_ft','preEmptiveFamilies','preEmptiveIndividuals','personnel','quantity','cost','count','lguCount','farmersAffected','partialHa','totalHa'].includes(k)) {
+                        sanitizedRow[k] = dbNum(sanitizedRow[k]);
+                    }
+                });
+                let finalDoc = { ...sanitizedRow, ...contextPayload, dateReported: targetDate };
+                if (stagedTargetModule === 'roads') { finalDoc.recordType = 'Passability'; finalDoc.cost = 0; finalDoc.source = 'LDRRMO'; }
+                if (stagedTargetModule === 'infrastructure') { finalDoc.recordType = 'Damage'; finalDoc.status = 'Assessed for Damage'; finalDoc.source = finalDoc.source || 'LDRRMO'; }
+                if (stagedTargetModule === 'weather') { finalDoc.source = 'LDRRMO'; }
+                batch.set(docRef, finalDoc);
+            });
+
+            await batch.commit();
+            saveSpinner.style.display = 'none'; saveSuccessIcon.style.display = 'block'; 
+            saveText.innerText = `Successfully Committed!`; saveText.style.color = 'var(--accent-green)';
+            setTimeout(() => { saveOverlay.classList.remove('active'); closeScannerModal(); if(activeTabId !== stagedTargetModule) openTab(stagedTargetModule); }, 1200);
+        } catch (error) { 
+            console.error("Batch save error:", error); saveOverlay.classList.remove('active'); alert("Failed to commit batch. Please check your network."); 
+        }
+    };
+
+    // ==========================================
+    // UTILITIES & BULLETPOINT FORMATTERS
+    // ==========================================
     document.querySelectorAll('.gps-btn').forEach(btn => {
         btn.addEventListener('click', () => {
             const row = btn.closest('.gps-row'); const lat = row.querySelector('.lat-input'); const lng = row.querySelector('.lng-input');
-            const originalText = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching...'; lat.value = "Fetching..."; lng.value = "Fetching...";
+            const originalText = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Fetching...'; 
+            lat.value = "Fetching..."; lng.value = "Fetching...";
             if (navigator.geolocation) {
                 navigator.geolocation.getCurrentPosition(
                     pos => { lat.value = pos.coords.latitude.toFixed(6); lng.value = pos.coords.longitude.toFixed(6); btn.innerHTML = originalText; },
@@ -632,8 +1027,10 @@
         if (!textarea || !textarea.value) return;
         let text = textarea.value;
         let cleaned = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
-        cleaned = cleaned.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
-        cleaned = cleaned.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
+        cleaned = cleaned.replace(/([^\n])\s*([➢➤•●❖▪○✓]|\b\d{1,3}[\.\)]\s+|[\-\*]\s+)/g, '$1\n$2');
+        const unwrapRegex = /([^\n])\n(?![ \t]*(?:[➢➤•●❖▪○✓\-\*]|\b\d{1,3}[\.\)]\s+)|\n)/g;
+        cleaned = cleaned.replace(unwrapRegex, '$1 ').trim();
+        cleaned = cleaned.replace(/[ \t]{2,}/g, ' ');
         textarea.value = cleaned;
         const originalHTML = btn.innerHTML; btn.innerHTML = '<i class="fa-solid fa-check"></i> Cleaned!'; btn.style.background = 'var(--accent-green)'; btn.style.color = '#fff';
         setTimeout(() => { btn.innerHTML = originalHTML; btn.style.background = ''; btn.style.color = ''; }, 1500);
@@ -646,16 +1043,16 @@
     const ctxInputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-synopsis', 'ctx-source'];
     let isLocked = false; let activeSitrepNo = null; 
 
-    // ATLAS FIX: ALIGNED DB MEMORY TO MATCH MODAL IDS
     const dbData = { weather: [], actions: [], flood: [], evac: [], preemptive: [], complement: [], deployed: [], lifelines: [], roads: [], infrastructure: [], casualties: [], suspensions: [], agri: [], residential: [], assistance: [], incidents: [] };
     
     ctxInputs.forEach(id => { const el = document.getElementById(id); const savedVal = localStorage.getItem(id); if(savedVal) { el.value = savedVal; if(el._flatpickr) el._flatpickr.setDate(savedVal); } });
 
     if(localStorage.getItem('sitrepContextLocked') === 'true') {
         ctxInputs.forEach(id => { const el = document.getElementById(id); el.disabled = true; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true; });
-        lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; 
-        lockBtn.classList.add('locked'); document.getElementById('mainContextPanel').classList.add('locked'); document.getElementById('workspaceToolbar').classList.add('active');
-        isLocked = true; activeSitrepNo = parseInt(document.getElementById('ctx-sitrep').value); let cause = document.getElementById('ctx-cause').value;
+        lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; lockBtn.classList.add('locked'); 
+        document.getElementById('mainContextPanel').classList.add('locked'); document.getElementById('workspaceToolbar').classList.add('active');
+        isLocked = true; activeSitrepNo = parseInt(document.getElementById('ctx-sitrep').value); 
+        let cause = document.getElementById('ctx-cause').value;
         document.getElementById('context-status-indicator').innerHTML = `SECURED: ROUTING TO SR#${activeSitrepNo} &nbsp;|&nbsp; ${cause.substring(0,35)}${cause.length>35?'...':''}`;
     }
 
@@ -666,19 +1063,18 @@
             ctxInputs.forEach(id => { const el = document.getElementById(id); localStorage.setItem(id, el.value); el.disabled = true; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true; });
             localStorage.setItem('sitrepContextLocked', 'true'); lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; lockBtn.classList.add('locked'); panel.classList.add('locked'); toolbar.classList.add('active');
             isLocked = true; activeSitrepNo = parseInt(document.getElementById('ctx-sitrep').value); let cause = document.getElementById('ctx-cause').value;
-            statusIndicator.innerHTML = `SECURED: ROUTING TO SR#${activeSitrepNo} &nbsp;|&nbsp; ${cause.substring(0,35)}${cause.length>35?'...':''}`; renderAllTables();
+            statusIndicator.innerHTML = `SECURED: ROUTING TO SR#${activeSitrepNo} &nbsp;|&nbsp; ${cause.substring(0,35)}${cause.length>35?'...':''}`; 
+            renderAllTables();
         } else {
             ctxInputs.forEach(id => { const el = document.getElementById(id); el.disabled = false; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = false; });
             localStorage.setItem('sitrepContextLocked', 'false'); lockBtn.innerHTML = '<i class="fa-solid fa-unlock"></i> Lock Context & Start Encoding'; lockBtn.classList.remove('locked'); panel.classList.remove('locked'); toolbar.classList.remove('active');
-            isLocked = false; activeSitrepNo = null; statusIndicator.innerText = `UNLOCKED - WAITING FOR INPUT`; renderAllTables();
+            isLocked = false; activeSitrepNo = null; statusIndicator.innerText = `UNLOCKED - WAITING FOR INPUT`; 
+            renderAllTables();
         }
     });
 
     function getContextPayload() { return { incidentCause: document.getElementById('ctx-cause').value, sitrepNo: parseInt(document.getElementById('ctx-sitrep').value), advisoryNo: parseInt(document.getElementById('ctx-advisory').value) || 0, asOfDate: document.getElementById('ctx-datetime').value, synopsis: document.getElementById('ctx-synopsis').value, infoSource: document.getElementById('ctx-source').value, timeMonitored: serverTimestamp() }; }
 
-    // ==========================================
-    // ACTION BAR: FILTERING LOGIC
-    // ==========================================
     let filterMuni = "ALL"; let filterKeyword = "";
     document.getElementById('global-muni-filter').addEventListener('change', (e) => { filterMuni = e.target.value; queueRender(); });
     document.getElementById('global-keyword-filter').addEventListener('input', (e) => { filterKeyword = e.target.value.toLowerCase(); queueRender(); });
@@ -690,7 +1086,7 @@
     }
 
     // ==========================================
-    // DROP-DOWN MODAL LOGIC & FORM FILLING
+    // MODAL FORM SETUP & EDIT BINDING
     // ==========================================
     window.currentEditState = { id: null, originalSitrep: null, section: null };
     
@@ -703,17 +1099,22 @@
         if(event && event.target.id !== `modal-${collectionAlias}`) return; 
         document.getElementById(`modal-${collectionAlias}`).classList.remove('active');
         window.currentEditState = { id: null, originalSitrep: null, section: null };
-        const form = document.getElementById(`form-${collectionAlias}`); 
-        form.reset(); form.querySelectorAll('select, input').forEach(el => { if(el.tomselect) el.tomselect.clear(); if(el._flatpickr) el._flatpickr.clear(); });
+        const form = document.getElementById(`form-${collectionAlias}`); form.reset(); 
+        form.querySelectorAll('select, input').forEach(el => { if(el.tomselect) el.tomselect.clear(); if(el._flatpickr) el._flatpickr.clear(); });
         const btn = form.querySelector('.submit-btn'); btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Report`; btn.classList.remove('edit-mode'); 
     };
 
     window.triggerEdit = function(collectionAlias, docId) {
         if (!isLocked) { alert("Please lock context before editing."); return; }
-        let record = dbData[collectionAlias].find(d => d.id === docId); if (!record) return;
+        let record = dbData[collectionAlias].find(d => d.id === docId); 
+        if (!record) return;
+
         window.currentEditState = { id: docId, originalSitrep: record.sitrepNo, section: collectionAlias };
-        const form = document.getElementById(`form-${collectionAlias}`); const btn = form.querySelector('.submit-btn'); 
-        btn.innerHTML = `<i class="fa-solid fa-pen"></i> Update for SitRep ${activeSitrepNo}`; btn.classList.add('edit-mode'); 
+        
+        const form = document.getElementById(`form-${collectionAlias}`); 
+        const btn = form.querySelector('.submit-btn'); 
+        btn.innerHTML = `<i class="fa-solid fa-pen"></i> Update for SitRep ${activeSitrepNo}`; 
+        btn.classList.add('edit-mode'); 
         document.getElementById(`modal-${collectionAlias}`).classList.add('active');
 
         const setDate = (selector, val) => { const el = form.querySelector(selector); if(el && el._flatpickr && val) el._flatpickr.setDate(val); };
@@ -721,22 +1122,17 @@
 
         if(collectionAlias === 'weather') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); setTSCreate('.f-weather-cond', record.weatherCondition); form.querySelector('.f-weather-source').value = record.source||''; form.querySelector('.f-weather-remarks').value = record.remarks||''; setDate('.f-weather-time', record.dateReported); }
         else if(collectionAlias === 'actions') {
-            if(record.agency && record.agency.startsWith('LDRRMC - ')) {
-                form.querySelector('.f-action-agency').tomselect.setValue('LDRRMC');
-                setTimeout(() => { let lgu = record.agency.replace('LDRRMC - ', '').trim(); if(form.querySelector('.f-action-lgu').tomselect) form.querySelector('.f-action-lgu').tomselect.setValue(lgu); }, 50);
-            } else { setTSCreate('.f-action-agency', record.agency); }
+            if(record.agency && record.agency.startsWith('LDRRMC - ')) { form.querySelector('.f-action-agency').tomselect.setValue('LDRRMC'); setTimeout(() => { let lgu = record.agency.replace('LDRRMC - ', '').trim(); if(form.querySelector('.f-action-lgu').tomselect) form.querySelector('.f-action-lgu').tomselect.setValue(lgu); }, 50); } else { setTSCreate('.f-action-agency', record.agency); }
             setTSCreate('.f-action-cat', record.category); form.querySelector('.f-action-desc').value = record.description; setDate('.f-action-time', record.actionTime);
         }
         else if(collectionAlias === 'flood') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-depth').value = record.waterDepth_ft; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-flood-time', record.dateReported); }
-        
         else if(collectionAlias === 'evac') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy-count').value = record.affectedBarangays||0; form.querySelector('.f-ec-count').value = record.evacCenterCount; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-aff-fam').value = record.affectedFamilies||0; form.querySelector('.f-aff-indv').value = record.affectedIndividuals||0; form.querySelector('.f-ec-fam-cum').value = record.insideEcFamiliesCum||0; form.querySelector('.f-ec-fam-now').value = record.insideEcFamiliesNow||0; form.querySelector('.f-ec-indv-cum').value = record.insideEcIndividualsCum||0; form.querySelector('.f-ec-indv-now').value = record.insideEcIndividualsNow||0; form.querySelector('.f-served-fam').value = record.servedFamilies||0; form.querySelector('.f-served-indv').value = record.servedIndividuals||0; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
-        
         else if(collectionAlias === 'preemptive') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangayOrigin; form.querySelector('.f-pre-fam').value = record.preEmptiveFamilies; form.querySelector('.f-pre-indv').value = record.preEmptiveIndividuals; form.querySelector('.f-remarks').value = record.remarks; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'complement') { setTSCreate('.f-agency', record.agency); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-personnel').value = record.personnel; form.querySelector('.f-asset-details').value = record.assetDetails; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'deployed') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; setTSCreate('.f-agency', record.agency); const tsAst = form.querySelector('.f-asset').tomselect; (record.assetType||'').split(', ').forEach(a => { tsAst.addOption({value: a, text: a}); }); tsAst.setValue((record.assetType||'').split(', ')); form.querySelector('.f-qty').value = record.quantity; form.querySelector('.f-personnel').value = record.personnel; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'lifelines') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'roads') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
-        else if(collectionAlias === 'infrastructure') { form.querySelector('.f-muni-multi').tomselect.setValue((record.municipality||'').split(',').map(s=>s.trim())); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-cost').value = record.cost; form.querySelector('.f-infra-source').value = record.source; form.querySelector('.f-remarks').value = record.remarks; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
+        else if(collectionAlias === 'infrastructure') { form.querySelector('.f-muni-multi').tomselect.setValue((record.municipality||'').split(',').map(s=>s.trim())); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-cost').value = record.cost; form.querySelector('.f-infra-source').value = record.source; form.querySelector('.f-action').value = record.actionsTaken || record.remarks || ''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'casualties') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-class').tomselect.setValue(record.classification); form.querySelector('.f-count').value = record.count; form.querySelector('.f-remarks').value = record.remarks; if(form.querySelector('.f-action')) form.querySelector('.f-action').value = record.actionsTaken||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'suspensions') { form.querySelector('.f-coverage').tomselect.setValue((record.coverage||'').split(',').map(s=>s.trim())); form.querySelector('.f-type').tomselect.setValue(record.type); form.querySelector('.f-remarks').value = record.remarks; }
         else if(collectionAlias === 'agri') { form.querySelector('.f-lgu-count').value = record.lguCount; form.querySelector('.f-commodity').value = record.commodity; form.querySelector('.f-farmers').value = record.farmersAffected; form.querySelector('.f-partial-ha').value = record.partialHa||0; form.querySelector('.f-total-ha').value = record.totalHa; form.querySelector('.f-cost').value = record.cost; setDate('.f-report-time', record.dateReported); }
@@ -746,163 +1142,142 @@
     };
 
     // ==========================================
-    // GLOBAL SAVING ENGINE
+    // THE STRICT RULES SUBMISSION ENGINE
     // ==========================================
     async function handleSubmission(e, collectionName, sectionAlias, dataCompiler) {
-        e.preventDefault(); const form = e.target; const errorMsg = form.querySelector('.msg-error');
+        e.preventDefault(); 
+        const form = e.target; 
+        const errorMsg = form.querySelector('.msg-error');
         if (!isLocked) { errorMsg.style.display = 'block'; setTimeout(() => errorMsg.style.display = 'none', 4000); return; }
         
-        const saveOverlay = document.getElementById('globalSaveOverlay');
-        const saveSpinner = document.getElementById('saveSpinner');
-        const saveSuccessIcon = document.getElementById('saveSuccessIcon');
+        const saveOverlay = document.getElementById('globalSaveOverlay'); 
+        const saveSpinner = document.getElementById('saveSpinner'); 
+        const saveSuccessIcon = document.getElementById('saveSuccessIcon'); 
         const saveText = document.getElementById('saveText');
+        
+        saveSpinner.style.display = 'block'; saveSuccessIcon.style.display = 'none'; 
+        saveText.innerText = 'Saving to Database...'; saveText.style.color = 'var(--text-main)'; 
+        saveOverlay.classList.add('active');
 
         try {
-            saveSpinner.style.display = 'block'; saveSuccessIcon.style.display = 'none';
-            saveText.innerText = 'Saving to Database...'; saveText.style.color = 'var(--text-main)';
-            saveOverlay.classList.add('active');
-
             const coreData = dataCompiler(form); 
             if (coreData.validationFailed) { saveOverlay.classList.remove('active'); alert("Validation Failed. Please check missing required fields."); return; }
-            const contextData = getContextPayload(); const finalPayload = { ...coreData, ...contextData };
+            
+            const contextData = getContextPayload(); 
+            const finalPayload = { ...coreData, ...contextData };
             
             if (window.currentEditState.id && window.currentEditState.section === sectionAlias) {
-                if (window.currentEditState.originalSitrep === activeSitrepNo) { await updateDoc(doc(db, collectionName, window.currentEditState.id), finalPayload); } 
-                else { await addDoc(collection(db, collectionName), finalPayload); }
-            } else { await addDoc(collection(db, collectionName), finalPayload); }
+                // RULE 1: SAME SITREP = OVERWRITE EXISTING DOCUMENT
+                if (window.currentEditState.originalSitrep === activeSitrepNo) {
+                    await updateDoc(doc(db, collectionName, window.currentEditState.id), finalPayload); 
+                } 
+                // RULE 2 & 3: PREVIOUS SITREP = CREATE NEW RECORD & HIDE THE OLD ONE
+                else { 
+                    await addDoc(collection(db, collectionName), finalPayload); 
+                    await updateDoc(doc(db, collectionName, window.currentEditState.id), { isArchived: true });
+                }
+            } else {
+                // RULE 4: ADD NEW = CREATE BRAND NEW RECORD
+                await addDoc(collection(db, collectionName), finalPayload); 
+            }
             
-            saveSpinner.style.display = 'none'; saveSuccessIcon.style.display = 'block';
+            saveSpinner.style.display = 'none'; saveSuccessIcon.style.display = 'block'; 
             saveText.innerText = 'Successfully Saved!'; saveText.style.color = 'var(--accent-green)';
-            
-            setTimeout(() => { 
-                saveOverlay.classList.remove('active'); 
-                closeFormModal(sectionAlias); 
-            }, 1200);
-
+            setTimeout(() => { saveOverlay.classList.remove('active'); closeFormModal(sectionAlias); }, 1200);
         } catch (error) { 
-            console.error("Failed: ", error); 
-            saveOverlay.classList.remove('active'); 
-            alert("Error saving record. Please check your connection."); 
+            console.error("Failed: ", error); saveOverlay.classList.remove('active'); alert("Error saving record. Please check your connection."); 
         }
     }
 
     // ==========================================
-    // NARRATIVE READER LOGIC
+    // NARRATIVE & RENDER UTILITIES
     // ==========================================
-    window.openNarrativeModal = function(btn) {
-        const hiddenText = btn.previousElementSibling.innerHTML;
-        document.getElementById('modalBodyContent').innerHTML = hiddenText;
-        document.getElementById('narrativeModal').classList.add('active');
-    };
-
-    window.closeNarrativeModal = function(e) {
-        if (e && e.target.id !== 'narrativeModal' && e.target.className !== 'modal-close' && !e.target.closest('.modal-close')) return;
-        document.getElementById('narrativeModal').classList.remove('active');
-    };
+    window.openNarrativeModal = function(btn) { const hiddenText = btn.previousElementSibling.innerHTML; document.getElementById('modalBodyContent').innerHTML = hiddenText; document.getElementById('narrativeModal').classList.add('active'); };
+    window.closeNarrativeModal = function(e) { if (e && e.target.id !== 'narrativeModal' && e.target.className !== 'modal-close' && !e.target.closest('.modal-close')) return; document.getElementById('narrativeModal').classList.remove('active'); };
 
     function formatNarrative(text) {
         if (!text) return '<span class="sub-text">N/A</span>';
         let cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
-        cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
-        cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
-        
+        cleanedText = cleanedText.replace(/([^\n])\s*([➢➤•●❖▪○✓]|\b\d{1,3}[\.\)]\s+|[\-\*]\s+)/g, '$1\n$2');
+        const unwrapRegex = /([^\n])\n(?![ \t]*(?:[➢➤•●❖▪○✓\-\*]|\b\d{1,3}[\.\)]\s+)|\n)/g;
+        cleanedText = cleanedText.replace(unwrapRegex, '$1 ').trim();
         if (cleanedText.length <= 100) return `<div class="truncate-box" style="-webkit-line-clamp: unset;">${cleanedText}</div>`;
-        
-        return `
-            <div class="truncate-box">${cleanedText}</div>
-            <div class="full-text-hidden" style="display:none;">${cleanedText}</div>
-            <button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>
-        `;
+        return `<div class="truncate-box">${cleanedText}</div><div class="full-text-hidden" style="display:none;">${cleanedText}</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>`;
     }
 
     function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
     function formatActionTime(dateString) { if(!dateString) return `<span class="sub-text">N/A</span>`; const d = new Date(dateString); return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`; }
     function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount || 0); }
-    function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text"><i class="fa-solid fa-location-dot"></i> ${lat}, ${lng}</span>` : ``; }
+    function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text"><i class="fa-solid fa-location-dot"></i> ${lat},${lng}</span>` : ``; }
+    
     function buildTrackerTag(recordSitrep) {
-        if (!activeSitrepNo) return `<span class="sr-tag sr-historical">Waiting...</span>`;
-        if (recordSitrep === activeSitrepNo) return `<br><span class="sr-tag sr-current">Active in SR#${recordSitrep}</span>`;
-        return `<br><span class="sr-tag sr-historical">From SR#${recordSitrep}</span>`;
+        if (!activeSitrepNo) return `<br><span class="sub-text" style="font-style:italic;">Logged in SR#${recordSitrep}</span>`;
+        if (recordSitrep === activeSitrepNo) return `<br><span style="font-weight:700; font-size: 11px; color: var(--text-main);">ACTIVE — SR#${recordSitrep}</span>`;
+        return `<br><span class="sub-text" style="font-style:italic;">Logged in SR#${recordSitrep}</span>`;
     }
+    
+    function getRowClass(recordSitrep) { return (!activeSitrepNo || recordSitrep !== activeSitrepNo) ? 'historical-row' : 'current-row'; }
 
+    // RENDER FILTER (Only grabs the latest active records per location to prevent duplicates on screen)
     function getLatestRecords(arr, keyFields) {
+        if (!arr) return [];
         let map = {};
         arr.forEach(d => {
             if (activeSitrepNo && d.sitrepNo > activeSitrepNo) return; 
-            let key = keyFields.map(f => d[f]).join('|');
-            if(!map[key] || d.sitrepNo > map[key].sitrepNo || (d.sitrepNo === map[key].sitrepNo && d.timeMonitored > map[key].timeMonitored)) { map[key] = d; }
+            let key = keyFields.length > 0 ? keyFields.map(f => d[f]).join('|') : d.id;
+            if(!map[key] || d.sitrepNo > map[key].sitrepNo || (d.sitrepNo === map[key].sitrepNo && (d.timeMonitored?.toMillis?.() || 0) > (map[key].timeMonitored?.toMillis?.() || 0))) { 
+                map[key] = d; 
+            }
         });
-        return Object.values(map).sort((a,b) => b.timeMonitored - a.timeMonitored);
+        return Object.values(map).sort((a,b) => (b.timeMonitored?.toMillis?.() || 0) - (a.timeMonitored?.toMillis?.() || 0));
     }
 
     // ==========================================
-    // ATLAS FIX: DEBOUNCED RENDER ENGINE
+    // RENDER ALL TABLES
     // ==========================================
     let renderDebounceTimer = null;
-    function queueRender() {
-        if(renderDebounceTimer) clearTimeout(renderDebounceTimer);
-        renderDebounceTimer = setTimeout(() => { renderAllTables(); }, 150);
-    }
+    function queueRender() { if(renderDebounceTimer) clearTimeout(renderDebounceTimer); renderDebounceTimer = setTimeout(() => { renderAllTables(); }, 150); }
 
     function renderAllTables() {
-        if (!isLocked) { document.querySelectorAll('.data-table tbody').forEach(tb => tb.innerHTML = `<tr><td colspan="8" class="empty-state">Lock Context to load live records...</td></tr>`); hideGlobalLoader(); return; }
+        if (!isLocked) { document.querySelectorAll('.data-table tbody').forEach(tb => { tb.innerHTML = `<tr><td colspan="8" class="empty-state">Lock Context to load live records...</td></tr>`; }); hideGlobalLoader(); return; }
+        const buildRows = (data, builderFn, emptyColSpan) => { let html = ''; data.forEach(d => html += builderFn(d)); return html || `<tr><td colspan="${emptyColSpan}" class="empty-state">No active records found.</td></tr>`; };
 
-        const buildRows = (data, builderFn, emptyColSpan) => {
-            let html = ''; data.forEach(d => html += builderFn(d));
-            return html || `<tr><td colspan="${emptyColSpan}" class="empty-state">No active records found.</td></tr>`;
-        };
-
-        document.getElementById('tb-weather').innerHTML = buildRows(getLatestRecords(dbData.weather, ['municipality']).filter(matchesFilter), d => `<tr><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${d.weatherCondition}</span></td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge bg-secondary">${d.source || 'LDRRMO'}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('weather', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
-        document.getElementById('tb-actions').innerHTML = buildRows(getLatestRecords(dbData.actions, ['id']).filter(matchesFilter), d => `<tr><td><span class="strong-text">${d.agency}</span></td><td><span class="badge bg-secondary">${d.category||'N/A'}</span></td><td>${formatNarrative(d.description)}</td><td>${formatActionTime(d.actionTime)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('actions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 5);
-        document.getElementById('tb-flood').innerHTML = buildRows(getLatestRecords(dbData.flood, ['municipality', 'barangay']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Still Flooded' || d.status === 'Rising') ? "bg-danger" : (d.status === 'Receding') ? "bg-warning" : "bg-success"; return `<tr><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="strong-text">${d.waterDepth_ft} ft</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatGPS(d.latitude, d.longitude)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('flood', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
-        document.getElementById('tb-evac').innerHTML = buildRows(getLatestRecords(dbData.evac, ['municipality']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Active') ? "bg-danger" : (d.status === 'Standby') ? "bg-warning" : "bg-secondary"; return `<tr><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-purple);">${d.affectedBarangays||0} Brgys</span></td><td><span class="strong-text" style="color: var(--accent-orange);">${d.evacCenterCount||0} ECs</span></td><td><span class="strong-text">${d.affectedFamilies||0} Fam</span><span class="sub-text">${d.affectedIndividuals||0} Persons</span></td><td><span class="strong-text" style="color: var(--accent-green);">${d.servedFamilies||0} Fam</span><span class="sub-text">${d.servedIndividuals||0} Persons</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${d.insideEcFamiliesCum||0} | ${d.insideEcFamiliesNow||0} Fam</span><span class="sub-text">${d.insideEcIndividualsCum||0} | ${d.insideEcIndividualsNow||0} Persons</span></td><td><span class="badge ${badgeClass}">${d.status || 'Unknown'}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('evac', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 8);
-        document.getElementById('tb-preemptive').innerHTML = buildRows(getLatestRecords(dbData.preemptive, ['municipality', 'barangayOrigin']).filter(matchesFilter), d => `<tr><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text">${d.barangayOrigin||'N/A'}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveFamilies || 0}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveIndividuals || 0}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('preemptive', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
-        document.getElementById('tb-complement').innerHTML = buildRows(getLatestRecords(dbData.complement, ['agency']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Checked-In') ? "bg-primary" : (d.status === 'Demobilized') ? "bg-secondary" : "bg-warning"; return `<tr><td><span class="strong-text">${d.agency}</span></td><td><span class="strong-text">${d.personnel} Pax</span></td><td>${formatNarrative(d.assetDetails)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('complement', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
-        document.getElementById('tb-deployed').innerHTML = buildRows(getLatestRecords(dbData.deployed, ['municipality', 'barangay', 'agency', 'assetType']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Deployed') ? "bg-primary" : (d.status === 'Standby') ? "bg-warning" : "bg-secondary"; return `<tr><td><span class="strong-text">${d.municipality}</span><span class="sub-text">${d.barangay}</span>${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text">${d.agency}</span><span class="sub-text">${d.quantity||0}x ${d.assetType} | ${d.personnel||0} Pax</span></td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('deployed', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
-        document.getElementById('tb-lifelines').innerHTML = buildRows(getLatestRecords(dbData.lifelines, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") || d.status.includes("Outage") ? "bg-danger" : "bg-success"; return `<tr><td><span class="strong-text">${d.municipality}</span></td><td>${d.specificArea}</td><td>${d.category}</td><td>${formatGPS(d.latitude, d.longitude)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('lifelines', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 8);
-        document.getElementById('tb-roads').innerHTML = buildRows(getLatestRecords(dbData.roads, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") ? "bg-danger" : "bg-success"; return `<tr><td><span class="strong-text">${d.specificArea}</span><span class="sub-text">${d.municipality}</span>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('roads', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 5);
-        document.getElementById('tb-infrastructure').innerHTML = buildRows(getLatestRecords(dbData.infrastructure, ['specificArea']).filter(matchesFilter), d => `<tr><td><span class="strong-text" style="color:var(--accent-blue);">${d.specificArea}</span><div class="sub-text">${d.remarks||''}</div>${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text" style="color:var(--accent-blue);">${formatCurrency(d.cost)}</span></td><td><span class="strong-text" style="color:var(--accent-blue);">${d.source||'Unknown'}</span><br><span style="font-size:11px; color:var(--text-muted);">as of ${formatActionTime(d.dateReported)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('infrastructure', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 4);
-        document.getElementById('tb-casualties').innerHTML = buildRows(getLatestRecords(dbData.casualties, ['municipality', 'barangay', 'classification']).filter(matchesFilter), d => { let badgeClass = (d.classification.includes("Dead")) ? "bg-secondary" : "bg-danger"; let narrative = d.remarks || ''; if (d.actionsTaken) { narrative += `\nActions Taken: ${d.actionsTaken}`; } return `<tr><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="badge ${badgeClass}">${d.classification}</span> <span class="strong-text" style="display:inline; margin-left:5px;">${d.count}</span></td><td>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(narrative)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('casualties', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
-        document.getElementById('tb-suspensions').innerHTML = buildRows(getLatestRecords(dbData.suspensions, ['coverage', 'type']).filter(matchesFilter), d => `<tr><td><span class="strong-text">${d.coverage.substring(0,30)}...</span></td><td><span class="badge bg-danger">${d.type}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('suspensions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 4);
-        document.getElementById('tb-agri').innerHTML = buildRows(getLatestRecords(dbData.agri, ['commodity']).filter(matchesFilter), d => `<tr><td><span class="strong-text">${d.lguCount||0}</span></td><td><span class="strong-text" style="color:var(--accent-yellow);">${d.commodity}</span></td><td><span class="strong-text">${(d.farmersAffected||0).toLocaleString()}</span></td><td>${(d.partialHa||0).toFixed(2)}</td><td>${(d.totalHa||0).toFixed(2)}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(d.cost)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('agri', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 7);
-        document.getElementById('tb-residential').innerHTML = buildRows(getLatestRecords(dbData.residential, ['municipality', 'barangay']).filter(matchesFilter), d => { let badgeClass = d.category.includes("Totally") ? "bg-danger" : "bg-warning"; return `<tr><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="badge ${badgeClass}">${d.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(d.count||0).toLocaleString()}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.description)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('residential', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
-        document.getElementById('tb-assistance').innerHTML = buildRows(getLatestRecords(dbData.assistance, ['municipality', 'source', 'reliefItem']).filter(matchesFilter), d => { let isCash = d.reliefItem.includes('Financial') || d.reliefItem.includes('Cash'); let qtyDisplay = (d.quantity||0) > 0 ? `<span class="strong-text">${d.quantity}x</span> ` : ''; return `<tr><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay||'N/A'}</td><td><span class="badge bg-primary">${d.source}</span></td><td>${qtyDisplay}${d.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(d.cost)}</span></td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('assistance', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
-        document.getElementById('tb-incidents').innerHTML = buildRows(getLatestRecords(dbData.incidents, ['municipality', 'particulars']).filter(matchesFilter), d => `<tr><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-red);">${d.particulars}</span></td><td>${formatNarrative(d.actionsTaken)}</td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('incidents', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 5);
-        
+        document.getElementById('tb-weather').innerHTML = buildRows(getLatestRecords(dbData.weather, ['municipality']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${d.weatherCondition}</span></td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge bg-secondary">${d.source || 'LDRRMO'}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('weather', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
+        document.getElementById('tb-flood').innerHTML = buildRows(getLatestRecords(dbData.flood, ['municipality', 'barangay']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Still Flooded' || d.status === 'Rising') ? "bg-danger" : (d.status === 'Receding') ? "bg-warning" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="strong-text">${d.waterDepth_ft} ft</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatGPS(d.latitude, d.longitude)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('flood', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
+        document.getElementById('tb-evac').innerHTML = buildRows(getLatestRecords(dbData.evac, ['municipality']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Active') ? "bg-danger" : (d.status === 'Standby') ? "bg-warning" : "bg-secondary"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-purple);">${d.affectedBarangays||0} Brgys</span></td><td><span class="strong-text" style="color: var(--accent-orange);">${d.evacCenterCount||0} ECs</span></td><td><span class="strong-text">${d.affectedFamilies||0} Fam</span><span class="sub-text">${d.affectedIndividuals||0} Persons</span></td><td><span class="strong-text" style="color: var(--accent-green);">${d.servedFamilies||0} Fam</span><span class="sub-text">${d.servedIndividuals||0} Persons</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${d.insideEcFamiliesCum||0} | ${d.insideEcFamiliesNow||0} Fam</span><span class="sub-text">${d.insideEcIndividualsCum||0} | ${d.insideEcIndividualsNow||0} Persons</span></td><td><span class="badge ${badgeClass}">${d.status || 'Unknown'}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('evac', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 8);
+        document.getElementById('tb-deployed').innerHTML = buildRows(getLatestRecords(dbData.deployed, ['id']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Deployed') ? "bg-primary" : (d.status === 'Standby') ? "bg-warning" : "bg-secondary"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span><span class="sub-text">${d.barangay}</span>${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text">${d.agency}</span><span class="sub-text">${d.quantity||0}x ${d.assetType} | ${d.personnel||0} Pax</span></td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('deployed', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
+        document.getElementById('tb-complement').innerHTML = buildRows(getLatestRecords(dbData.complement, ['agency']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Checked-In') ? "bg-primary" : (d.status === 'Demobilized') ? "bg-secondary" : "bg-warning"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.agency}</span></td><td><span class="strong-text">${d.personnel} Pax</span></td><td>${formatNarrative(d.assetDetails)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('complement', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
+        document.getElementById('tb-lifelines').innerHTML = buildRows(getLatestRecords(dbData.lifelines, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") || d.status.includes("Outage") ? "bg-danger" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.specificArea}</td><td>${d.category}</td><td>${formatGPS(d.latitude, d.longitude)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('lifelines', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 8);
+        document.getElementById('tb-roads').innerHTML = buildRows(getLatestRecords(dbData.roads, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") ? "bg-danger" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.specificArea}</span><span class="sub-text">${d.municipality}</span>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('roads', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 5);
+        document.getElementById('tb-infrastructure').innerHTML = buildRows(getLatestRecords(dbData.infrastructure, ['specificArea']).filter(matchesFilter), d => { let actionDisplay = d.actionsTaken ? `<div class="sub-text" style="margin-top: 6px;"><b>Actions Taken:</b> ${d.actionsTaken}</div>` : (d.remarks ? `<div class="sub-text" style="margin-top: 6px;">${d.remarks}</div>` : ''); let costDisplay = d.cost > 0 ? formatCurrency(d.cost) : '<span class="sub-text" style="font-style: italic;">Assessment Ongoing</span>'; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text" style="color:var(--accent-blue);">${d.specificArea}</span>${actionDisplay}${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text" style="color:var(--accent-blue);">${costDisplay}</span></td><td><span class="strong-text" style="color:var(--accent-blue);">${d.source||'Unknown'}</span><br><span style="font-size:11px; color:var(--text-muted);">as of ${formatActionTime(d.dateReported)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('infrastructure', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 4);
+        document.getElementById('tb-suspensions').innerHTML = buildRows(getLatestRecords(dbData.suspensions, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.coverage.substring(0,30)}...</span></td><td><span class="badge bg-danger">${d.type}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('suspensions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 4);
+        document.getElementById('tb-residential').innerHTML = buildRows(getLatestRecords(dbData.residential, ['municipality', 'barangay']).filter(matchesFilter), d => { let badgeClass = d.category.includes("Totally") ? "bg-danger" : "bg-warning"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="badge ${badgeClass}">${d.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(d.count||0).toLocaleString()}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.description)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('residential', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
+        document.getElementById('tb-actions').innerHTML = buildRows(getLatestRecords(dbData.actions, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.agency}</span></td><td><span class="badge bg-secondary">${d.category||'N/A'}</span></td><td>${formatNarrative(d.description)}</td><td>${formatActionTime(d.actionTime)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('actions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 5);
+        document.getElementById('tb-preemptive').innerHTML = buildRows(getLatestRecords(dbData.preemptive, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text">${d.barangayOrigin||'N/A'}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveFamilies || 0}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveIndividuals || 0}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('preemptive', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
+        document.getElementById('tb-casualties').innerHTML = buildRows(getLatestRecords(dbData.casualties, ['id']).filter(matchesFilter), d => { let badgeClass = (d.classification.includes("Dead")) ? "bg-secondary" : "bg-danger"; let narrative = d.remarks || ''; if (d.actionsTaken) { narrative += `\nActions Taken: ${d.actionsTaken}`; } return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="badge ${badgeClass}">${d.classification}</span> <span class="strong-text" style="display:inline; margin-left:5px;">${d.count}</span></td><td>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(narrative)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('casualties', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
+        document.getElementById('tb-agri').innerHTML = buildRows(getLatestRecords(dbData.agri, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.lguCount||0}</span></td><td><span class="strong-text" style="color:var(--accent-yellow);">${d.commodity}</span></td><td><span class="strong-text">${(d.farmersAffected||0).toLocaleString()}</span></td><td>${(d.partialHa||0).toFixed(2)}</td><td>${(d.totalHa||0).toFixed(2)}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(d.cost)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('agri', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 7);
+        document.getElementById('tb-assistance').innerHTML = buildRows(getLatestRecords(dbData.assistance, ['municipality', 'source', 'reliefItem']).filter(matchesFilter), d => { let isCash = d.reliefItem.includes('Financial') || d.reliefItem.includes('Cash'); let qtyDisplay = (d.quantity||0) > 0 ? `<span class="strong-text">${d.quantity}x</span> ` : ''; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay||'N/A'}</td><td><span class="badge bg-primary">${d.source}</span></td><td>${qtyDisplay}${d.reliefItem}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(d.cost)}</span></td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('assistance', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
+        document.getElementById('tb-incidents').innerHTML = buildRows(getLatestRecords(dbData.incidents, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-red);">${d.particulars}</span></td><td>${formatNarrative(d.actionsTaken)}</td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('incidents', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 5);
         hideGlobalLoader();
     }
 
-    let isInitialLoad = true;
-    let initialLoadTimeout = null;
-    function hideGlobalLoader() {
-        const loader = document.getElementById('global-loader');
-        if (loader && isInitialLoad) {
-            if (initialLoadTimeout) clearTimeout(initialLoadTimeout);
-            initialLoadTimeout = setTimeout(() => {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; isInitialLoad = false; }, 500);
-            }, 1200); 
-        }
-    }
+    let isInitialLoad = true; let initialLoadTimeout = null;
+    function hideGlobalLoader() { if (loader && isInitialLoad) { if (initialLoadTimeout) clearTimeout(initialLoadTimeout); initialLoadTimeout = setTimeout(() => { loader.style.opacity = '0'; setTimeout(() => { loader.style.display = 'none'; isInitialLoad = false; }, 500); }, 1200); } }
+    const loader = document.getElementById('global-loader');
 
     // ==========================================
-    // FORM SUBMISSION ENGINE
+    // FORM SUBMISSION LISTENERS
     // ==========================================
     document.getElementById('form-weather').addEventListener('submit', (e) => { handleSubmission(e, "weather_conditions", "weather", (f) => ({ municipality: f.querySelector('.f-muni').value, weatherCondition: f.querySelector('.f-weather-cond').value, dateReported: f.querySelector('.f-weather-time').value, source: f.querySelector('.f-weather-source').value, remarks: f.querySelector('.f-weather-remarks').value })); });
     document.getElementById('form-actions').addEventListener('submit', (e) => { handleSubmission(e, "actions_data", "actions", (f) => { let agencyVal = f.querySelector('.f-action-agency').value; if (agencyVal === 'LDRRMC') { const specificLgu = f.querySelector('.f-action-lgu').value; agencyVal = `LDRRMC - ${specificLgu}`; } return { agency: agencyVal, category: f.querySelector('.f-action-cat').value, description: f.querySelector('.f-action-desc').value, actionTime: f.querySelector('.f-action-time').value }; }); });
     document.getElementById('form-flood').addEventListener('submit', (e) => { handleSubmission(e, "flooded_areas", "flood", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, waterDepth_ft: parseFloat(f.querySelector('.f-depth').value), status: f.querySelector('.f-status').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-flood-time').value })); });
-    
-    document.getElementById('form-evac').addEventListener('submit', (e) => { handleSubmission(e, "evacuation_data", "evac", (f) => {
-        const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0; const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0; const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0; const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0; const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0; const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0; const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0; const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0;
-        return { validationFailed: (affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow) === 0, municipality: f.querySelector('.f-muni').value, affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value)||0, evacCenterCount: parseInt(f.querySelector('.f-ec-count').value)||0, status: f.querySelector('.f-status').value, affectedFamilies: affFam, affectedIndividuals: affIndv, servedFamilies: servedFam, servedIndividuals: servedIndv, insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow, insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value };
-    }); });
-
+    document.getElementById('form-evac').addEventListener('submit', (e) => { handleSubmission(e, "evacuation_data", "evac", (f) => { const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0; const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0; const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0; const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0; const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0; const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0; const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0; const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0; return { validationFailed: (affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow) === 0, municipality: f.querySelector('.f-muni').value, affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value)||0, evacCenterCount: parseInt(f.querySelector('.f-ec-count').value)||0, status: f.querySelector('.f-status').value, affectedFamilies: affFam, affectedIndividuals: affIndv, servedFamilies: servedFam, servedIndividuals: servedIndv, insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow, insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-preemptive').addEventListener('submit', (e) => { handleSubmission(e, "preemptive_data", "preemptive", (f) => ({ municipality: f.querySelector('.f-muni').value, barangayOrigin: f.querySelector('.f-brgy').value, preEmptiveFamilies: parseInt(f.querySelector('.f-pre-fam').value)||0, preEmptiveIndividuals: parseInt(f.querySelector('.f-pre-indv').value)||0, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-complement').addEventListener('submit', (e) => { handleSubmission(e, "complement_data", "complement", (f) => ({ agency: f.querySelector('.f-agency').value, status: f.querySelector('.f-status').value, personnel: parseInt(f.querySelector('.f-personnel').value)||0, assetDetails: f.querySelector('.f-asset-details').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-deployed').addEventListener('submit', (e) => { handleSubmission(e, "resource_data", "deployed", (f) => { const assetSelect = f.querySelector('.f-asset'); const selectedAssets = Array.from(assetSelect.selectedOptions).map(opt => opt.value).join(', '); return { municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, agency: f.querySelector('.f-agency').value, assetType: selectedAssets, quantity: parseInt(f.querySelector('.f-qty').value)||0, personnel: parseInt(f.querySelector('.f-personnel').value)||0, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-lifelines').addEventListener('submit', (e) => { handleSubmission(e, "lifeline_data", "lifelines", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
+    document.getElementById('form-infrastructure').addEventListener('submit', (e) => { handleSubmission(e, "infrastructure_data", "infrastructure", (f) => ({ recordType: 'Damage', municipality: Array.from(f.querySelector('.f-muni-multi').selectedOptions).map(opt => opt.value).join(', '), specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: "Assessed for Damage", cost: parseFloat(f.querySelector('.f-cost').value) || 0, source: f.querySelector('.f-infra-source').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), remarks: f.querySelector('.f-action').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-roads').addEventListener('submit', (e) => { handleSubmission(e, "infrastructure_data", "roads", (f) => ({ recordType: 'Passability', municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value, cost: 0, source: 'LDRRMO' })); });
-    document.getElementById('form-infrastructure').addEventListener('submit', (e) => { handleSubmission(e, "infrastructure_data", "infrastructure", (f) => ({ recordType: 'Damage', municipality: Array.from(f.querySelector('.f-muni-multi').selectedOptions).map(opt => opt.value).join(', '), specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: "Assessed for Damage", cost: parseFloat(f.querySelector('.f-cost').value) || 0, source: f.querySelector('.f-infra-source').value.trim(), remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-casualties').addEventListener('submit', (e) => { handleSubmission(e, "casualties_data", "casualties", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, classification: f.querySelector('.f-class').value, count: parseInt(f.querySelector('.f-count').value), remarks: f.querySelector('.f-remarks').value.trim(), actionsTaken: f.querySelector('.f-action') ? f.querySelector('.f-action').value.trim() : "", latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-suspensions').addEventListener('submit', (e) => { handleSubmission(e, "suspensions_data", "suspensions", (f) => ({ coverage: Array.from(f.querySelector('.f-coverage').selectedOptions).map(opt => opt.value).join(', '), type: f.querySelector('.f-type').value, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: "" })); });
     document.getElementById('form-agri').addEventListener('submit', (e) => { handleSubmission(e, "agri_damages", "agri", (f) => ({ lguCount: parseInt(f.querySelector('.f-lgu-count').value)||0, commodity: f.querySelector('.f-commodity').value, farmersAffected: parseInt(f.querySelector('.f-farmers').value)||0, partialHa: parseFloat(f.querySelector('.f-partial-ha').value)||0, totalHa: parseFloat(f.querySelector('.f-total-ha').value)||0, cost: parseFloat(f.querySelector('.f-cost').value)||0, dateReported: f.querySelector('.f-report-time').value })); });
@@ -911,11 +1286,20 @@
     document.getElementById('form-incidents').addEventListener('submit', (e) => { handleSubmission(e, "related_incidents", "incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), dateReported: f.querySelector('.f-report-time').value })); });
 
     // ==========================================
-    // DATABASE LISTENERS
+    // DATABASE LISTENERS (FILTERS ARCHIVED)
     // ==========================================
-    const watch = (col, key) => onSnapshot(collection(db, col), snap => { dbData[key] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); queueRender(); });
+    const watch = (col, key) => onSnapshot(collection(db, col), snap => { 
+        dbData[key] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
+        queueRender(); 
+    });
+
     watch("weather_conditions", "weather"); watch("actions_data", "actions"); watch("flooded_areas", "flood"); watch("evacuation_data", "evac"); watch("preemptive_data", "preemptive"); watch("complement_data", "complement"); watch("resource_data", "deployed"); watch("lifeline_data", "lifelines"); watch("casualties_data", "casualties"); watch("suspensions_data", "suspensions"); watch("agri_damages", "agri"); watch("residential_damages", "residential"); watch("assistance_data", "assistance"); watch("related_incidents", "incidents");
-    onSnapshot(collection(db, "infrastructure_data"), (snap) => { let allInfra = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); dbData.roads = allInfra.filter(d => d.recordType === 'Passability' || d.category === 'Road' || d.category === 'Bridge'); dbData.infrastructure = allInfra.filter(d => d.recordType === 'Damage' || (!d.recordType && d.cost > 0)); queueRender(); });
+    onSnapshot(collection(db, "infrastructure_data"), (snap) => { 
+        let allInfra = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
+        dbData.roads = allInfra.filter(d => d.recordType === 'Passability' || ((d.category === 'Road' || d.category === 'Bridge') && d.recordType !== 'Damage' && !(d.status||'').includes('Assessed for Damage'))); 
+        dbData.infrastructure = allInfra.filter(d => d.recordType === 'Damage' || (!d.recordType && parseFloat(d.cost) > 0) || (d.status||'').includes('Assessed for Damage')); 
+        queueRender(); 
+    });
 </script>
 </body>
 </html>
