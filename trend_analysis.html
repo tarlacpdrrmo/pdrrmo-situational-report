@@ -6,6 +6,10 @@
     <title>PDRRMO Trend Analysis</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <!-- ATLAS FIX: Added Chart.js Zoom Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
     <style>
         @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
@@ -28,16 +32,42 @@
         @keyframes spin { to { transform: rotate(360deg); } }
         @keyframes pulseText { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
 
-        /* SIDEBAR */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); display: flex; flex-direction: column; border-right: 1px solid #E5E5EA; z-index: 10; padding: 20px 10px; flex-shrink: 0; overflow-y: auto;}
-        .sidebar::-webkit-scrollbar { width: 0px; }
-        .sidebar-brand { font-size: 20px; font-weight: 800; color: var(--text-main); padding: 10px 15px 30px 15px; letter-spacing: -0.5px;}
-        .nav-section-title { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; padding: 0 15px 8px 15px; margin-top: 20px;}
-        .dashboard-link { display: flex; align-items: center; gap: 12px; text-decoration: none; padding: 10px 15px; font-size: 14px; font-weight: 500; transition: 0.2s; color: var(--text-main); border-radius: var(--radius-md); margin-bottom: 2px;}
-        .dashboard-link i { width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s; }
+        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER */
+        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
+        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
+        .sidebar-inner::-webkit-scrollbar { width: 0px; }
+
+        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
+        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
+        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
+        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
+        
+        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0; margin-right: -4px;}
+        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
+        
+        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
+        
+        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
+        
+        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
+        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
         .dashboard-link:hover { background-color: var(--bg-hover); }
-        .active-tab { background-color: var(--bg-hover); font-weight: 600; color: var(--accent-blue); }
+        .active-tab { background-color: #E5F0FF; font-weight: 600; color: var(--accent-blue); }
         .active-tab i { color: var(--accent-blue); }
+
+        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
+        
+        /* COLLAPSED STATE LOGIC */
+        .sidebar.collapsed { width: 75px; }
+        .sidebar.collapsed .fade-text { opacity: 0; }
+        .sidebar.collapsed .sidebar-header { padding: 15px; justify-content: center; }
+        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; margin: 0; display: none; }
+        .sidebar.collapsed .sidebar-toggle { margin: 0; }
+        .sidebar.collapsed .sidebar-subtitle { border-color: transparent; height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 5px; overflow: hidden; opacity: 0; }
+        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
+        .sidebar.collapsed .dashboard-link { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
+        .sidebar.collapsed .dashboard-link i { width: auto; margin: 0; font-size: 18px; }
+        .sidebar.collapsed .link-text { display: none; }
 
         /* MAIN CONTENT */
         .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; position: relative; }
@@ -58,12 +88,16 @@
         .chart-grid-full { grid-template-columns: 1fr; margin-bottom: 20px;}
 
         .chart-card { background: var(--bg-card); padding: 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-soft); display: flex; flex-direction: column; position: relative; min-width: 0;}
-        .chart-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px; }
+        .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px; }
         .chart-header h3 { margin: 0; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--text-main);}
-        .chart-header-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+        .chart-header-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
         
         .chart-container { position: relative; height: 320px; width: 100%; min-width: 0; }
         .chart-empty-message { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted); font-size: 12px; font-weight: 600; background: var(--bg-card); z-index: 10; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+
+        /* Highcharts-style Reset Zoom Button */
+        .btn-reset-zoom { background: #fff; color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 4px 12px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
+        .btn-reset-zoom:hover { background: var(--bg-hover); color: var(--accent-blue); border-color: var(--accent-blue); }
 
         @media (max-width: 1400px) { .chart-grid { grid-template-columns: minmax(0, 1fr); } }
     </style>
@@ -75,19 +109,36 @@
         <div class="loader-text">COMPILING HISTORICAL PROGRESSION...</div>
     </div>
 
-    <div class="sidebar">
-        <div class="sidebar-brand">Tarlac PDRRMO</div>
-        <div class="nav-section-title">Monitoring System</div>
-        <div style="margin-top: 5px; padding: 0 10px;">
-            <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i> Exec Analytics</a>
-            <a href="trend_analysis.html" class="dashboard-link active-tab"><i class="fa-solid fa-arrow-trend-up"></i> Trend Analysis</a>
-            <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i> Command Workspace</a>
-            <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i> PDRRMO Inventory</a>
-            <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i> Historical Archives</a>
-        </div>
-        <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;">Secure Access</div>
-        <div style="padding: 0 10px;">
-            <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i> System Admin</a>
+    <div class="sidebar" id="mainSidebar">
+        <div class="sidebar-inner">
+            <div class="sidebar-header">
+                <div class="sidebar-brand-container">
+                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
+                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
+                </div>
+                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                        <line x1="9" y1="3" x2="9" y2="21"></line>
+                    </svg>
+                </button>
+            </div>
+            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
+            
+            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
+            <div class="nav-links-container">
+                <a href="index.html" class="dashboard-link" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
+                <a href="trend_analysis.html" class="dashboard-link active-tab" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
+                <a href="data_entry.html" class="dashboard-link" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
+                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
+                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
+                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
+            </div>
+
+            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
+            <div class="nav-links-container" style="padding-bottom: 20px;">
+                <a href="admin.html" class="dashboard-link" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
+            </div>
         </div>
     </div>
 
@@ -110,8 +161,11 @@
             <div class="chart-grid chart-grid-full">
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3><i class="fa-solid fa-users-rays" style="color: var(--accent-orange);"></i> Population: Affected vs. Served</h3>
-                        <div class="chart-header-desc">Cumulative Totals over SitReps</div>
+                        <div>
+                            <h3><i class="fa-solid fa-users-rays" style="color: var(--accent-orange);"></i> Population: Affected vs. Served</h3>
+                            <div class="chart-header-desc">Cumulative Totals over SitReps (Click & Drag to Zoom)</div>
+                        </div>
+                        <button id="trendPopChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendPopChart')">Reset zoom</button>
                     </div>
                     <div class="chart-container">
                         <canvas id="trendPopChart"></canvas>
@@ -126,8 +180,11 @@
             <div class="chart-grid">
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flood Recovery Curve</h3>
-                        <div class="chart-header-desc">Active vs. Subsided Areas</div>
+                        <div>
+                            <h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flood Recovery Curve</h3>
+                            <div class="chart-header-desc">Active vs. Subsided Areas</div>
+                        </div>
+                        <button id="trendFloodChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendFloodChart')">Reset zoom</button>
                     </div>
                     <div class="chart-container">
                         <canvas id="trendFloodChart"></canvas>
@@ -137,8 +194,11 @@
 
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3><i class="fa-solid fa-road-barrier" style="color: var(--accent-teal);"></i> Passability Curve</h3>
-                        <div class="chart-header-desc">Roads & Bridges Restored</div>
+                        <div>
+                            <h3><i class="fa-solid fa-road-barrier" style="color: var(--accent-teal);"></i> Passability Curve</h3>
+                            <div class="chart-header-desc">Roads & Bridges Restored</div>
+                        </div>
+                        <button id="trendRoadsChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendRoadsChart')">Reset zoom</button>
                     </div>
                     <div class="chart-container">
                         <canvas id="trendRoadsChart"></canvas>
@@ -148,8 +208,11 @@
 
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3><i class="fa-solid fa-peso-sign" style="color: var(--accent-red);"></i> Financial Impact Deficit</h3>
-                        <div class="chart-header-desc">Infra vs. Agri Damages (PHP)</div>
+                        <div>
+                            <h3><i class="fa-solid fa-peso-sign" style="color: var(--accent-red);"></i> Financial Impact Deficit</h3>
+                            <div class="chart-header-desc">Infra vs. Agri Damages (PHP)</div>
+                        </div>
+                        <button id="trendDmgChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendDmgChart')">Reset zoom</button>
                     </div>
                     <div class="chart-container">
                         <canvas id="trendDmgChart"></canvas>
@@ -159,8 +222,11 @@
 
                 <div class="chart-card">
                     <div class="chart-header">
-                        <h3><i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-green);"></i> Relief Operations Deployment</h3>
-                        <div class="chart-header-desc">Cumulative Cost of Assistance (PHP)</div>
+                        <div>
+                            <h3><i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-green);"></i> Relief Operations Deployment</h3>
+                            <div class="chart-header-desc">Cumulative Cost of Assistance (PHP)</div>
+                        </div>
+                        <button id="trendAstChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendAstChart')">Reset zoom</button>
                     </div>
                     <div class="chart-container">
                         <canvas id="trendAstChart"></canvas>
@@ -189,6 +255,20 @@
     
     let isInitialLoad = true;
     let initialLoadTimeout = null;
+
+    const parseNum = (val) => parseFloat(String(val).replace(/,/g, '').trim()) || 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        const sidebar = document.getElementById('mainSidebar');
+        if(localStorage.getItem('sidebarCollapsed') === 'true') { sidebar.classList.add('collapsed'); }
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+        }
+    });
 
     function hideGlobalLoader() {
         const loader = document.getElementById('global-loader');
@@ -221,7 +301,7 @@
     }
 
     // ==========================================
-    // CHART.JS INITIALIZATION (SMOOTH LINES + AREA)
+    // CHART.JS INITIALIZATION (HIGHCHARTS-STYLE ZOOM)
     // ==========================================
     Chart.defaults.color = '#86868B'; 
     Chart.defaults.font.family = 'Inter'; 
@@ -253,7 +333,23 @@
             y: { beginAtZero: true, grid: { color: '#F2F2F7' }, border: { dash: [4, 4] } }, 
             x: { grid: { display: false } } 
         }, 
-        plugins: { legend: legendConfig, tooltip: globalLineTooltip }
+        plugins: { 
+            legend: legendConfig, 
+            tooltip: globalLineTooltip,
+            // ATLAS FIX: Highcharts-style drag to zoom (X-axis only)
+            zoom: {
+                zoom: {
+                    drag: {
+                        enabled: true,
+                        backgroundColor: 'rgba(0, 122, 255, 0.2)'
+                    },
+                    mode: 'x', // Lock to timeline
+                    onZoomComplete: function({chart}) {
+                        document.getElementById(chart.canvas.id + '-reset').style.display = 'block';
+                    }
+                }
+            }
+        }
     };
 
     const ctxPop = document.getElementById('trendPopChart').getContext('2d');
@@ -270,6 +366,15 @@
 
     const ctxAst = document.getElementById('trendAstChart').getContext('2d');
     const trendAstChart = new Chart(ctxAst, { type: 'line', data: { labels: [], datasets: [] }, options: lineOptions });
+
+    // ATLAS FIX: Reset zoom logic
+    window.resetChartZoom = function(chartId) {
+        const charts = { 'trendPopChart': trendPopChart, 'trendFloodChart': trendFloodChart, 'trendRoadsChart': trendRoadsChart, 'trendDmgChart': trendDmgChart, 'trendAstChart': trendAstChart };
+        if (charts[chartId]) {
+            charts[chartId].resetZoom();
+            document.getElementById(chartId + '-reset').style.display = 'none';
+        }
+    };
 
 
     // ==========================================
@@ -303,8 +408,8 @@
             let srEvacs = getSnapshotAtSitrep(srTarget, dbData.evacs, ['municipality']);
             let sumAffFam = 0, sumServedFam = 0;
             srEvacs.forEach(e => {
-                sumAffFam += parseInt(e.affectedFamilies) || 0;
-                sumServedFam += parseInt(e.servedFamilies) || 0;
+                sumAffFam += parseNum(e.affectedFamilies);
+                sumServedFam += parseNum(e.servedFamilies);
             });
             popAff.push(sumAffFam);
             popServed.push(sumServedFam);
@@ -331,15 +436,15 @@
             let srInfra = getSnapshotAtSitrep(srTarget, dbData.infra, ['specificArea']);
             let srAgri = getSnapshotAtSitrep(srTarget, dbData.agri, ['commodity']);
             let dInfra = 0, dAgri = 0;
-            srInfra.forEach(i => dInfra += parseFloat(i.cost) || 0);
-            srAgri.forEach(a => dAgri += parseFloat(a.cost) || 0);
+            srInfra.forEach(i => dInfra += parseNum(i.cost));
+            srAgri.forEach(a => dAgri += parseNum(a.cost));
             dmgInfra.push(dInfra);
             dmgAgri.push(dAgri);
 
             // --- ASSISTANCE (Total Cost) ---
             let srAst = getSnapshotAtSitrep(srTarget, dbData.assistance, ['municipality', 'source', 'reliefItem']);
             let sumAst = 0;
-            srAst.forEach(a => sumAst += parseFloat(a.cost) || 0);
+            srAst.forEach(a => sumAst += parseNum(a.cost));
             astCost.push(sumAst);
 
         });
