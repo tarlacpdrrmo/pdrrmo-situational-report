@@ -1,0 +1,1677 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PDRRMO SitRep Dashboard</title>
+    
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <style>
+        :root {
+            --blue: #2A93C9; --lime: #B4D336; --teal: #40C4A4; 
+            --dark-blue: #1A7B9B; --gray: #E6E6E6; 
+            --text-dark: #444444; --text-light: #888888;
+            --accent-red: #FF3B30;
+        }
+
+        body, html { margin: 0; padding: 0; background-color: #F8F9FA; font-family: 'PT Sans', sans-serif; color: var(--text-dark); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        h1, h2, h3, h4 { font-family: 'Montserrat', sans-serif; text-transform: uppercase; margin: 0; line-height: 1.1; }
+
+        .app-wrapper { display: flex; gap: 30px; padding: 20px; max-width: 1600px; margin: 0 auto; flex-grow: 1; width: 100%; box-sizing: border-box; }
+        
+        .fixed-column { width: 25%; flex-shrink: 0; display: flex; flex-direction: column; gap: 20px; }
+        
+        .slider-container { width: 75%; position: relative; display: flex; align-items: center; }
+        .slider-viewport { width: 100%; overflow: hidden; border-radius: 4px; padding-bottom: 5px; height: 100%; }
+        .slider-track { display: flex; width: 200%; height: 100%; transition: transform 0.6s cubic-bezier(0.25, 1, 0.5, 1); flex-grow: 1; }
+        
+        .slide { width: 50%; display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; flex-shrink: 0; align-content: start; }
+
+        .slide-nav-btn { position: absolute; background: rgba(0, 0, 0, 0.25); color: white; border: none; width: 45px; height: 45px; border-radius: 50%; font-size: 20px; cursor: pointer; z-index: 100; display: flex; align-items: center; justify-content: center; transition: all 0.2s ease; backdrop-filter: blur(4px); }
+        .slide-nav-btn:hover { background: rgba(0, 0, 0, 0.7); transform: scale(1.1); }
+        .slide-nav-btn.left { left: -25px; } 
+        .slide-nav-btn.right { right: -25px; }
+
+        .col { display: flex; flex-direction: column; gap: 20px; }
+        .block { background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.05); display: flex; flex-direction: column; height: 100%; border-radius: 4px; overflow: hidden;}
+        
+        .header-box { padding: 20px; color: white; position: relative; overflow: hidden; }
+        .header-box h2, .header-box p { position: relative; z-index: 1; }
+        
+        .header-box h2 { font-size: 2.5rem; letter-spacing: -1px; padding-bottom: 5px; }
+        .header-box p { font-size: 0.7rem; text-transform: uppercase; margin-top: 5px; opacity: 0.8; }
+        .content-box { padding: 20px; flex-grow: 1; display: flex; flex-direction: column;}
+        
+        .section-title { font-size: 1.5rem; margin-bottom: 5px; }
+        .sub-text { font-size: 0.85rem; color: var(--text-light); line-height: 1.4; margin-bottom: 15px; }
+        
+        .dynamic-subtitle { font-size: 0.85rem; color: var(--text-dark); margin-top: 10px; margin-bottom: 10px; line-height: 1.5;}
+        .dynamic-subtitle strong { font-weight: 900; color: #222; }
+        
+        .list-row { background: transparent; padding: 10px 0; margin-bottom: 0; font-size: 0.85rem; line-height: 1.4; border-bottom: 1px solid #eaeaea; }
+        .list-row:last-child { border-bottom: none; }
+
+        .bg-blue { background-color: var(--blue); } .bg-teal { background-color: var(--teal); }
+        .bg-lime { background-color: var(--lime); } .bg-dark-blue { background-color: var(--dark-blue); }
+        .bg-red { background-color: var(--accent-red); }
+        
+        .bg-icon {
+            position: absolute; right: -20px; top: -20px;
+            font-size: 6.5rem; color: white; opacity: 0.15;
+            z-index: 0; transform: rotate(-15deg); pointer-events: none;
+        }
+
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay.active { display: flex; opacity: 1; }
+        .modal-card { background: white; border-radius: 8px; width: 90%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); transform: translateY(-50px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .modal-overlay.active .modal-card { transform: translateY(0); }
+        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #eaeaea; background: #F9F9FB; border-radius: 8px 8px 0 0;}
+        .modal-header h3 { margin: 0; color: var(--text-dark); font-size: 1.2rem; font-family: 'Montserrat', sans-serif;}
+        .modal-close { background: transparent; border: none; color: var(--text-light); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
+        .modal-close:hover { background: #FFEBEB; color: #E74C3C; }
+        .modal-body { padding: 25px; overflow-y: auto; color: var(--text-dark); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
+        
+        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; font-size: 0.85rem; color: var(--text-dark); line-height: 1.5; }
+        .read-more-btn { background: #E5F0FF; border: none; border-radius: 4px; padding: 6px 10px; color: var(--blue); font-size: 0.75rem; font-weight: bold; cursor: pointer; margin-top: 8px; transition: 0.2s; display: inline-flex; align-items: center; }
+        .read-more-btn:hover { background: #CCE0FF; }
+    </style>
+</head>
+<body>
+
+    <div style="max-width: 1600px; margin: 20px auto 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; width: 100%; box-sizing: border-box;">
+        <div style="display: flex; align-items: center; gap: 15px;">
+            <img src="logo.png" alt="Tarlac PDRRMO Logos" style="height: 65px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
+            <h2 style="color: var(--dark-blue); font-family: 'Montserrat', sans-serif; font-size: 1.4rem; letter-spacing: -0.5px; margin: 0; line-height: 1.1;">
+                TARLAC PROVINCIAL DISASTER RISK REDUCTION<br>AND MANAGEMENT OFFICE
+            </h2>
+        </div>
+    </div>
+
+    <div class="app-wrapper">
+        
+        <!-- FIXED ANCHOR COLUMN -->
+        <div class="fixed-column">
+            <div class="block" style="padding: 0;">
+                <img src="image_7f60c1.png" alt="Disaster Readiness Infographic" style="width: 100%; height: auto; display: block;" onerror="this.style.display='none'">
+            </div>
+            <div class="block" style="padding: 0;">
+                <img src="basicfloodtips.png" alt="Basic Safety Tips: Floods" style="width: 100%; height: auto; display: block;" onerror="this.style.display='none'">
+            </div>
+        </div>
+
+        <div class="slider-container">
+            <button id="slideBtnLeft" class="slide-nav-btn left" onclick="moveSlide(-1)" style="display: none;"><i class="fa-solid fa-chevron-left"></i></button>
+            <button id="slideBtnRight" class="slide-nav-btn right" onclick="moveSlide(1)"><i class="fa-solid fa-chevron-right"></i></button>
+
+            <!-- SLIDER VIEWPORT & TRACK -->
+            <div class="slider-viewport">
+                <div class="slider-track" id="sliderTrack">
+                    
+                    <!-- ========================================== -->
+                    <!-- SLIDE 1: PRIMARY OVERVIEWS                 -->
+                    <!-- ========================================== -->
+                    <div class="slide" id="slide1">
+                        
+                        <!-- S1, COL 1: SITREP & AFFECTED -->
+                        <div class="col">
+                            <div class="block">
+                                <div class="header-box bg-blue">
+                                    <h2>SITREP<br>UPDATE</h2>
+                                    <p>OPERATIONS CENTER / REAL-TIME DATA</p>
+                                    <i class="fa-solid fa-clipboard-list bg-icon"></i>
+                                </div>
+                                <div class="content-box" style="border-bottom: 5px solid var(--gray);">
+                                    <h3 class="section-title" style="color: var(--blue);">ADVISORY</h3>
+                                    <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px 5px;">
+                                        <p id="out-advisory" style="color: var(--dark-blue); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; line-height: 1.4; text-align: center; margin: 0;">Awaiting official advisory update...</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="block">
+                                <div class="header-box bg-teal">
+                                    <h2>AFFECTED POPULATION</h2>
+                                    <p>FAMILIES / INDIVIDUALS</p>
+                                    <i class="fa-solid fa-users bg-icon"></i>
+                                </div>
+                                <div class="content-box">
+                                    <div style="margin-bottom: 20px;">
+                                        <h1 id="out-aff-fam" style="font-size: 3rem; margin:0; color: var(--teal);">0</h1>
+                                        <p style="margin:0; font-size: 0.8rem; font-weight: bold;">TOTAL FAMILIES (CUMULATIVE)</p>
+                                        <p style="margin:0; font-size: 0.75rem; color: var(--text-light);">NOW: <span id="out-aff-fam-now">0</span></p>
+                                    </div>
+                                    
+                                    <div>
+                                        <h1 id="out-aff-pax" style="font-size: 2rem; margin: 10px 0 0 0; color: var(--teal);">0</h1>
+                                        <p style="margin:0; font-size: 0.8rem; font-weight: bold;">TOTAL PAX (CUMULATIVE)</p>
+                                        <p style="margin:0; font-size: 0.75rem; color: var(--text-light);">NOW: <span id="out-aff-pax-now">0</span></p>
+                                    </div>
+
+                                    <div class="dynamic-subtitle" id="dyn-aff-sub">Awaiting demographic reports...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- S1, COL 2: FLOODED AREAS & MANPOWER -->
+                        <div class="col">
+                            <div class="block">
+                                <div class="header-box bg-lime">
+                                    <h2>FLOODED AREAS</h2>
+                                    <p>MUNICIPALITY / BARANGAY STATUS</p>
+                                    <i class="fa-solid fa-house-flood-water bg-icon"></i>
+                                </div>
+                                <div class="content-box">
+                                    <h3 class="section-title" style="color: var(--lime);" id="out-flood-count">0 BARANGAYS</h3>
+                                    <div class="dynamic-subtitle" id="dyn-fld-sub">No flooded areas reported at this time.</div>
+                                    <div id="out-flood-list" style="margin-top: 5px;"><div class="list-row">Awaiting reports...</div></div>
+                                </div>
+                            </div>
+
+                            <div class="block">
+                                <div class="header-box bg-dark-blue">
+                                    <h2>MANPOWER</h2>
+                                    <p>OPCEN COMPLEMENT / HQ DUTY</p>
+                                    <i class="fa-solid fa-users-gear bg-icon"></i>
+                                </div>
+                                <div class="content-box">
+                                    <h1 id="out-manpower" style="font-size: 3rem; margin:0; color: var(--dark-blue);">0</h1>
+                                    <p style="margin:0; font-size: 0.8rem; font-weight: bold;">TOTAL PERSONNEL CHECKED-IN</p>
+                                    <div class="dynamic-subtitle" id="dyn-man-sub">No OpCen personnel checked-in.</div>
+                                    <div id="out-manpower-list" style="margin-top: 5px;"><div style="font-size: 0.85rem; color: var(--text-light); font-style: italic;">Awaiting complement logs...</div></div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- S1, COL 3: EVACUATION & ACTION TAKEN -->
+                        <div class="col">
+                            <div class="block">
+                                <div class="header-box bg-teal" style="background-color: #A3E4D7; color: var(--teal);">
+                                    <h2>PREEMPTIVE</h2>
+                                    <p>EVACUATION</p>
+                                    <i class="fa-solid fa-person-shelter bg-icon"></i>
+                                </div>
+                                <div class="content-box">
+                                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                                        <div style="text-align: center;">
+                                            <h2 id="out-evac-fam" style="color: var(--blue); margin-bottom: 5px; font-size: 2.5rem;">0</h2>
+                                            <p class="sub-text" style="margin: 0; font-size: 0.7rem; font-weight: bold;">FAMILIES</p>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <h2 id="out-evac-pax" style="color: var(--lime); margin-bottom: 5px; font-size: 2.5rem;">0</h2>
+                                            <p class="sub-text" style="margin: 0; font-size: 0.7rem; font-weight: bold;">PAX</p>
+                                        </div>
+                                    </div>
+                                    <div id="out-evac-note" style="margin-top: 15px; border-top: 1px solid #eaeaea; padding-top: 15px;">
+                                        <div style="font-size: 0.85rem; font-style: italic; color: var(--text-light);">Awaiting data...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="block">
+                                <div class="header-box bg-blue">
+                                    <h2>INSIDE ECs</h2>
+                                    <p>ACTIVE EVACUATION CENTERS</p>
+                                    <i class="fa-solid fa-tents bg-icon"></i>
+                                </div>
+                                <div class="content-box" style="display: flex; flex-direction: column;">
+                                    <div style="display: flex; justify-content: space-around; flex-wrap: wrap; gap: 20px;">
+                                        <div style="text-align: center;">
+                                            <h2 id="out-ec-fam" style="color: var(--blue); margin-bottom: 5px; font-size: 2.5rem;">0</h2>
+                                            <p class="sub-text" style="margin: 0; font-size: 0.7rem; font-weight: bold;">FAMILIES (NOW)</p>
+                                        </div>
+                                        <div style="text-align: center;">
+                                            <h2 id="out-ec-pax" style="color: var(--lime); margin-bottom: 5px; font-size: 2.5rem;">0</h2>
+                                            <p class="sub-text" style="margin: 0; font-size: 0.7rem; font-weight: bold;">PAX (NOW)</p>
+                                        </div>
+                                    </div>
+                                    <div class="dynamic-subtitle" id="dyn-ec-sub">Awaiting EC reports...</div>
+                                    <div style="flex-grow: 1; overflow: hidden; margin-top: 5px;">
+                                        <div id="out-ec-list"><div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">Awaiting reports...</div></div>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid #eaeaea;">
+                                        <span id="ec-page-info" style="font-size: 0.75rem; font-weight: bold; color: var(--text-light);">PAGE 1 / 1</span>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button id="btn-prev-ec" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-left"></i></button>
+                                            <button id="btn-next-ec" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="block">
+                                <div class="header-box bg-lime">
+                                    <h2>ACTIONS TAKEN</h2>
+                                    <p>OPERATIONAL CHRONOLOGY</p>
+                                    <i class="fa-solid fa-clock-rotate-left bg-icon" style="transform: rotate(0deg);"></i>
+                                </div>
+                                <div class="content-box" style="display: flex; flex-direction: column;">
+                                    <div class="dynamic-subtitle" id="dyn-act-sub">Chronological record of actions taken.</div>
+                                    <div style="flex-grow: 1; overflow: hidden; margin-top: 15px;">
+                                        <ul id="out-actions-list" style="list-style-type: none; border-left: 2px solid #eaeaea; padding-left: 20px; margin: 0;">
+                                            <li style="position: relative; margin-bottom: 15px;"><span style="position: absolute; left: -27px; top: 0; color: var(--lime);">●</span><h4 style="color: var(--text-dark); font-size: 0.9rem;">0000 HRS</h4><p class="sub-text" style="margin-top: 5px;">Awaiting incident logs...</p></li>
+                                        </ul>
+                                    </div>
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid #eaeaea;">
+                                        <span id="action-page-info" style="font-size: 0.75rem; font-weight: bold; color: var(--text-light);">PAGE 1 / 1</span>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button id="btn-prev-action" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-left"></i></button>
+                                            <button id="btn-next-action" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-circle-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- ========================================== -->
+                    <!-- SLIDE 2: LOSSES, LEDGERS & CASUALTIES      -->
+                    <!-- ========================================== -->
+                    <div class="slide" id="slide2">
+                        
+                        <!-- Block 1: Roads -->
+                        <div class="block">
+                            <div class="header-box bg-dark-blue">
+                                <h2>ROADS &<br>BRIDGES</h2>
+                                <p>PASSABILITY STATUS</p>
+                                <i class="fa-solid fa-road-barrier bg-icon"></i>
+                            </div>
+                            <div class="content-box" style="border-bottom: 5px solid var(--gray); display: flex; flex-direction: column;">
+                                <div style="display: flex; justify-content: space-between; align-items: flex-end; margin-bottom: 15px;">
+                                    <div>
+                                        <h1 id="out-road-count" style="font-size: 2.8rem; margin:0; color: var(--dark-blue); line-height: 1;">0</h1>
+                                        <p style="margin:0; font-size: 0.75rem; font-weight: bold;">ROADS</p>
+                                    </div>
+                                    <div style="text-align: right;">
+                                        <h1 id="out-bridge-count" style="font-size: 2.8rem; margin:0; color: var(--dark-blue); line-height: 1;">0</h1>
+                                        <p style="margin:0; font-size: 0.75rem; font-weight: bold;">BRIDGES</p>
+                                    </div>
+                                </div>
+                                <div style="flex-grow: 1; overflow: hidden; margin-top: 5px;">
+                                    <div id="out-road-list">
+                                        <div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">Awaiting reports...</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid #eaeaea;">
+                                    <span id="road-page-info" style="font-size: 0.75rem; font-weight: bold; color: var(--text-light);">PAGE 1 / 1</span>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button id="btn-prev-road" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-left"></i></button>
+                                        <button id="btn-next-road" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 2: Relief -->
+                        <div class="block">
+                            <div class="header-box bg-blue">
+                                <h2>RELIEF ITEMS</h2>
+                                <p>GOODS DISTRIBUTED</p>
+                                <i class="fa-solid fa-boxes-packing bg-icon"></i>
+                            </div>
+                            <div class="content-box" style="display: flex; flex-direction: column;">
+                                <div style="margin-bottom: 10px;">
+                                    <h1 id="out-relief-qty" style="font-size: 2.8rem; margin:0; color: var(--blue); line-height: 1;">0</h1>
+                                    <p style="margin:0; font-size: 0.75rem; font-weight: bold;">TOTAL ITEMS PROVIDED</p>
+                                </div>
+                                <div style="flex-grow: 1; overflow: hidden; margin-top: 5px;">
+                                    <div id="out-relief-list" style="display: flex; align-items: center; height: 100%;">
+                                        <div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">Awaiting reports...</div>
+                                    </div>
+                                </div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid #eaeaea;">
+                                    <span id="relief-page-info" style="font-size: 0.75rem; font-weight: bold; color: var(--text-light);">PAGE 1 / 1</span>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button id="btn-prev-relief" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-left"></i></button>
+                                        <button id="btn-next-relief" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 3: Agriculture (ATLAS FIX: Added difference vs last report calculation and note) -->
+                        <div class="block" style="grid-row: span 2;">
+                            <div class="header-box bg-lime">
+                                <h2>AGRICULTURE</h2>
+                                <p>CROP & LIVESTOCK DAMAGES</p>
+                                <i class="fa-solid fa-wheat-awn bg-icon"></i>
+                            </div>
+                            <div class="content-box" style="display: flex; flex-direction: column; justify-content: center; height: 100%;">
+                                <div id="dyn-agri-sub" style="text-align: left; width: 100%;">
+                                    <div style="font-size: 0.85rem; line-height: 1.4; color: var(--text-light); font-style: italic; padding: 0 10px;">No agricultural damages reported.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 4: Casualties -->
+                        <div class="block">
+                            <div class="header-box bg-teal">
+                                <h2>CASUALTIES</h2>
+                                <p>HUMAN IMPACT REPORT</p>
+                                <i class="fa-solid fa-truck-medical bg-icon"></i>
+                            </div>
+                            <div class="content-box" style="display: flex; flex-direction: column;">
+                                <div style="display: flex; align-items: flex-end; justify-content: space-between; margin-bottom: 10px;">
+                                    <div>
+                                        <h1 id="out-cas-total" style="font-size: 3rem; margin:0; color: var(--teal); line-height: 1;">0</h1>
+                                        <p style="margin:0; font-size: 0.75rem; font-weight: bold;">TOTAL RECORDED</p>
+                                    </div>
+                                    <div style="display: flex; gap: 15px; text-align: center; padding-bottom: 5px;">
+                                        <div>
+                                            <h2 id="out-cas-retrieved" style="font-size: 1.5rem; margin: 0; color: var(--text-dark); line-height: 1;">0</h2>
+                                            <p style="margin: 2px 0 0 0; font-size: 0.65rem; font-weight: bold; color: var(--text-light);">RETRIEVED</p>
+                                        </div>
+                                        <div>
+                                            <h2 id="out-cas-missing" style="font-size: 1.5rem; margin: 0; color: var(--text-dark); line-height: 1;">0</h2>
+                                            <p style="margin: 2px 0 0 0; font-size: 0.65rem; font-weight: bold; color: var(--text-light);">MISSING</p>
+                                        </div>
+                                        <div>
+                                            <h2 id="out-cas-injured" style="font-size: 1.5rem; margin: 0; color: var(--text-dark); line-height: 1;">0</h2>
+                                            <p style="margin: 2px 0 0 0; font-size: 0.65rem; font-weight: bold; color: var(--text-light);">INJURED</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div style="flex-grow: 1; overflow: hidden; margin-top: 5px;">
+                                    <div id="out-cas-list" style="display: flex; align-items: center; height: 100%;">
+                                        <div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">Awaiting reports...</div>
+                                    </div>
+                                </div>
+
+                                <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid #eaeaea;">
+                                    <span id="cas-page-info" style="font-size: 0.75rem; font-weight: bold; color: var(--text-light);">PAGE 1 / 1</span>
+                                    <div style="display: flex; gap: 8px;">
+                                        <button id="btn-prev-cas" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-left"></i></button>
+                                        <button id="btn-next-cas" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-right"></i></button>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 5: Financial Asst -->
+                        <div class="block">
+                            <div class="header-box bg-dark-blue">
+                                <h2>FINANCIAL<br>ASST.</h2>
+                                <p>CASH RELIEF DEPLOYED</p>
+                                <i class="fa-solid fa-hand-holding-dollar bg-icon"></i>
+                            </div>
+                            <div class="content-box" style="display: flex; flex-direction: column;">
+                                <div style="margin-bottom: 5px;">
+                                    <h1 id="out-fin-cost" style="font-size: 2.8rem; margin:0; color: var(--dark-blue); line-height: 1;">₱0</h1>
+                                    <p style="margin:0; font-size: 0.75rem; font-weight: bold;">TOTAL CASH PROVIDED</p>
+                                </div>
+                                <div id="out-fin-list" style="margin-top: auto; flex-grow: 1; display: flex; flex-direction: column; justify-content: flex-end;">
+                                    <div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none; font-size: 0.85rem;">Awaiting disbursement logs...</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Block 6: Infrastructure -->
+                        <div class="block" style="grid-column: span 3;">
+                            <div class="header-box bg-red" style="display: flex; justify-content: space-between; align-items: center; padding: 15px 25px;">
+                                <div>
+                                    <h2 style="font-size: 2rem; margin: 0;">INFRASTRUCTURE DAMAGES</h2>
+                                    <p style="margin: 2px 0 0 0;">PUBLIC & PRIVATE FACILITIES</p>
+                                </div>
+                                <i class="fa-solid fa-building-circle-exclamation bg-icon" style="position: relative; right: 0; top: 0; font-size: 3.5rem; opacity: 0.2; transform: none;"></i>
+                            </div>
+                            <div class="content-box" style="flex-direction: row; align-items: stretch; justify-content: flex-start; gap: 30px; padding: 25px;">
+                                <div style="width: 28%; display: flex; flex-direction: column; justify-content: center;">
+                                    <h1 id="out-infra-total-cost" style="font-size: 2.8rem; margin:0; color: var(--accent-red); line-height: 1;">₱0</h1>
+                                    <p style="margin: 5px 0 0 0; font-size: 0.8rem; font-weight: bold;">TOTAL ESTIMATED DAMAGES</p>
+                                    <div id="out-infra-count" style="margin-top: 15px; font-size: 0.85rem; color: var(--text-light);">Awaiting engineering assessments.</div>
+                                </div>
+                                
+                                <div style="width: 1px; background: #eaeaea;"></div>
+                                
+                                <div style="flex: 1; display: flex; flex-direction: column;">
+                                    <div style="flex-grow: 1; overflow: hidden;">
+                                        <div id="out-infra-list" style="display: flex; align-items: center; height: 100%;">
+                                            <div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">Awaiting reports...</div>
+                                        </div>
+                                    </div>
+
+                                    <div style="display: flex; justify-content: space-between; align-items: center; padding-top: 10px; margin-top: auto; border-top: 1px solid #eaeaea;">
+                                        <span id="infra-page-info" style="font-size: 0.75rem; font-weight: bold; color: var(--text-light);">PAGE 1 / 1</span>
+                                        <div style="display: flex; gap: 8px;">
+                                            <button id="btn-prev-infra" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-left"></i></button>
+                                            <button id="btn-next-infra" style="background: none; border: none; color: #888; cursor: pointer; font-size: 1.2rem; padding: 0; transition: color 0.2s;"><i class="fa-solid fa-circle-chevron-right"></i></button>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- NARRATIVE READING MODAL -->
+    <div class="modal-overlay" id="narrativeModal" onclick="closeNarrativeModal(event)">
+        <div class="modal-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h3><i class="fa-solid fa-file-lines" style="color: var(--blue);"></i> Detailed Narrative</h3>
+                <button class="modal-close" onclick="closeNarrativeModal()"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div class="modal-body" id="modalBodyContent">
+                Loading details...
+            </div>
+        </div>
+    </div>
+
+    <!-- Emergency Contact Footer -->
+    <div style="max-width: 1600px; margin: 0 auto 20px auto; padding: 0 20px; width: 100%; box-sizing: border-box;">
+        <div class="block" style="border-radius: 4px; overflow: hidden; padding: 0;">
+            <img src="emergency contact.jpg" alt="24/7 Emergency Hotlines" style="width: 100%; height: auto; display: block;" onerror="this.style.display='none'">
+        </div>
+    </div>
+
+    <!-- LIVE DATA WIRING & SLIDER ENGINE -->
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+        import { initializeFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+        const firebaseConfig = { apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk", authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com", projectId: "tarlac-sitrep-backend-5000e", storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app", messagingSenderId: "575825350427", appId: "1:575825350427:web:d4e336b580e44a29900dbe" };
+        const app = initializeApp(firebaseConfig);
+        const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+
+        var currentSlide = 0;
+        window.moveSlide = function(direction) {
+            currentSlide += direction;
+            if (currentSlide < 0) currentSlide = 0;
+            if (currentSlide > 1) currentSlide = 1;
+            
+            var track = document.getElementById('sliderTrack');
+            if (track) {
+                track.style.transform = "translateX(-" + (currentSlide * 50) + "%)";
+            }
+            
+            var btnLeft = document.getElementById('slideBtnLeft');
+            if (btnLeft) {
+                btnLeft.style.display = (currentSlide === 0) ? 'none' : 'flex';
+            }
+            
+            var btnRight = document.getElementById('slideBtnRight');
+            if (btnRight) {
+                btnRight.style.display = (currentSlide === 1) ? 'none' : 'flex';
+            }
+        };
+
+        var modalOverlay = document.getElementById('narrativeModal');
+
+        window.openNarrativeModal = function(btn) {
+            if (!btn || !btn.previousElementSibling) return;
+            var hiddenText = btn.previousElementSibling.innerHTML;
+            var contentContainer = document.getElementById('modalBodyContent');
+            if (contentContainer) {
+                contentContainer.innerHTML = hiddenText;
+            }
+            if (modalOverlay) {
+                modalOverlay.classList.add('active');
+            }
+        };
+
+        window.closeNarrativeModal = function(e) {
+            if (e && e.target && e.target.id !== 'narrativeModal' && e.target.className !== 'modal-close' && !e.target.closest('.modal-close')) return;
+            if (modalOverlay) {
+                modalOverlay.classList.remove('active');
+            }
+        };
+
+        function formatNarrative(text) {
+            if (!text) return '<span class="sub-text">N/A</span>';
+            var cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+            cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
+            
+            var unwrapRegex = /([^\n])\n(?![ \t]*(?:[➢➤•●❖▪○✓\-\*]|\b\d{1,3}[\.\)]\s+)|\n)/g;
+            cleanedText = cleanedText.replace(unwrapRegex, '$1 ').trim();
+            
+            if (cleanedText.length <= 100) {
+                return '<div class="truncate-box" style="-webkit-line-clamp: unset;">' + cleanedText + '</div>';
+            }
+            return '<div class="truncate-box">' + cleanedText + '</div><div class="full-text-hidden" style="display:none;">' + cleanedText + '</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>';
+        }
+
+        var dbData = { actions: [], evacs: [], preemptives: [], floods: [], complement: [], agri: [], roads: [], assistance: [], casualties: [], infra: [] };
+        var targetSitrepNo = null;
+
+        window.currentActionPage = 0; const ACTIONS_PER_PAGE = 1; 
+        window.currentEcPage = 0; const ECS_PER_PAGE = 1; 
+        window.currentInfraPage = 0; const INFRA_PER_PAGE = 1; 
+        window.currentRoadPage = 0; const ROADS_PER_PAGE = 1;
+        window.currentReliefPage = 0; const RELIEF_PER_PAGE = 1;
+        window.currentCasPage = 0; const CAS_PER_PAGE = 1;
+
+        function setHTML(id, html) { 
+            var el = document.getElementById(id); 
+            if (el) { el.innerHTML = html; }
+        }
+
+        function formatActionDate(dateString) {
+            if (!dateString) return "(LATEST UPDATE)";
+            var dt = new Date(dateString);
+            if (isNaN(dt.getTime())) return "(" + String(dateString).toUpperCase() + ")";
+            var formatted = dt.toLocaleDateString('en-US', { month: 'short', day: '2-digit' }).toUpperCase();
+            return "(" + formatted + ")";
+        }
+        
+        function formatDateTime(isoString) {
+            if (!isoString) return "";
+            var dt = new Date(isoString);
+            if (isNaN(dt.getTime())) return isoString;
+            return dt.toLocaleString('en-US', { month: 'short', day: 'numeric', year: 'numeric', hour: 'numeric', minute: '2-digit', hour12: true });
+        }
+        
+        function formatCurrency(amount) {
+            var num = parseFloat(amount);
+            if (isNaN(num)) num = 0;
+            if (num >= 1000000000) return '₱' + (num / 1000000000).toFixed(2) + ' B'; 
+            if (num >= 1000000) return '₱' + (num / 1000000).toFixed(2) + ' M'; 
+            return '₱' + num.toLocaleString(); 
+        }
+
+        function getLatestRecords(arr, keyFields) {
+            if (!arr) return []; 
+            var map = {};
+            arr.forEach(function(d) {
+                if (targetSitrepNo && d.sitrepNo > targetSitrepNo) return; 
+                var key = keyFields.map(function(f) { return d[f]; }).join('|');
+                if (!map[key] || d.sitrepNo > map[key].sitrepNo || (d.sitrepNo === map[key].sitrepNo && d.timeMonitored > map[key].timeMonitored)) { 
+                    map[key] = d; 
+                }
+            });
+            return Object.values(map);
+        }
+
+        function getLatestAssistanceRecords(arr) {
+            if (!arr) return [];
+            var currentBoundary = targetSitrepNo ? targetSitrepNo : null;
+            var eligible = arr.filter(function(d) { return !currentBoundary || d.sitrepNo <= currentBoundary; });
+
+            var lineageMap = {};
+            eligible.forEach(function(d) { 
+                if (d.entityId) { lineageMap[d.entityId] = true; } 
+            });
+
+            var map = {};
+            eligible.forEach(function(d) {
+                var key;
+                if (d.entityId) { 
+                    key = 'ENTITY_' + d.entityId; 
+                } else if (lineageMap[d.id]) { 
+                    key = 'ENTITY_' + d.id; 
+                } else {
+                    var item = (d.reliefItem || '').trim().toLowerCase();
+                    key = (d.municipality || 'All') + '|' + (d.source || 'All') + '|' + (item || 'default');
+                }
+                
+                var mapItem = map[key];
+                var currentMillis = (d && d.timeMonitored && typeof d.timeMonitored.toMillis === 'function') ? d.timeMonitored.toMillis() : 0;
+                var existingMillis = (mapItem && mapItem.timeMonitored && typeof mapItem.timeMonitored.toMillis === 'function') ? mapItem.timeMonitored.toMillis() : 0;
+
+                if (!mapItem || d.sitrepNo > mapItem.sitrepNo || (d.sitrepNo === mapItem.sitrepNo && currentMillis > existingMillis)) {
+                    map[key] = d;
+                }
+            });
+            return Object.values(map);
+        }
+
+        function updateGlobalSitrepState() {
+            var maxSitrep = 0;
+            var latestSynopsis = "Awaiting official advisory update...";
+
+            var allRecords = [
+                ...dbData.actions, ...dbData.evacs, ...dbData.preemptives, ...dbData.floods, ...dbData.complement, 
+                ...dbData.roads, ...dbData.agri, ...dbData.assistance, ...dbData.casualties, ...dbData.infra
+            ];
+            
+            allRecords.forEach(function(r) {
+                var sNo = parseInt(r.sitrepNo) || 0;
+                if (sNo > maxSitrep) {
+                    maxSitrep = sNo;
+                    if (r.synopsis || r.incidentCause) { latestSynopsis = r.synopsis || r.incidentCause; }
+                } else if (sNo === maxSitrep && maxSitrep > 0) {
+                    if (r.synopsis) { latestSynopsis = r.synopsis; }
+                }
+            });
+
+            if (maxSitrep > 0) {
+                targetSitrepNo = maxSitrep;
+                setHTML('out-advisory', latestSynopsis);
+            }
+        }
+
+        function renderAffectedPop() {
+            var latestEvacs = getLatestRecords(dbData.evacs, ['municipality']);
+            var totalFamCum = 0, totalPaxCum = 0, totalFamNow = 0, totalPaxNow = 0, totalBrgyAff = 0;
+            var popList = []; var uniqueMunis = new Set(); 
+
+            latestEvacs.forEach(function(p) {
+                var famCum = parseInt(p.affectedFamilies) || 0; var paxCum = parseInt(p.affectedIndividuals) || 0;
+                var famNow = parseInt(p.affectedFamiliesNow) || famCum; var paxNow = parseInt(p.affectedIndividualsNow) || paxCum;
+                var brgys = parseInt(p.affectedBarangays) || 0; var lgu = (p.municipality || 'Unknown').trim();
+
+                totalFamCum += famCum; totalPaxCum += paxCum; totalFamNow += famNow; totalPaxNow += paxNow; totalBrgyAff += brgys; 
+                
+                if (brgys > 0 || famCum > 0) { uniqueMunis.add(lgu.toLowerCase()); }
+                if (famCum > 0) { popList.push({ lgu: lgu, fam: famCum }); }
+            });
+            
+            var totalMuniAff = uniqueMunis.size;
+            setHTML('out-aff-fam', totalFamCum.toLocaleString()); setHTML('out-aff-pax', totalPaxCum.toLocaleString());
+            setHTML('out-aff-fam-now', totalFamNow.toLocaleString()); setHTML('out-aff-pax-now', totalPaxNow.toLocaleString());
+            
+            var dynAffSub = document.getElementById('dyn-aff-sub');
+            if (dynAffSub) {
+                popList.sort(function(a, b) { return b.fam - a.fam; });
+                var popText = "";
+                if (totalBrgyAff > 0) {
+                    popText = "Widespread impact across <strong>" + totalMuniAff + " municipalities</strong> (" + totalBrgyAff + " total barangays).<br>";
+                    if (popList.length > 0 && totalFamCum > 0) {
+                        var ep1 = popList[0]; var ep2 = (popList.length > 1) ? popList[1] : null;
+                        var topFam = ep1.fam + (ep2 ? ep2.fam : 0);
+                        var pct = Math.round((topFam / totalFamCum) * 100) || 0;
+                        var epNames = "<strong>" + ep1.lgu.toUpperCase() + "</strong> (" + ep1.fam.toLocaleString() + " fams)";
+                        if (ep2) { epNames += " and <strong>" + ep2.lgu.toUpperCase() + "</strong> (" + ep2.fam.toLocaleString() + " fams)"; }
+                        popText += '<span style="color: #E74C3C; display:block; margin-top:6px;">⚠️ <strong>EPICENTER:</strong> ' + epNames + ', accounting for ' + pct + '% of the total affected population.</span>';
+                    }
+                } else { popText = "Awaiting demographic reports..."; }
+                dynAffSub.innerHTML = popText;
+            }
+        }
+
+        function renderFloods() {
+            var latestFloods = getLatestRecords(dbData.floods, ['municipality', 'barangay']);
+            var activeFloods = latestFloods.filter(function(f) {
+                var status = (f.status || '').toLowerCase(); return status.indexOf('still') !== -1 || status.indexOf('rising') !== -1;
+            });
+            
+            if (activeFloods.length > 0) {
+                var totalBrgys = 0; var latestFloodTime = new Date(0); var floodMap = {};
+                activeFloods.forEach(function(f) {
+                    var muni = f.municipality || 'Unknown';
+                    if (!floodMap[muni]) { floodMap[muni] = { count: 0, highestStatus: f.status || 'Still Flooded', dt: f.dateReported || f.timeMonitored }; }
+                    floodMap[muni].count += 1; totalBrgys += 1;
+                    var fDate = new Date(f.dateReported || f.timeMonitored); if (fDate > latestFloodTime) { latestFloodTime = fDate; }
+                });
+
+                var fList = Object.keys(floodMap).map(function(muni) { return { muni: muni, count: floodMap[muni].count, status: floodMap[muni].highestStatus }; });
+                fList.sort(function(a, b) { return b.count - a.count; });
+                
+                var floodHTML = "";
+                fList.slice(0, 3).forEach(function(f) { floodHTML += '<div class="list-row"><strong>' + f.muni.toUpperCase() + '</strong> - ' + f.count + ' Barangay(s)<br><span style="color: var(--text-dark);">Status: <strong>' + f.status + '</strong></span></div>'; });
+
+                if (fList.length > 3) {
+                    var otherBrgySum = 0; fList.slice(3).forEach(function(item) { otherBrgySum += item.count; });
+                    floodHTML += '<div style="font-size: 0.75rem; color: var(--text-light); margin-top: 10px; font-style: italic;">*Plus ' + otherBrgySum + ' more barangays affected across ' + (fList.length - 3) + ' other municipalities.</div>';
+                }
+
+                setHTML('out-flood-count', totalBrgys + " BARANGAYS FLOODED");
+                var timeString = (latestFloodTime.getTime() > 0) ? " As of latest report on " + formatDateTime(latestFloodTime.toISOString()) + "." : "";
+                setHTML('dyn-fld-sub', "A total of <strong>" + totalBrgys + " barangays</strong> reported flooded across <strong>" + fList.length + " municipalities</strong>." + timeString);
+                setHTML('out-flood-list', floodHTML);
+            } else {
+                setHTML('out-flood-count', "0 BARANGAYS FLOODED"); setHTML('dyn-fld-sub', "No flooded areas reported at this time.");
+                setHTML('out-flood-list', '<div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">All areas monitoring normal.</div>');
+            }
+        }
+
+        function renderManpower() {
+            var latestComp = getLatestRecords(dbData.complement, ['agency']);
+            var activeComp = latestComp.filter(function(r) { var stat = (r.status || '').toLowerCase(); return stat.indexOf('checked-in') !== -1 || stat.indexOf('standby') !== -1; });
+            
+            if (activeComp.length > 0) {
+                var activePax = 0; var agencyMap = {};
+                activeComp.forEach(function(m) {
+                    var count = parseInt(m.personnel) || 0; activePax += count; 
+                    var agency = m.agency || 'Unknown';
+                    if (!agencyMap[agency]) { agencyMap[agency] = 0; }
+                    agencyMap[agency] += count;
+                });
+
+                var mList = Object.keys(agencyMap).map(function(agency) { return { agency: agency, pax: agencyMap[agency] }; });
+                mList.sort(function(a, b) { return b.pax - a.pax; });
+                
+                var mHtml = '<div style="display: flex; flex-wrap: wrap; gap: 8px; margin-bottom: 15px; margin-top: 5px;">';
+                mList.slice(0, 3).forEach(function(m, idx) {
+                    var colors = ["var(--dark-blue)", "var(--teal)", "var(--blue)"]; var c = colors[idx % colors.length];
+                    mHtml += '<span style="background: ' + c + '; color: white; padding: 6px 14px; border-radius: 20px; font-size: 0.8rem; font-weight: bold; box-shadow: 0 2px 4px rgba(0,0,0,0.1);">' + m.agency.toUpperCase() + ': ' + m.pax + ' PAX</span>';
+                });
+                mHtml += '</div>';
+
+                if (mList.length > 3) {
+                    var otherPaxSum = 0; mList.slice(3).forEach(function(item) { otherPaxSum += item.pax; });
+                    mHtml += '<div style="font-size: 0.75rem; color: var(--text-light); font-style: italic;">*Plus ' + otherPaxSum + ' additional personnel checked-in across ' + (mList.length - 3) + ' other agencies.</div>';
+                }
+
+                setHTML('out-manpower', activePax.toLocaleString());
+                setHTML('dyn-man-sub', "Currently coordinating <strong>" + activePax + " active personnel</strong> across <strong>" + mList.length + " agencies</strong> at the OpCen.");
+                setHTML('out-manpower-list', mHtml);
+            } else {
+                setHTML('out-manpower', "0"); setHTML('dyn-man-sub', "No OpCen personnel checked-in.");
+                setHTML('out-manpower-list', '<div style="font-size: 0.85rem; color: var(--text-light); font-style: italic;">All personnel demobilized.</div>');
+            }
+        }
+
+        function renderPreemptive() {
+            var latestPre = getLatestRecords(dbData.preemptives, ['municipality', 'barangayOrigin']);
+            var evacList = []; var totalEvacFam = 0; var totalEvacPax = 0;
+            
+            latestPre.forEach(function(ev) {
+                var fam = parseInt(ev.preEmptiveFamilies) || 0; var pax = parseInt(ev.preEmptiveIndividuals) || 0;
+                totalEvacFam += fam; totalEvacPax += pax; var lgu = ev.municipality || 'Unknown';
+                if (fam > 0) {
+                    var existing = evacList.find(function(e) { return e.lgu === lgu; });
+                    if (existing) { existing.fam += fam; } else { evacList.push({ lgu: lgu, fam: fam }); }
+                }
+            });
+            
+            setHTML('out-evac-fam', totalEvacFam.toLocaleString()); setHTML('out-evac-pax', totalEvacPax.toLocaleString());
+            
+            var outEvacNote = document.getElementById('out-evac-note');
+            if (outEvacNote) {
+                evacList.sort(function(a, b) { return b.fam - a.fam; });
+                if (evacList.length > 0) {
+                    var top1 = evacList[0]; var top2 = (evacList.length > 1) ? evacList[1] : null;
+                    var movementsStr = "<strong>" + top1.lgu.toUpperCase() + "</strong> (" + top1.fam + " families)";
+                    if (top2) { movementsStr += " and <strong>" + top2.lgu.toUpperCase() + "</strong> (" + top2.fam + " families)"; }
+                    outEvacNote.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-dark); line-height: 1.5;">Evacuations executed across <strong>' + evacList.length + ' municipalities</strong>. Largest movements from ' + movementsStr + '.</div>';
+                } else {
+                    outEvacNote.innerHTML = '<div style="font-size: 0.85rem; font-style: italic; color: var(--text-light);">No active preemptive evacuations reported.</div>';
+                }
+            }
+        }
+
+        function renderEcs() {
+            var latestEvacs = getLatestRecords(dbData.evacs, ['municipality']);
+            var totalEcCount = 0, totalEcFamNow = 0, totalEcPaxNow = 0; var ecList = [];
+
+            latestEvacs.forEach(function(p) {
+                var ecVal = p.evacCenterCount || "-"; var ecFam = parseInt(p.insideEcFamiliesNow) || 0; var ecPax = parseInt(p.insideEcIndividualsNow) || 0;
+                var status = (p.status || '').toUpperCase(); var lgu = p.municipality || 'Unknown';
+                var isActive = status === 'ACTIVE' || (status !== 'CLOSED' && parseInt(ecVal) > 0);
+                if (isActive && ecFam > 0) {
+                    var parsedCount = parseInt(ecVal) || 1;
+                    totalEcCount += parsedCount; totalEcFamNow += ecFam; totalEcPaxNow += ecPax;
+                    ecList.push({ lgu: lgu, centers: parsedCount, fam: ecFam, pax: ecPax });
+                }
+            });
+            
+            var outEcFam = document.getElementById('out-ec-fam'); if (outEcFam) outEcFam.innerText = totalEcFamNow.toLocaleString();
+            var outEcPax = document.getElementById('out-ec-pax'); if (outEcPax) outEcPax.innerText = totalEcPaxNow.toLocaleString();
+            
+            var dynEcSub = document.getElementById('dyn-ec-sub');
+            if (dynEcSub) { dynEcSub.innerHTML = (totalEcCount > 0) ? "<strong>" + totalEcCount + " active evacuation center(s)</strong> across affected areas." : "All evacuation centers are currently closed."; }
+
+            var outEcList = document.getElementById('out-ec-list');
+            if (outEcList) {
+                ecList.sort(function(a, b) { return b.fam - a.fam; });
+                if (ecList.length > 0) {
+                    var totalPages = Math.ceil(ecList.length / ECS_PER_PAGE);
+                    if (window.currentEcPage >= totalPages) window.currentEcPage = totalPages - 1;
+                    if (window.currentEcPage < 0) window.currentEcPage = 0;
+                    var startIdx = window.currentEcPage * ECS_PER_PAGE;
+                    var pageEcs = ecList.slice(startIdx, startIdx + ECS_PER_PAGE);
+
+                    var ecHtml = "";
+                    pageEcs.forEach(function(ec) { ecHtml += '<div class="list-row"><strong>' + ec.lgu.toUpperCase() + '</strong> <span style="color: var(--blue); font-weight: bold; margin-left: 5px;">• ' + ec.centers + ' Active EC(s)</span><br><span style="font-size: 0.75rem; color: var(--text-dark);">Inside: <strong>' + ec.fam + '</strong> Families | <strong>' + ec.pax + '</strong> Pax</span></div>'; });
+                    outEcList.innerHTML = ecHtml;
+
+                    var ecPageInfo = document.getElementById('ec-page-info'); if (ecPageInfo) { ecPageInfo.innerText = "PAGE " + (window.currentEcPage + 1) + " / " + totalPages; }
+                    var btnPrev = document.getElementById('btn-prev-ec'); if (btnPrev) { btnPrev.style.color = (window.currentEcPage === 0) ? "#888" : "var(--blue)"; btnPrev.style.cursor = (window.currentEcPage === 0) ? "default" : "pointer"; }
+                    var btnNext = document.getElementById('btn-next-ec'); if (btnNext) { btnNext.style.color = (window.currentEcPage >= totalPages - 1) ? "#888" : "var(--blue)"; btnNext.style.cursor = (window.currentEcPage >= totalPages - 1) ? "default" : "pointer"; }
+                } else {
+                    outEcList.innerHTML = '<div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">No active evacuation centers.</div>';
+                    var ecPageInfoEmpty = document.getElementById('ec-page-info'); if (ecPageInfoEmpty) { ecPageInfoEmpty.innerText = "PAGE 1 / 1"; }
+                }
+            }
+        }
+
+        var btnPrevEcObj = document.getElementById('btn-prev-ec');
+        if (btnPrevEcObj) { btnPrevEcObj.addEventListener('click', function() { if (window.currentEcPage > 0) { window.currentEcPage--; renderEcs(); } }); }
+        
+        var btnNextEcObj = document.getElementById('btn-next-ec');
+        if (btnNextEcObj) {
+            btnNextEcObj.addEventListener('click', function() {
+                var latestEvacs = getLatestRecords(dbData.evacs, ['municipality']); var ecList = [];
+                latestEvacs.forEach(function(p) {
+                    var ecVal = p.evacCenterCount || "-"; var ecFam = parseInt(p.insideEcFamiliesNow) || 0; 
+                    var status = (p.status || '').toUpperCase(); var isActive = status === 'ACTIVE' || (status !== 'CLOSED' && parseInt(ecVal) > 0);
+                    if (isActive && ecFam > 0) { ecList.push(p); }
+                });
+                var totalPages = Math.ceil(ecList.length / ECS_PER_PAGE);
+                if (window.currentEcPage < totalPages - 1) { window.currentEcPage++; renderEcs(); }
+            });
+        }
+
+        function renderActionsTimeline() {
+            var latestActions = getLatestRecords(dbData.actions, ['agency', 'category']);
+            var filteredActions = [];
+            latestActions.forEach(function(a) {
+                var agency = (a.agency || "").toUpperCase(); var category = (a.category || "").toUpperCase();
+                if (agency.indexOf("LDRRMC") === -1 && category.indexOf("LDRRMC") === -1) { filteredActions.push(a); }
+            });
+            latestActions = filteredActions;
+            
+            var dynActSub = document.getElementById('dyn-act-sub'); var outActionsList = document.getElementById('out-actions-list'); var actionPageInfo = document.getElementById('action-page-info');
+            
+            if (latestActions.length > 0) {
+                if (dynActSub) { dynActSub.innerHTML = "Chronological record of <strong>" + latestActions.length + " response actions</strong> taken."; }
+
+                latestActions.sort(function(a, b) { var dateB = new Date(b.actionTime || b.dateReported); var dateA = new Date(a.actionTime || a.dateReported); return dateB - dateA; });
+                
+                var totalPages = Math.ceil(latestActions.length / ACTIONS_PER_PAGE);
+                if (window.currentActionPage >= totalPages) window.currentActionPage = totalPages - 1;
+                if (window.currentActionPage < 0) window.currentActionPage = 0;
+                
+                var startIdx = window.currentActionPage * ACTIONS_PER_PAGE;
+                var pageActions = latestActions.slice(startIdx, startIdx + ACTIONS_PER_PAGE);
+
+                var actionsHtml = "";
+                pageActions.forEach(function(a) {
+                    var desc = a.description || a.text || ''; var formatDesc = formatNarrative(desc); 
+                    actionsHtml += '<li style="position: relative; margin-bottom: 12px; padding-bottom: 12px; border-bottom: 1px solid #eaeaea;">';
+                    actionsHtml += '<span style="position: absolute; left: -27px; top: 0; color: var(--lime);">●</span>';
+                    actionsHtml += '<h4 style="color: var(--text-dark); font-size: 0.9rem; margin-bottom: 3px;">' + formatActionDate(a.actionTime || a.dateReported) + '</h4>';
+                    actionsHtml += formatDesc;
+                    actionsHtml += '</li>';
+                });
+
+                if (outActionsList) { outActionsList.innerHTML = actionsHtml; }
+                if (actionPageInfo) { actionPageInfo.innerText = "PAGE " + (window.currentActionPage + 1) + " / " + totalPages; }
+                
+                var btnPrev = document.getElementById('btn-prev-action');
+                if (btnPrev) { btnPrev.style.color = (window.currentActionPage === 0) ? "#888" : "var(--lime)"; btnPrev.style.cursor = (window.currentActionPage === 0) ? "default" : "pointer"; }
+                
+                var btnNext = document.getElementById('btn-next-action');
+                if (btnNext) { btnNext.style.color = (window.currentActionPage >= totalPages - 1) ? "#888" : "var(--lime)"; btnNext.style.cursor = (window.currentActionPage >= totalPages - 1) ? "default" : "pointer"; }
+            } else {
+                if (dynActSub) { dynActSub.innerHTML = "Chronological record of actions taken."; }
+                if (outActionsList) { outActionsList.innerHTML = '<li style="position: relative; margin-bottom: 15px;"><span style="position: absolute; left: -27px; top: 0; color: var(--lime);">●</span><h4 style="color: var(--text-dark); font-size: 0.9rem; margin-bottom: 3px;">0000 HRS</h4><p class="sub-text" style="margin-top: 0; color: var(--text-light);">Awaiting incident logs...</p></li>'; }
+                if (actionPageInfo) { actionPageInfo.innerText = "PAGE 1 / 1"; }
+            }
+        }
+
+        var btnPrevActionObj = document.getElementById('btn-prev-action');
+        if (btnPrevActionObj) { btnPrevActionObj.addEventListener('click', function() { if (window.currentActionPage > 0) { window.currentActionPage--; renderActionsTimeline(); } }); }
+        
+        var btnNextActionObj = document.getElementById('btn-next-action');
+        if (btnNextActionObj) {
+            btnNextActionObj.addEventListener('click', function() {
+                var latestActions = getLatestRecords(dbData.actions, ['agency', 'category']);
+                var filteredActions = [];
+                latestActions.forEach(function(a) { 
+                    var agency = (a.agency || "").toUpperCase(); var category = (a.category || "").toUpperCase(); 
+                    if (agency.indexOf("LDRRMC") === -1 && category.indexOf("LDRRMC") === -1) { filteredActions.push(a); }
+                });
+                latestActions = filteredActions;
+                var totalPages = Math.ceil(latestActions.length / ACTIONS_PER_PAGE);
+                if (window.currentActionPage < totalPages - 1) { window.currentActionPage++; renderActionsTimeline(); }
+            });
+        }
+
+        // ==========================================
+        // SLIDE 2: NEW RENDER ENGINES
+        // ==========================================
+
+        function renderInfra() {
+            var latestInfra = getLatestRecords(dbData.infra, ['specificArea']);
+            var totalCost = 0; 
+            var validInfra = [];
+            
+            latestInfra.forEach(function(i) {
+                var cost = parseFloat(i.cost) || 0;
+                totalCost += cost;
+                validInfra.push(i);
+            });
+            
+            setHTML('out-infra-total-cost', formatCurrency(totalCost));
+            
+            if (validInfra.length > 0) {
+                setHTML('out-infra-count', "A total of <strong>" + validInfra.length + " infrastructure assets</strong> reported damaged.");
+                
+                validInfra.sort(function(a, b) {
+                    var costA = parseFloat(a.cost) || 0;
+                    var costB = parseFloat(b.cost) || 0;
+                    return costB - costA;
+                });
+                
+                var totalPages = Math.ceil(validInfra.length / INFRA_PER_PAGE);
+                if (window.currentInfraPage >= totalPages) window.currentInfraPage = totalPages - 1;
+                if (window.currentInfraPage < 0) window.currentInfraPage = 0;
+                
+                var startIdx = window.currentInfraPage * INFRA_PER_PAGE;
+                var pageInfra = validInfra.slice(startIdx, startIdx + INFRA_PER_PAGE);
+
+                var html = "";
+                pageInfra.forEach(function(i) {
+                    var mName = (i.municipality || '').replace(/\s*\([^)]*MUNICIPAL-WIDE[^)]*\)/gi, '').trim();
+                    mName = mName.replace(/,\s*,/g, ',').replace(/(^,)|(,$)/g, '').trim();
+                    if (!mName) { mName = "the province"; }
+
+                    var aName = i.specificArea || "Infrastructure Project";
+                    var costVal = parseFloat(i.cost) || 0;
+                    var fCost = formatCurrency(costVal);
+                    var categoryText = (i.category || 'infrastructure').toLowerCase();
+                    var qtyText = i.quantity || i.count || i.affectedAssets || '';
+                    var reportingAgency = i.agency ? i.agency.toUpperCase() : "respective engineering agencies";
+                    
+                    var prefix = "";
+                    if (qtyText) { prefix = qtyText + " "; }
+                    
+                    var narrative = "";
+                    var suffix = "";
+                    
+                    if (costVal > 0) {
+                        suffix = ", for a total damage of <span style=\"color: var(--accent-red); font-weight: bold;\">" + fCost + "</span>.";
+                    } else {
+                        suffix = ", and is currently under assessment by " + reportingAgency + ".";
+                    }
+                    
+                    if (aName.indexOf('-') !== -1 && (aName.toLowerCase().indexOf('in ') !== -1 || aName.indexOf('(') !== -1)) {
+                        var details = aName.split('-').map(function(p) { return p.trim(); }).filter(function(p) { return p.length > 0; }).join(', ');
+                        var lastComma = details.lastIndexOf(', ');
+                        if (lastComma !== -1) { details = details.substring(0, lastComma) + ' and ' + details.substring(lastComma + 2); }
+                        narrative = prefix + categoryText + " damage reported at the following areas: (" + details + ")" + suffix;
+                    } else {
+                        narrative = prefix + aName + " damage reported in " + mName + suffix;
+                    }
+                    
+                    html += '<div style="display: flex; flex-direction: column; justify-content: center; height: 100%; width: 100%;">';
+                    html += '<div style="font-size: 0.85rem; line-height: 1.4; color: var(--text-dark); font-weight: 400;">';
+                    html += narrative;
+                    html += '</div></div>';
+                });
+                
+                setHTML('out-infra-list', html);
+
+                var pageInfo = document.getElementById('infra-page-info');
+                if (pageInfo) { pageInfo.innerText = "PAGE " + (window.currentInfraPage + 1) + " / " + totalPages; }
+                
+                var btnPrev = document.getElementById('btn-prev-infra');
+                if (btnPrev) { btnPrev.style.color = (window.currentInfraPage === 0) ? "#888" : "var(--accent-red)"; btnPrev.style.cursor = (window.currentInfraPage === 0) ? "default" : "pointer"; }
+                
+                var btnNext = document.getElementById('btn-next-infra');
+                if (btnNext) { btnNext.style.color = (window.currentInfraPage >= totalPages - 1) ? "#888" : "var(--accent-red)"; btnNext.style.cursor = (window.currentInfraPage >= totalPages - 1) ? "default" : "pointer"; }
+                
+            } else {
+                setHTML('out-infra-count', "Awaiting engineering assessments.");
+                setHTML('out-infra-list', '<div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none; font-size: 0.85rem;">No infrastructure damages reported.</div>');
+                var pageInfoEmpty = document.getElementById('infra-page-info');
+                if (pageInfoEmpty) { pageInfoEmpty.innerText = "PAGE 1 / 1"; }
+            }
+        }
+
+        var btnPrevInfraObj = document.getElementById('btn-prev-infra');
+        if (btnPrevInfraObj) {
+            btnPrevInfraObj.addEventListener('click', function() { 
+                if (window.currentInfraPage > 0) { 
+                    window.currentInfraPage--; 
+                    renderInfra(); 
+                } 
+            });
+        }
+        
+        var btnNextInfraObj = document.getElementById('btn-next-infra');
+        if (btnNextInfraObj) {
+            btnNextInfraObj.addEventListener('click', function() {
+                var latestInfra = getLatestRecords(dbData.infra, ['specificArea']);
+                var totalPages = Math.ceil(latestInfra.length / INFRA_PER_PAGE);
+                if (window.currentInfraPage < totalPages - 1) { 
+                    window.currentInfraPage++; 
+                    renderInfra(); 
+                }
+            });
+        }
+
+        function renderRoads() {
+            var latestRoads = getLatestRecords(dbData.roads, ['municipality', 'specificArea']);
+            var roadCount = 0; 
+            var bridgeCount = 0;
+            var impassableRoadsCount = 0;
+            var impassableBridgesCount = 0;
+
+            latestRoads.forEach(function(r) {
+                var cat = (r.category || '').toLowerCase();
+                var isBridge = cat.indexOf('bridge') !== -1;
+                if (isBridge) { bridgeCount++; } else { roadCount++; }
+
+                var stat = (r.status || '').toLowerCase();
+                if (stat.indexOf('not passable') !== -1) { 
+                    if (isBridge) impassableBridgesCount++;
+                    else impassableRoadsCount++;
+                }
+            });
+
+            setHTML('out-road-count', roadCount.toString());
+            setHTML('out-bridge-count', bridgeCount.toString());
+
+            var summaryText = "";
+            if (impassableRoadsCount === 0 && impassableBridgesCount === 0) {
+                if (roadCount > 0 || bridgeCount > 0) {
+                    summaryText = "All monitored provincial roads and bridges are passable.";
+                } else {
+                    summaryText = "Awaiting passability monitoring reports.";
+                }
+            } else {
+                var parts = [];
+                if (impassableRoadsCount > 0) parts.push(impassableRoadsCount + " road(s)");
+                if (impassableBridgesCount > 0) parts.push(impassableBridgesCount + " bridge(s)");
+                summaryText = parts.join(" and ") + " reported not passable.";
+            }
+
+            if (latestRoads.length > 0) {
+                var totalPages = Math.ceil(latestRoads.length / ROADS_PER_PAGE);
+                if (window.currentRoadPage >= totalPages) window.currentRoadPage = totalPages - 1;
+                if (window.currentRoadPage < 0) window.currentRoadPage = 0;
+                
+                var startIdx = window.currentRoadPage * ROADS_PER_PAGE;
+                var pageRoads = latestRoads.slice(startIdx, startIdx + ROADS_PER_PAGE);
+
+                var html = "";
+                pageRoads.forEach(function(r) {
+                    var mName = (r.municipality || 'Unknown').toUpperCase();
+                    var rName = r.specificArea || 'Road Section';
+                    var stat = (r.status || '').toLowerCase();
+                    
+                    var specificStatus = "";
+                    if (stat.indexOf('not passable') !== -1) {
+                        specificStatus = '<span style="color: var(--accent-red); font-weight: bold;">Passability Alert:</span> ' + mName + ': ' + rName + ' is currently not passable.';
+                    } else if (stat.indexOf('light') !== -1) {
+                         specificStatus = '<span style="color: var(--dark-blue); font-weight: bold;">Restricted:</span> ' + mName + ': ' + rName + ' is passable to light vehicles only.';
+                    } else {
+                         specificStatus = '<span style="color: var(--teal); font-weight: bold;">Passable:</span> ' + mName + ': ' + rName + ' is fully passable to all vehicles.';
+                    }
+                    
+                    html += '<div style="font-size: 0.85rem; line-height: 1.4; color: var(--text-dark); font-weight: 400; margin-bottom: 5px;">';
+                    html += summaryText + '<br><br>' + specificStatus;
+                    html += '</div>';
+                });
+                
+                setHTML('out-road-list', html);
+
+                var pageInfo = document.getElementById('road-page-info');
+                if (pageInfo) { pageInfo.innerText = "PAGE " + (window.currentRoadPage + 1) + " / " + totalPages; }
+                
+                var btnPrev = document.getElementById('btn-prev-road');
+                if (btnPrev) { btnPrev.style.color = (window.currentRoadPage === 0) ? "#888" : "var(--dark-blue)"; btnPrev.style.cursor = (window.currentRoadPage === 0) ? "default" : "pointer"; }
+                
+                var btnNext = document.getElementById('btn-next-road');
+                if (btnNext) { btnNext.style.color = (window.currentRoadPage >= totalPages - 1) ? "#888" : "var(--dark-blue)"; btnNext.style.cursor = (window.currentRoadPage >= totalPages - 1) ? "default" : "pointer"; }
+                
+            } else {
+                setHTML('out-road-list', '<div style="font-size: 0.85rem; color: var(--text-dark);">' + summaryText + '</div>');
+                var pageInfoEmpty = document.getElementById('road-page-info');
+                if (pageInfoEmpty) { pageInfoEmpty.innerText = "PAGE 1 / 1"; }
+            }
+        }
+
+        var btnPrevRoadObj = document.getElementById('btn-prev-road');
+        if (btnPrevRoadObj) {
+            btnPrevRoadObj.addEventListener('click', function() { 
+                if (window.currentRoadPage > 0) { 
+                    window.currentRoadPage--; 
+                    renderRoads(); 
+                } 
+            });
+        }
+        
+        var btnNextRoadObj = document.getElementById('btn-next-road');
+        if (btnNextRoadObj) {
+            btnNextRoadObj.addEventListener('click', function() {
+                var latestRoads = getLatestRecords(dbData.roads, ['municipality', 'specificArea']);
+                var totalPages = Math.ceil(latestRoads.length / ROADS_PER_PAGE);
+                if (window.currentRoadPage < totalPages - 1) { 
+                    window.currentRoadPage++; 
+                    renderRoads(); 
+                }
+            });
+        }
+
+        function renderAssistance() {
+            var latestAst = getLatestAssistanceRecords(dbData.assistance); 
+            
+            var finCost = 0; 
+            var reliefQty = 0; 
+            var reliefMap = {}; 
+            var reliefMunis = new Set();
+            var sourceMap = {};
+            var finMunis = new Set();
+            
+            latestAst.forEach(function(a) {
+                var item = (a.reliefItem || '').toLowerCase();
+                var isCash = (item.indexOf('financial') !== -1 || item.indexOf('cash') !== -1 || item.indexOf('peso') !== -1 || item.indexOf('aics') !== -1 || item.indexOf('tupad') !== -1);
+                var cst = parseFloat(a.cost) || 0;
+                var qty = parseInt(a.quantity) || 0;
+                
+                if (isCash) {
+                    var amt = (cst > 0) ? cst : qty;
+                    finCost += amt;
+                    
+                    var rawSrc = (a.source || 'GOVERNMENT').trim().toUpperCase();
+                    var src = rawSrc;
+                    
+                    if (rawSrc.indexOf('NGO') !== -1) { 
+                        src = 'NGOs'; 
+                    } else if (rawSrc.indexOf('MUN') !== -1 || rawSrc === 'LGU' || rawSrc.indexOf('MUNICIPAL') !== -1) { 
+                        src = "MUN. GOV'T"; 
+                    } else if (rawSrc.indexOf('PROV') !== -1) { 
+                        src = "PROV. GOV'T"; 
+                    } else if (rawSrc.indexOf('BRGY') !== -1 || rawSrc.indexOf('BARANGAY') !== -1) { 
+                        src = 'BRGY'; 
+                    } else if (rawSrc.indexOf('DSWD') !== -1) {
+                        src = 'DSWD';
+                    }
+
+                    if (!sourceMap[src]) { sourceMap[src] = 0; }
+                    sourceMap[src] += amt;
+                    
+                    if (a.municipality) {
+                        var parts = a.municipality.split(',');
+                        parts.forEach(function(m) { 
+                            var mTrim = m.trim();
+                            mTrim = mTrim.replace(/\s*\([^)]*MUNICIPAL-WIDE[^)]*\)/gi, '').trim();
+                            if (mTrim) {
+                                finMunis.add(mTrim); 
+                            }
+                        });
+                    }
+                } else {
+                    reliefQty += qty;
+                    var rawName = (a.reliefItem || '').trim();
+                    if (!rawName) rawName = "Unspecified relief goods";
+                    
+                    if (!reliefMap[rawName]) { reliefMap[rawName] = { qty: 0, lgus: new Set() }; }
+                    reliefMap[rawName].qty += qty;
+                    
+                    if (a.municipality) {
+                        var partsRelief = a.municipality.split(',');
+                        partsRelief.forEach(function(m) { 
+                            var mTrim = m.trim();
+                            reliefMunis.add(mTrim); 
+                            reliefMap[rawName].lgus.add(mTrim);
+                        });
+                    }
+                }
+            });
+            
+            setHTML('out-fin-cost', formatCurrency(finCost));
+
+            var sourceKeys = Object.keys(sourceMap);
+            if (sourceKeys.length > 0) {
+                sourceKeys.sort(function(a, b) { return sourceMap[b] - sourceMap[a]; });
+                
+                var htmlFin = '<div style="display: flex; flex-wrap: wrap; gap: 15px; margin-top: 15px; justify-content: flex-start;">';
+                sourceKeys.forEach(function(src) {
+                    var sAmt = sourceMap[src];
+                    var formattedAmt = formatCurrency(sAmt);
+                    if(sAmt === 0) { formattedAmt = 'Pending'; }
+                    
+                    htmlFin += '<div style="flex: 1 1 30%; min-width: 90px; text-align: left; margin-bottom: 10px;">';
+                    htmlFin += '<h3 style="margin: 0; font-size: 1.2rem; color: var(--dark-blue);">' + formattedAmt + '</h3>';
+                    htmlFin += '<p style="margin: 2px 0 0 0; font-size: 0.65rem; font-weight: bold; color: var(--text-light); text-transform: uppercase;">' + src + '</p>';
+                    htmlFin += '</div>';
+                });
+                htmlFin += '</div>';
+                
+                if (finMunis.size > 0) {
+                    var mCount = finMunis.size;
+                    htmlFin += '<div style="font-size: 0.85rem; color: var(--text-dark); border-top: 1px solid #eaeaea; padding-top: 10px; margin-top: 5px;">';
+                    htmlFin += '*Assistance distributed across <strong>' + mCount + ' municipalit' + (mCount > 1 ? 'ies' : 'y') + '</strong>.';
+                    htmlFin += '</div>';
+                }
+                
+                setHTML('out-fin-list', htmlFin);
+            } else {
+                setHTML('out-fin-list', '<div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none; font-size: 0.85rem;">Awaiting disbursement logs...</div>');
+            }
+
+            setHTML('out-relief-qty', reliefQty.toLocaleString());
+            
+            var reliefArray = Object.keys(reliefMap).map(function(k) {
+                return { name: k, data: reliefMap[k] };
+            });
+            reliefArray.sort(function(a, b) { return b.data.qty - a.data.qty; });
+            
+            if (reliefArray.length > 0) {
+                var totalPagesRelief = Math.ceil(reliefArray.length / RELIEF_PER_PAGE);
+                if (window.currentReliefPage >= totalPagesRelief) window.currentReliefPage = totalPagesRelief - 1;
+                if (window.currentReliefPage < 0) window.currentReliefPage = 0;
+                
+                var startIdxRelief = window.currentReliefPage * RELIEF_PER_PAGE;
+                var pageRelief = reliefArray.slice(startIdxRelief, startIdxRelief + RELIEF_PER_PAGE);
+
+                var htmlRelief = "";
+                pageRelief.forEach(function(r) {
+                    var qtyVal = r.data.qty;
+                    var itemName = r.name;
+                    var lguList = Array.from(r.data.lgus);
+                    
+                    var destStr = "";
+                    if (lguList.length === 0) {
+                        destStr = "affected areas";
+                    } else if (lguList.length <= 3) {
+                        destStr = lguList.join(', ');
+                        var lastComma = destStr.lastIndexOf(', ');
+                        if (lastComma !== -1) {
+                            destStr = destStr.substring(0, lastComma) + ' and ' + destStr.substring(lastComma + 2);
+                        }
+                    } else {
+                        destStr = lguList[0] + ", " + lguList[1] + ", and " + (lguList.length - 2) + " other municipalities";
+                    }
+                    
+                    var narrative = "";
+                    if (qtyVal > 0) {
+                        narrative = qtyVal.toLocaleString() + " " + itemName + " distributed to " + destStr + ".";
+                    } else {
+                        narrative = itemName + " currently pending dispatch to " + destStr + ".";
+                    }
+                    
+                    htmlRelief += '<div style="display: flex; flex-direction: column; justify-content: center; height: 100%; width: 100%;">';
+                    htmlRelief += '<div style="font-size: 0.85rem; line-height: 1.4; color: var(--text-dark); font-weight: 400;">';
+                    htmlRelief += narrative;
+                    htmlRelief += '</div></div>';
+                });
+                
+                setHTML('out-relief-list', htmlRelief);
+
+                var pageInfoRelief = document.getElementById('relief-page-info');
+                if (pageInfoRelief) { pageInfoRelief.innerText = "PAGE " + (window.currentReliefPage + 1) + " / " + totalPagesRelief; }
+                
+                var btnPrevRelief = document.getElementById('btn-prev-relief');
+                if (btnPrevRelief) { btnPrevRelief.style.color = (window.currentReliefPage === 0) ? "#888" : "var(--blue)"; btnPrevRelief.style.cursor = (window.currentReliefPage === 0) ? "default" : "pointer"; }
+                
+                var btnNextRelief = document.getElementById('btn-next-relief');
+                if (btnNextRelief) { btnNextRelief.style.color = (window.currentReliefPage >= totalPagesRelief - 1) ? "#888" : "var(--blue)"; btnNextRelief.style.cursor = (window.currentReliefPage >= totalPagesRelief - 1) ? "default" : "pointer"; }
+                
+            } else {
+                setHTML('out-relief-list', '<div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none;">Awaiting reports...</div>');
+                var pageInfoEmptyRelief = document.getElementById('relief-page-info');
+                if (pageInfoEmptyRelief) { pageInfoEmptyRelief.innerText = "PAGE 1 / 1"; }
+            }
+        }
+
+        var btnPrevReliefObj = document.getElementById('btn-prev-relief');
+        if (btnPrevReliefObj) {
+            btnPrevReliefObj.addEventListener('click', function() { 
+                if (window.currentReliefPage > 0) { 
+                    window.currentReliefPage--; 
+                    renderAssistance(); 
+                } 
+            });
+        }
+        
+        var btnNextReliefObj = document.getElementById('btn-next-relief');
+        if (btnNextReliefObj) {
+            btnNextReliefObj.addEventListener('click', function() {
+                var latestAst = getLatestAssistanceRecords(dbData.assistance); 
+                var reliefMap = {};
+                latestAst.forEach(function(a) {
+                    var item = (a.reliefItem || '').toLowerCase();
+                    var isCash = (item.indexOf('financial') !== -1 || item.indexOf('cash') !== -1 || item.indexOf('peso') !== -1 || item.indexOf('aics') !== -1 || item.indexOf('tupad') !== -1);
+                    if (!isCash) {
+                        var rawName = (a.reliefItem || '').trim();
+                        if (!rawName) rawName = "Unspecified relief goods";
+                        reliefMap[rawName] = true;
+                    }
+                });
+                var totalPages = Math.ceil(Object.keys(reliefMap).length / RELIEF_PER_PAGE);
+                if (window.currentReliefPage < totalPages - 1) { 
+                    window.currentReliefPage++; 
+                    renderAssistance(); 
+                }
+            });
+        }
+
+        function renderCasualties() {
+            var latestCas = getLatestRecords(dbData.casualties, ['municipality', 'barangay', 'classification']);
+            var dead = 0; var injured = 0; var missing = 0;
+            var totalCount = 0;
+            var validCas = [];
+            
+            latestCas.forEach(function(c) {
+                var cnt = parseInt(c.count) || 0;
+                var cls = (c.classification || '').toLowerCase();
+                
+                if (cls.indexOf('dead') !== -1) { dead += cnt; } 
+                else if (cls.indexOf('missing') !== -1) { missing += cnt; } 
+                else { injured += cnt; }
+
+                if (cnt > 0) {
+                    totalCount += cnt;
+                    validCas.push(c);
+                }
+            });
+            
+            setHTML('out-cas-total', totalCount.toString());
+            setHTML('out-cas-retrieved', dead.toString());
+            setHTML('out-cas-missing', missing.toString());
+            setHTML('out-cas-injured', injured.toString());
+            
+            if (validCas.length > 0) {
+                validCas.sort(function(a, b) {
+                    var dateA = new Date(a.timeMonitored || a.dateReported || 0);
+                    var dateB = new Date(b.timeMonitored || b.dateReported || 0);
+                    return dateB - dateA;
+                });
+
+                var totalPages = Math.ceil(validCas.length / CAS_PER_PAGE);
+                if (window.currentCasPage >= totalPages) window.currentCasPage = totalPages - 1;
+                if (window.currentCasPage < 0) window.currentCasPage = 0;
+                
+                var startIdx = window.currentCasPage * CAS_PER_PAGE;
+                var pageCas = validCas.slice(startIdx, startIdx + CAS_PER_PAGE);
+
+                var html = "";
+                pageCas.forEach(function(c) {
+                    var cnt = parseInt(c.count) || 0;
+                    var rawCls = (c.classification || '').toLowerCase();
+                    var clsText = "injured";
+                    
+                    if (rawCls.indexOf('dead') !== -1) {
+                        clsText = "retrieved";
+                    } else if (rawCls.indexOf('missing') !== -1) {
+                        clsText = "missing";
+                    }
+
+                    var mName = (c.municipality || '').trim();
+                    var bName = (c.barangay || '').trim();
+                    
+                    var locText = "";
+                    if (bName && mName) {
+                        if (bName.toLowerCase().indexOf(mName.toLowerCase()) !== -1) {
+                            locText = bName;
+                        } else {
+                            locText = bName + ", " + mName;
+                        }
+                    } else if (mName) {
+                        locText = mName;
+                    } else {
+                        locText = "the province";
+                    }
+
+                    var storyText = (c.remarks || c.cause || c.circumstances || c.details || c.incident || '').trim();
+                    var dateText = "";
+                    if (c.dateReported || c.timeMonitored) {
+                        dateText = formatActionDate(c.dateReported || c.timeMonitored);
+                    }
+
+                    var narrative = cnt + " " + clsText + " individual(s) reported in " + locText + ".";
+                    if (storyText) {
+                        narrative += " Latest report: " + storyText + (dateText ? " as of " + dateText : "") + ".";
+                    } else if (dateText) {
+                        narrative += " As of latest report on " + dateText + ".";
+                    }
+                    
+                    html += '<div style="display: flex; flex-direction: column; justify-content: center; height: 100%; width: 100%;">';
+                    html += '<div style="font-size: 0.85rem; line-height: 1.4; color: var(--text-dark); font-weight: 400;">';
+                    html += narrative;
+                    html += '</div></div>';
+                });
+                
+                setHTML('out-cas-list', html);
+
+                var pageInfo = document.getElementById('cas-page-info');
+                if (pageInfo) { pageInfo.innerText = "PAGE " + (window.currentCasPage + 1) + " / " + totalPages; }
+                
+                var btnPrev = document.getElementById('btn-prev-cas');
+                if (btnPrev) { btnPrev.style.color = (window.currentCasPage === 0) ? "#888" : "var(--teal)"; btnPrev.style.cursor = (window.currentCasPage === 0) ? "default" : "pointer"; }
+                
+                var btnNext = document.getElementById('btn-next-cas');
+                if (btnNext) { btnNext.style.color = (window.currentCasPage >= totalPages - 1) ? "#888" : "var(--teal)"; btnNext.style.cursor = (window.currentCasPage >= totalPages - 1) ? "default" : "pointer"; }
+                
+            } else {
+                setHTML('out-cas-list', '<div class="list-row" style="color: var(--text-light); font-style: italic; border-bottom: none; font-size: 0.85rem;">No casualties reported.</div>');
+                var pageInfoEmpty = document.getElementById('cas-page-info');
+                if (pageInfoEmpty) { pageInfoEmpty.innerText = "PAGE 1 / 1"; }
+            }
+        }
+
+        var btnPrevCasObj = document.getElementById('btn-prev-cas');
+        if (btnPrevCasObj) {
+            btnPrevCasObj.addEventListener('click', function() { 
+                if (window.currentCasPage > 0) { 
+                    window.currentCasPage--; 
+                    renderCasualties(); 
+                } 
+            });
+        }
+        
+        var btnNextCasObj = document.getElementById('btn-next-cas');
+        if (btnNextCasObj) {
+            btnNextCasObj.addEventListener('click', function() {
+                var latestCas = getLatestRecords(dbData.casualties, ['municipality', 'barangay', 'classification']);
+                var validCasCount = 0;
+                latestCas.forEach(function(c) {
+                    var cnt = parseInt(c.count) || 0;
+                    if (cnt > 0) validCasCount++;
+                });
+                
+                var totalPages = Math.ceil(validCasCount / CAS_PER_PAGE);
+                if (window.currentCasPage < totalPages - 1) { 
+                    window.currentCasPage++; 
+                    renderCasualties(); 
+                }
+            });
+        }
+
+        // --- ATLAS FIX: Reverted "up by X from last report" calculation ---
+        function renderAgri() {
+            var latestAgri = getLatestRecords(dbData.agri, ['municipality', 'commodity']);
+            if (latestAgri.length === 0) {
+                latestAgri = getLatestRecords(dbData.agri, ['commodity']);
+            }
+
+            var cost = 0; var farmers = 0; var partial = 0; var total = 0;
+            var cropMap = {}; var lguSet = new Set();
+            var isProvinceWide = false;
+
+            latestAgri.forEach(function(a) {
+                var c = parseFloat(a.cost) || 0;
+                cost += c;
+                farmers += parseInt(a.farmersAffected) || 0;
+                partial += parseFloat(a.partialHa) || 0;
+                total += parseFloat(a.totalHa) || 0;
+
+                var rawCrop = (a.commodity || 'Crops').trim();
+                var crop = rawCrop.toLowerCase().replace(/\b\w/g, function(l){ return l.toUpperCase(); });
+                if (!cropMap[crop]) cropMap[crop] = 0;
+                cropMap[crop] += (c > 0 ? c : 1);
+
+                var muni = (a.municipality || '').trim();
+                if (muni) {
+                    var mUpper = muni.toUpperCase();
+                    if (mUpper.indexOf('PROVINCE') !== -1 || mUpper.indexOf('ALL') !== -1 || mUpper === 'TARLAC' || mUpper === 'TARLAC PROVINCE') {
+                        isProvinceWide = true;
+                    }
+                    var parts = muni.split(',');
+                    parts.forEach(function(m) {
+                        var mTrim = m.trim().replace(/\s*\([^)]*MUNICIPAL-WIDE[^)]*\)/gi, '').trim();
+                        if (mTrim) {
+                            if (mTrim.toUpperCase().indexOf('PROVINCE') !== -1 || mTrim.toUpperCase().indexOf('ALL') !== -1 || mTrim.toUpperCase() === 'TARLAC') {
+                                isProvinceWide = true;
+                            } else {
+                                lguSet.add(mTrim);
+                            }
+                        }
+                    });
+                }
+            });
+
+            var lguCount = lguSet.size;
+            if (isProvinceWide || lguCount === 0 || lguCount >= 17) {
+                lguCount = 18;
+            }
+            latestAgri.forEach(function(a) {
+                var explicit = parseInt(a.affectedLGUs) || parseInt(a.lguCount) || parseInt(a.municipalitiesAffected);
+                if (explicit > 0) {
+                    lguCount = explicit;
+                }
+            });
+            if (lguCount === 1 && isProvinceWide) {
+                lguCount = 18;
+            }
+
+            // Calculation for "up by X from last report"
+            var prevSitrepNo = 0;
+            var costDiffText = "";
+            var currentSitrepNo = targetSitrepNo || 1; 
+
+            if (currentSitrepNo > 1) {
+                dbData.agri.forEach(function(a) {
+                    var sNo = parseInt(a.sitrepNo) || 0;
+                    if (sNo < currentSitrepNo && sNo > prevSitrepNo) {
+                        prevSitrepNo = sNo;
+                    }
+                });
+
+                if (prevSitrepNo > 0) {
+                    var prevCost = 0;
+                    var prevMap = {};
+                    dbData.agri.forEach(function(d) {
+                        var sNo = parseInt(d.sitrepNo) || 0;
+                        if (sNo > prevSitrepNo) return; 
+                        var key = d.municipality + '|' + d.commodity;
+                        if (!prevMap[key] || sNo > prevMap[key].sitrepNo || (sNo === prevMap[key].sitrepNo && d.timeMonitored > prevMap[key].timeMonitored)) { 
+                            prevMap[key] = d; 
+                        }
+                    });
+                    
+                    Object.values(prevMap).forEach(function(a) {
+                        prevCost += parseFloat(a.cost) || 0;
+                    });
+
+                    var costDiff = cost - prevCost;
+                    if (costDiff > 0) {
+                        costDiffText = '<div style="font-size: 0.75rem; color: var(--text-light); font-style: italic; margin-top: 10px; padding-top: 10px; border-top: 1px solid #eaeaea;">* Total estimated losses up by <strong style="color: var(--accent-red); font-style: normal;">' + formatCurrency(costDiff) + '</strong> from the last report.</div>';
+                    }
+                }
+            }
+
+            var dynAgriSub = document.getElementById('dyn-agri-sub');
+            if (dynAgriSub) {
+                if (cost > 0 || farmers > 0 || partial > 0 || total > 0) {
+                    var totalHa = partial + total;
+                    
+                    var cropKeys = Object.keys(cropMap);
+                    cropKeys.sort(function(a, b) { return cropMap[b] - cropMap[a]; });
+                    
+                    var cropText = "agricultural commodities";
+                    if (cropKeys.length === 1) {
+                        cropText = cropKeys[0];
+                    } else if (cropKeys.length === 2) {
+                        cropText = cropKeys[0] + " and " + cropKeys[1];
+                    } else if (cropKeys.length > 2) {
+                        cropText = cropKeys[0] + ", " + cropKeys[1] + ", and " + (cropKeys.length - 2) + " other commodities";
+                    }
+
+                    // Background text wrapper: Italic, Light Gray
+                    var narrative = '<div style="font-size: 0.95rem; line-height: 2.6; color: var(--text-light); font-weight: 400; font-style: italic; padding: 10px;">';
+                    
+                    narrative += 'Agricultural losses across <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.6rem; color: var(--teal); font-weight: 900; padding: 0 4px; font-style: normal;">' + lguCount + ' LGUs</span> have impacted ';
+                    narrative += '<span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--text-dark); font-weight: 900; padding: 0 4px; font-style: normal;">' + farmers.toLocaleString() + ' farmers</span>, ';
+                    narrative += 'primarily affecting <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--blue); font-weight: 900; padding: 0 4px; text-transform: uppercase; font-style: normal;">' + cropText + '</span>. ';
+                    narrative += 'A combined total of <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--teal); font-weight: 900; padding: 0 4px; font-style: normal;">' + totalHa.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' hectares</span> of land sustained damages, ';
+                    
+                    narrative += 'comprising <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.3rem; color: var(--text-dark); font-weight: 900; padding: 0 4px; font-style: normal;">' + partial.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ha partial</span> and ';
+                    narrative += '<span style="font-family: \'Montserrat\', sans-serif; font-size: 1.3rem; color: var(--text-dark); font-weight: 900; padding: 0 4px; font-style: normal;">' + total.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ha total</span>, ';
+                    
+                    narrative += 'with value losses reaching ';
+                    narrative += '<span style="font-family: \'Montserrat\', sans-serif; font-size: 2.6rem; color: var(--lime); font-weight: 900; padding: 0 4px; vertical-align: middle; font-style: normal;">' + formatCurrency(cost) + '</span>.';
+                    narrative += '</div>';
+                    
+                    // Append the dynamic comparison footnote
+                    narrative += costDiffText;
+
+                    dynAgriSub.innerHTML = narrative;
+                } else {
+                    dynAgriSub.innerHTML = '<div style="font-size: 0.85rem; line-height: 1.4; color: var(--text-light); font-style: italic; padding: 0 10px;">No agricultural damages reported.</div>';
+                }
+            }
+        }
+
+        var watchStandard = function(col, key) {
+            onSnapshot(query(collection(db, col), orderBy("timeMonitored", "desc")), function(snap) { 
+                var cleanDocs = [];
+                snap.docs.forEach(function(d) {
+                    var data = d.data();
+                    if (data.isArchived !== true) {
+                        var obj = {};
+                        for (var k in data) obj[k] = data[k];
+                        obj.id = d.id;
+                        cleanDocs.push(obj);
+                    }
+                });
+                dbData[key] = cleanDocs;
+                
+                updateGlobalSitrepState();
+
+                if (key === "actions") renderActionsTimeline();
+                if (key === "evacs") { renderEcs(); renderAffectedPop(); }
+                if (key === "preemptives") renderPreemptive(); 
+                if (key === "floods") renderFloods();
+                if (key === "complement") renderManpower();
+                
+                if (key === "casualties") renderCasualties();
+                if (key === "agri") renderAgri();
+                if (key === "assistance") renderAssistance();
+            });
+        };
+
+        watchStandard("actions_data", "actions");
+        watchStandard("evacuation_data", "evacs");
+        watchStandard("preemptive_data", "preemptives");
+        watchStandard("flooded_areas", "floods");
+        watchStandard("complement_data", "complement");
+        watchStandard("casualties_data", "casualties");
+        watchStandard("agri_damages", "agri");
+        watchStandard("assistance_data", "assistance");
+
+        onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), function(snap) { 
+            var allInfra = [];
+            snap.docs.forEach(function(d) {
+                var data = d.data();
+                if (data.isArchived !== true) {
+                    var obj = {};
+                    for (var k in data) obj[k] = data[k];
+                    obj.id = d.id;
+                    allInfra.push(obj);
+                }
+            });
+            
+            var roadsList = [];
+            var infraList = [];
+            
+            allInfra.forEach(function(d) {
+                var isPass = d.recordType === 'Passability';
+                var isRoadCat = d.category === 'Road' || d.category === 'Bridge';
+                var isDamageType = d.recordType === 'Damage';
+                var statStr = (d.status || '').toLowerCase();
+                var isAssessed = statStr.indexOf('assessed for damage') !== -1;
+                var costVal = parseFloat(d.cost);
+                var hasCost = !isNaN(costVal) && costVal > 0;
+                
+                if (isPass || (isRoadCat && !isDamageType && !isAssessed)) {
+                    roadsList.push(d);
+                }
+                
+                if (isDamageType || (!d.recordType && hasCost) || isAssessed) {
+                    infraList.push(d);
+                }
+            });
+            
+            dbData.roads = roadsList;
+            dbData.infra = infraList;
+            
+            updateGlobalSitrepState();
+            renderRoads();
+            renderInfra(); 
+        });
+
+    </script>
+</body>
+</html>
