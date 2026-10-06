@@ -4,295 +4,405 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDRRMO Trend Analysis</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
-    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     
-    <!-- ATLAS FIX: Added Chart.js Zoom Plugin -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        
-        :root { 
-            --bg-body: #F2F2F7; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF; --bg-input: #F2F2F7; --bg-hover: #E5E5EA; 
-            --text-main: #1C1C1E; --text-muted: #86868B; 
-            --accent-blue: #007AFF; --accent-green: #34C759; --accent-orange: #FF9500; --accent-red: #FF3B30; --accent-purple: #AF52DE; --accent-teal: #5AC8FA; --accent-yellow: #FFCC00;
-            --border-subtle: #D1D1D6; --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04);
-            --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
-            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+
+/* SOFT SPA SLIDE ANIMATIONS */
+.main-content {
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.main-content.slide-out-left { transform: translateX(-40px); opacity: 0; }
+.main-content.slide-out-right { transform: translateX(40px); opacity: 0; }
+.main-content.slide-in-left { transform: translateX(-40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.main-content.slide-in-right { transform: translateX(40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes slideRest {
+    to { transform: translateX(0); opacity: 1; }
+}
+
+        :root {
+            --bg-body: #F2F4F8;
+            --bg-card: #FFFFFF;
+            --bg-hover: #EEF1F6;
+            --text-main: #0F172A;
+            --text-muted: #5B6678;
+            --accent-blue: #2F6BFF;
+            --accent-green: #0E9467;
+            --accent-orange: #E8590C;
+            --accent-red: #D92D3A;
+            --accent-purple: #7C4DFF;
+            --accent-teal: #0A8FA6;
+            --accent-yellow: #B7791F;
+            --border-subtle: #E1E6EE;
+            --ink: #0B1730;
+            --hot: #FF8A8E;
+            --signal: #FF7A2F;
+            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
         }
 
-        body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased; }
-        
-        /* GLOBAL LOADER */
-        .global-loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-        .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        .loader-text { color: var(--text-main); font-size: 14px; font-weight: 700; letter-spacing: 0.5px; animation: pulseText 1.5s ease-in-out infinite; font-family: var(--font-stack); }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulseText { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
+        * { box-sizing: border-box; }
+        body {
+            margin: 0;
+            font-family: var(--font-stack);
+            background: var(--bg-body);
+            color: var(--text-main);
+            font-size: 14px;
+            -webkit-font-smoothing: antialiased;
+        }
 
-        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
-        .sidebar-inner::-webkit-scrollbar { width: 0px; }
+        /* TOP STICKY NAVBAR (Matched to index.html) */
+        .sidebar {
+            position: sticky;
+            top: 0;
+            z-index: 100;
+            background: #fff;
+            border-bottom: 1px solid var(--border-subtle);
+        }
+        .sidebar-inner {
+            max-width: 1480px;
+            margin: 0 auto;
+            padding: 0 28px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            gap: 26px;
+        }
+        .sidebar-brand-container {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            white-space: nowrap;
+        }
+        .sidebar-logo { width: 34px; height: 34px; object-fit: contain; }
+        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -0.02em; }
+        .nav { display: flex; gap: 2px; flex: 1; overflow-x: auto; }
+        .dashboard-link {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 12px;
+            border-radius: 10px;
+            color: var(--text-muted);
+            font-weight: 600;
+            text-decoration: none;
+            white-space: nowrap;
+            transition: 0.2s;
+        }
+        .dashboard-link:hover { background: var(--bg-hover); color: var(--text-main); }
+        .active-tab, .active-tab:hover { background: var(--ink); color: #fff; }
 
-        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
-        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
-        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
-        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
-        
-        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0; margin-right: -4px;}
-        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
-        
-        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
-        
-        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
-        
-        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
-        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
-        .dashboard-link:hover { background-color: var(--bg-hover); }
-        .active-tab { background-color: #E5F0FF; font-weight: 600; color: var(--accent-blue); }
-        .active-tab i { color: var(--accent-blue); }
+        .wrap { max-width: 1480px; margin: 0 auto; padding: 20px 28px 60px; }
+        .intro {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+            gap: 20px;
+            flex-wrap: wrap;
+            padding: 10px 0 20px;
+        }
+        .intro h2 {
+            margin: 0;
+            font-size: 32px;
+            font-weight: 800;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+        .intro p {
+            margin: 8px 0 0;
+            color: var(--text-muted);
+            display: flex;
+            align-items: center;
+            font-weight: 500;
+        }
+        .live {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #34D399;
+            margin-right: 8px;
+            flex-shrink: 0;
+        }
 
-        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
-        
-        /* COLLAPSED STATE LOGIC */
-        .sidebar.collapsed { width: 75px; }
-        .sidebar.collapsed .fade-text { opacity: 0; }
-        .sidebar.collapsed .sidebar-header { padding: 15px; justify-content: center; }
-        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; margin: 0; display: none; }
-        .sidebar.collapsed .sidebar-toggle { margin: 0; }
-        .sidebar.collapsed .sidebar-subtitle { border-color: transparent; height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 5px; overflow: hidden; opacity: 0; }
-        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
-        .sidebar.collapsed .dashboard-link { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
-        .sidebar.collapsed .dashboard-link i { width: auto; margin: 0; font-size: 18px; }
-        .sidebar.collapsed .link-text { display: none; }
+        /* SECTION HEADERS */
+        .sec-h {
+            display: flex;
+            align-items: baseline;
+            gap: 12px;
+            flex-wrap: wrap;
+            margin-bottom: 14px;
+        }
+        .sec-h h2 {
+            margin: 0;
+            font-size: 22px;
+            font-weight: 800;
+            letter-spacing: -0.02em;
+        }
+        .sec-h p { margin: 0; color: var(--text-muted); }
 
-        /* MAIN CONTENT */
-        .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; position: relative; }
-        .main-content::-webkit-scrollbar { width: 6px; }
-        .main-content::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
-        .workspace-wrapper { max-width: 1400px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; min-height: 100%; }
+        /* GRID & PANELS (Matched to index.html design) */
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(12, minmax(0, 1fr));
+            gap: 16px;
+            margin-bottom: 24px;
+        }
+        .s6 { grid-column: span 6; }
+        .s12 { grid-column: span 12; }
 
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 30px;}
-        .header-left { display: flex; align-items: center; gap: 15px;}
-        .header-left .avatar { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #AF52DE 0%, #5856D6 100%); display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
-        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;}
-        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
+        .panel {
+            background: #fff;
+            border: 1px solid var(--border-subtle);
+            border-radius: 16px;
+            box-shadow: 0 1px 2px rgba(16, 24, 40, 0.04);
+            display: flex;
+            flex-direction: column;
+            padding: 20px 22px;
+            min-width: 0;
+            position: relative;
+        }
+        .pt {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 16px;
+        }
+        .pt-title {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        .pt-title i {
+            width: 32px;
+            height: 32px;
+            display: grid;
+            place-items: center;
+            border-radius: 9px;
+            font-size: 14px;
+            background: color-mix(in srgb, currentColor 12%, #fff);
+        }
+        .pt-title h3 {
+            margin: 0;
+            font-size: 15px;
+            font-weight: 700;
+            letter-spacing: -0.01em;
+        }
+        .hint { font-size: 12px; color: var(--text-muted); font-weight: 500; }
 
-        /* CHARTS GRID */
-        .dashboard-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
-        
-        .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 40px;}
-        .chart-grid-full { grid-template-columns: 1fr; margin-bottom: 20px;}
+        .chart-container {
+            position: relative;
+            height: 300px;
+            width: 100%;
+            min-width: 0;
+        }
+        .chart-container-tall { height: 320px; }
 
-        .chart-card { background: var(--bg-card); padding: 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-soft); display: flex; flex-direction: column; position: relative; min-width: 0;}
-        .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 15px; }
-        .chart-header h3 { margin: 0; font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 10px; color: var(--text-main);}
-        .chart-header-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-        
-        .chart-container { position: relative; height: 320px; width: 100%; min-width: 0; }
-        .chart-empty-message { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted); font-size: 12px; font-weight: 600; background: var(--bg-card); z-index: 10; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .chart-empty-message {
+            position: absolute;
+            inset: 0;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            justify-content: center;
+            align-items: center;
+            color: var(--text-muted);
+            background: #fff;
+            z-index: 10;
+            font-weight: 600;
+        }
+        .chart-empty-message i { font-size: 26px; color: #C9D1DE; }
 
-        /* Highcharts-style Reset Zoom Button */
-        .btn-reset-zoom { background: #fff; color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 4px 12px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .btn-reset-zoom:hover { background: var(--bg-hover); color: var(--accent-blue); border-color: var(--accent-blue); }
+        .btn-reset-zoom {
+            background: #F3F5F9;
+            border: 1px solid transparent;
+            border-radius: 8px;
+            height: 28px;
+            padding: 0 10px;
+            cursor: pointer;
+            color: var(--text-main);
+            font: 600 11px var(--font-stack);
+            display: none;
+            align-items: center;
+            gap: 4px;
+        }
+        .btn-reset-zoom:hover { border-color: var(--border-subtle); background: #fff; }
 
-        @media (max-width: 1400px) { .chart-grid { grid-template-columns: minmax(0, 1fr); } }
+        @media (max-width: 1100px) {
+            .s6 { grid-column: span 12; }
+            .wrap { padding: 14px 14px 48px; }
+            .intro h2 { font-size: 24px; }
+        }
     </style>
 </head>
 <body>
 
-    <div id="global-loader" class="global-loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">COMPILING HISTORICAL PROGRESSION...</div>
-    </div>
 
-    <div class="sidebar" id="mainSidebar">
+    <header class="sidebar" id="mainSidebar">
         <div class="sidebar-inner">
-            <div class="sidebar-header">
-                <div class="sidebar-brand-container">
-                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
-                </div>
-                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="3" x2="9" y2="21"></line>
-                    </svg>
-                </button>
+            <div class="sidebar-brand-container">
+                <img src="logo_pdrrmo.png" alt="PDRRMO logo" class="sidebar-logo">
+                <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
             </div>
-            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
-            
-            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
-            <div class="nav-links-container">
-                <a href="index.html" class="dashboard-link" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
-                <a href="trend_analysis.html" class="dashboard-link active-tab" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
-                <a href="data_entry.html" class="dashboard-link" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
-                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
-                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
-                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
+            <nav class="nav" aria-label="Main">
+                <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a>
+                <a href="trend_analysis.html" class="dashboard-link active-tab"><i class="fa-solid fa-arrow-trend-up"></i><span class="link-text">Trend Analysis</span></a>
+                <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i><span class="link-text">Command Workspace</span></a>
+                <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i><span class="link-text">Inventory</span></a>
+                <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i><span class="link-text">Archives</span></a>
+                <a href="infographic.html" class="dashboard-link" target="_blank" rel="noopener"><i class="fa-solid fa-file-image"></i><span class="link-text">Infographic</span></a>
+                <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i><span class="link-text">System Admin</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="wrap">
+            <div class="intro">
+                <div>
+                    <h2>Trend Analysis Dashboard</h2>
+                    <p><span class="live"></span> Chronological timeline across all situation reports</p>
+                </div>
             </div>
 
-            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
-            <div class="nav-links-container" style="padding-bottom: 20px;">
-                <a href="admin.html" class="dashboard-link" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
+            <!-- SECTION 1: POPULATION (FULL WIDTH) -->
+            <div class="sec-h">
+                <h2>Human Impact Progression</h2>
+                <p>Affected families versus served families across SitReps</p>
+            </div>
+            <div class="grid">
+                <div class="panel s12">
+                    <div class="pt">
+                        <div class="pt-title">
+                            <i class="fa-solid fa-users-rays" style="color:var(--accent-orange)"></i>
+                            <h3>Affected vs. Served Population Progression</h3>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button id="trendPopChart-reset" class="btn-reset-zoom" onclick="resetChartZoom('trendPopChart')"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset zoom</button>
+                            <span class="hint">Drag along X-axis to zoom</span>
+                        </div>
+                    </div>
+                    <div class="chart-container chart-container-tall">
+                        <canvas id="trendPopChart" role="img" aria-label="Affected versus Served Progression"></canvas>
+                        <div id="trendPopChart-empty" class="chart-empty-message" style="display:none">
+                            <i class="fa-solid fa-chart-line"></i><span>Awaiting progression data</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- SECTION 2: SITUATIONAL RECOVERY & DAMAGE CURVES -->
+            <div class="sec-h">
+                <h2>Situational & Recovery Curves</h2>
+                <p>Hazard tracking, accessibility, and sector economic losses</p>
+            </div>
+            <div class="grid">
+                <div class="panel s6">
+                    <div class="pt">
+                        <div class="pt-title">
+                            <i class="fa-solid fa-water" style="color:var(--accent-blue)"></i>
+                            <h3>Flood Recovery Curve</h3>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button id="trendFloodChart-reset" class="btn-reset-zoom" onclick="resetChartZoom('trendFloodChart')"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset zoom</button>
+                            <span class="hint">Active vs. Subsided</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendFloodChart" role="img" aria-label="Flood Recovery Curve"></canvas>
+                        <div id="trendFloodChart-empty" class="chart-empty-message" style="display:none">
+                            <i class="fa-solid fa-chart-line"></i><span>Awaiting progression data</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel s6">
+                    <div class="pt">
+                        <div class="pt-title">
+                            <i class="fa-solid fa-road-barrier" style="color:var(--accent-orange)"></i>
+                            <h3>Passability Curve</h3>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button id="trendRoadsChart-reset" class="btn-reset-zoom" onclick="resetChartZoom('trendRoadsChart')"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset zoom</button>
+                            <span class="hint">Roads & Bridges Restored</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendRoadsChart" role="img" aria-label="Passability Curve"></canvas>
+                        <div id="trendRoadsChart-empty" class="chart-empty-message" style="display:none">
+                            <i class="fa-solid fa-chart-line"></i><span>Awaiting progression data</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel s6">
+                    <div class="pt">
+                        <div class="pt-title">
+                            <i class="fa-solid fa-peso-sign" style="color:var(--accent-red)"></i>
+                            <h3>Financial Impact Deficit</h3>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button id="trendDmgChart-reset" class="btn-reset-zoom" onclick="resetChartZoom('trendDmgChart')"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset zoom</button>
+                            <span class="hint">Infra vs. Agri Damages (₱)</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendDmgChart" role="img" aria-label="Financial Impact Deficit"></canvas>
+                        <div id="trendDmgChart-empty" class="chart-empty-message" style="display:none">
+                            <i class="fa-solid fa-chart-line"></i><span>Awaiting progression data</span>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="panel s6">
+                    <div class="pt">
+                        <div class="pt-title">
+                            <i class="fa-solid fa-hand-holding-dollar" style="color:var(--accent-green)"></i>
+                            <h3>Relief Operations Deployment</h3>
+                        </div>
+                        <div style="display:flex; align-items:center; gap:10px;">
+                            <button id="trendAstChart-reset" class="btn-reset-zoom" onclick="resetChartZoom('trendAstChart')"><i class="fa-solid fa-magnifying-glass-minus"></i> Reset zoom</button>
+                            <span class="hint">Cost of Assistance (₱)</span>
+                        </div>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="trendAstChart" role="img" aria-label="Relief Operations Deployment"></canvas>
+                        <div id="trendAstChart-empty" class="chart-empty-message" style="display:none">
+                            <i class="fa-solid fa-chart-line"></i><span>Awaiting progression data</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
-    </div>
-
-    <div class="main-content">
-        <div class="workspace-wrapper">
-            
-            <div class="top-header">
-                <div class="header-left">
-                    <div class="avatar"><i class="fa-solid fa-arrow-trend-up"></i></div>
-                    <div class="top-header-text">
-                        <h2>Trend Analysis Dashboard</h2>
-                        <p><i class="fa-solid fa-circle-dot fa-fade" style="font-size: 10px;"></i> Chronological Operational Progression</p>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ROW 1: PRIMARY METRICS (FULL WIDTH) -->
-            <div class="dashboard-section-title"><i class="fa-solid fa-users" style="color: var(--accent-orange);"></i> Human Impact Progression</div>
-            
-            <div class="chart-grid chart-grid-full">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div>
-                            <h3><i class="fa-solid fa-users-rays" style="color: var(--accent-orange);"></i> Population: Affected vs. Served</h3>
-                            <div class="chart-header-desc">Cumulative Totals over SitReps (Click & Drag to Zoom)</div>
-                        </div>
-                        <button id="trendPopChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendPopChart')">Reset zoom</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="trendPopChart"></canvas>
-                        <div id="trendPopChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-chart-line" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>Awaiting progression data</span></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- ROW 2: SPLIT METRICS -->
-            <div class="dashboard-section-title"><i class="fa-solid fa-location-crosshairs" style="color: var(--accent-blue);"></i> Situational & Recovery Curves</div>
-            
-            <div class="chart-grid">
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div>
-                            <h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flood Recovery Curve</h3>
-                            <div class="chart-header-desc">Active vs. Subsided Areas</div>
-                        </div>
-                        <button id="trendFloodChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendFloodChart')">Reset zoom</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="trendFloodChart"></canvas>
-                        <div id="trendFloodChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-chart-line" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>Awaiting progression data</span></div>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div>
-                            <h3><i class="fa-solid fa-road-barrier" style="color: var(--accent-teal);"></i> Passability Curve</h3>
-                            <div class="chart-header-desc">Roads & Bridges Restored</div>
-                        </div>
-                        <button id="trendRoadsChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendRoadsChart')">Reset zoom</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="trendRoadsChart"></canvas>
-                        <div id="trendRoadsChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-chart-line" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>Awaiting progression data</span></div>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div>
-                            <h3><i class="fa-solid fa-peso-sign" style="color: var(--accent-red);"></i> Financial Impact Deficit</h3>
-                            <div class="chart-header-desc">Infra vs. Agri Damages (PHP)</div>
-                        </div>
-                        <button id="trendDmgChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendDmgChart')">Reset zoom</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="trendDmgChart"></canvas>
-                        <div id="trendDmgChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-chart-line" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>Awaiting progression data</span></div>
-                    </div>
-                </div>
-
-                <div class="chart-card">
-                    <div class="chart-header">
-                        <div>
-                            <h3><i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-green);"></i> Relief Operations Deployment</h3>
-                            <div class="chart-header-desc">Cumulative Cost of Assistance (PHP)</div>
-                        </div>
-                        <button id="trendAstChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('trendAstChart')">Reset zoom</button>
-                    </div>
-                    <div class="chart-container">
-                        <canvas id="trendAstChart"></canvas>
-                        <div id="trendAstChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-chart-line" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>Awaiting progression data</span></div>
-                    </div>
-                </div>
-            </div>
-
-        </div>
-    </div>
+    </main>
 
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
     import { initializeFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
-    import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
 
     const firebaseConfig = { apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk", authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com", projectId: "tarlac-sitrep-backend-5000e", storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app", messagingSenderId: "575825350427", appId: "1:575825350427:web:d4e336b580e44a29900dbe" };
     const app = initializeApp(firebaseConfig);
     const db = initializeFirestore(app, { experimentalForceLongPolling: true });
-    const auth = getAuth(app);
-
-    onAuthStateChanged(auth, (user) => { if (user) { document.body.style.visibility = "visible"; } else { window.location.href = "login.html?redirect=trend_analysis.html"; } });
-    window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 
     const dbData = { floods: [], evacs: [], infra: [], casualties: [], agri: [], assistance: [], roads: [] };
-    
-    let isInitialLoad = true;
-    let initialLoadTimeout = null;
-
     const parseNum = (val) => parseFloat(String(val).replace(/,/g, '').trim()) || 0;
 
-    document.addEventListener('DOMContentLoaded', () => {
-        const toggleBtn = document.getElementById('toggleSidebarBtn');
-        const sidebar = document.getElementById('mainSidebar');
-        if(localStorage.getItem('sidebarCollapsed') === 'true') { sidebar.classList.add('collapsed'); }
-        if(toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-            });
-        }
-    });
-
-    function hideGlobalLoader() {
-        const loader = document.getElementById('global-loader');
-        if (loader && isInitialLoad) {
-            if (initialLoadTimeout) clearTimeout(initialLoadTimeout);
-            initialLoadTimeout = setTimeout(() => {
-                loader.style.opacity = '0';
-                setTimeout(() => { loader.style.display = 'none'; isInitialLoad = false; }, 500);
-            }, 1200); 
-        }
-    }
-
-    // ==========================================
-    // THE SMART CARRY-FORWARD ALGORITHM (MODIFIED FOR HISTORICAL LOOPING)
-    // ==========================================
     function getSnapshotAtSitrep(targetSitrep, arr, keyFields) {
         if (!arr) return []; 
         let map = {};
         arr.forEach(d => {
-            // Ignore anything from the future relative to the target loop
             if (d.sitrepNo > targetSitrep) return; 
-            
             let key = keyFields.map(f => d[f]).join('|');
-            // Store the latest state of that item AS OF the targetSitrep
             if(!map[key] || d.sitrepNo > map[key].sitrepNo || (d.sitrepNo === map[key].sitrepNo && d.timeMonitored > map[key].timeMonitored)) { 
                 map[key] = d; 
             }
@@ -300,20 +410,26 @@
         return Object.values(map);
     }
 
-    // ==========================================
-    // CHART.JS INITIALIZATION (HIGHCHARTS-STYLE ZOOM)
-    // ==========================================
-    Chart.defaults.color = '#86868B'; 
-    Chart.defaults.font.family = 'Inter'; 
+    Chart.defaults.color = '#5B6678';
+    Chart.defaults.font.family = 'Plus Jakarta Sans';
+    Chart.defaults.plugins.legend.labels.usePointStyle = true;
+    Chart.defaults.plugins.legend.labels.boxWidth = 8;
+    Chart.defaults.scale.border = { display: false };
 
     const globalLineTooltip = { 
-        backgroundColor: '#FFFFFF', titleColor: '#1C1C1E', bodyColor: '#1C1C1E', borderColor: '#E5E5EA', borderWidth: 1, padding: 12, boxPadding: 6,
+        backgroundColor: '#FFFFFF',
+        titleColor: '#0F172A',
+        bodyColor: '#0F172A',
+        borderColor: '#E1E6EE',
+        borderWidth: 1,
+        padding: 12,
+        boxPadding: 6,
         callbacks: { 
             label: function(context) { 
                 let label = context.dataset.label || ''; 
                 if (label) { label += ': '; } 
                 if (context.parsed.y !== null) { 
-                    if(label.includes('PHP') || context.chart.canvas.id.includes('Dmg') || context.chart.canvas.id.includes('Ast')) {
+                    if(label.includes('₱') || label.includes('Damages') || label.includes('Cost')) {
                         label += new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(context.parsed.y);
                     } else {
                         label += context.parsed.y.toLocaleString(); 
@@ -323,29 +439,32 @@
             }
         } 
     };
-    
-    const legendConfig = { display: true, position: 'top', align: 'end', labels: { color: '#1C1C1E', usePointStyle: true, boxWidth: 8, padding: 20, font: { size: 12, weight: '600' } } };
-    
+
+    const legendConfig = {
+        display: true,
+        position: 'top',
+        align: 'end',
+        labels: { font: { size: 12, weight: '600' } }
+    };
+
     const lineOptions = {
-        responsive: true, maintainAspectRatio: false,
+        responsive: true,
+        maintainAspectRatio: false,
         interaction: { mode: 'index', intersect: false },
         scales: { 
-            y: { beginAtZero: true, grid: { color: '#F2F2F7' }, border: { dash: [4, 4] } }, 
-            x: { grid: { display: false } } 
+            y: { beginAtZero: true, grid: { color: '#E9EDF3' } },
+            x: { grid: { display: false } }
         }, 
         plugins: { 
-            legend: legendConfig, 
+            legend: legendConfig,
             tooltip: globalLineTooltip,
-            // ATLAS FIX: Highcharts-style drag to zoom (X-axis only)
             zoom: {
                 zoom: {
-                    drag: {
-                        enabled: true,
-                        backgroundColor: 'rgba(0, 122, 255, 0.2)'
-                    },
-                    mode: 'x', // Lock to timeline
+                    drag: { enabled: true, backgroundColor: 'rgba(47, 107, 255, 0.16)' },
+                    mode: 'x',
                     onZoomComplete: function({chart}) {
-                        document.getElementById(chart.canvas.id + '-reset').style.display = 'block';
+                        const rBtn = document.getElementById(chart.canvas.id + '-reset');
+                        if (rBtn) rBtn.style.display = 'inline-flex';
                     }
                 }
             }
@@ -367,44 +486,42 @@
     const ctxAst = document.getElementById('trendAstChart').getContext('2d');
     const trendAstChart = new Chart(ctxAst, { type: 'line', data: { labels: [], datasets: [] }, options: lineOptions });
 
-    // ATLAS FIX: Reset zoom logic
     window.resetChartZoom = function(chartId) {
-        const charts = { 'trendPopChart': trendPopChart, 'trendFloodChart': trendFloodChart, 'trendRoadsChart': trendRoadsChart, 'trendDmgChart': trendDmgChart, 'trendAstChart': trendAstChart };
+        const charts = {
+            'trendPopChart': trendPopChart,
+            'trendFloodChart': trendFloodChart,
+            'trendRoadsChart': trendRoadsChart,
+            'trendDmgChart': trendDmgChart,
+            'trendAstChart': trendAstChart
+        };
         if (charts[chartId]) {
             charts[chartId].resetZoom();
-            document.getElementById(chartId + '-reset').style.display = 'none';
+            const rBtn = document.getElementById(chartId + '-reset');
+            if (rBtn) rBtn.style.display = 'none';
         }
     };
 
-
-    // ==========================================
-    // CHRONOLOGICAL CALCULATION ENGINE
-    // ==========================================
     function calculateTrends() {
-        // 1. Identify all unique SitReps ever generated
         let uniqueSitreps = new Set();
         const allDocs = [...dbData.floods, ...dbData.evacs, ...dbData.infra, ...dbData.casualties, ...dbData.agri, ...dbData.assistance, ...dbData.roads];
         allDocs.forEach(d => { if(d.sitrepNo) uniqueSitreps.add(Number(d.sitrepNo)); });
-        let sitrepKeys = Array.from(uniqueSitreps).sort((a,b) => a - b); // Ascending order 1, 2, 3...
+        let sitrepKeys = Array.from(uniqueSitreps).sort((a,b) => a - b); 
 
         if (sitrepKeys.length === 0) {
-            hideGlobalLoader();
+            document.getElementById('global-loader').style.display = 'none';
             return; 
         }
 
-        const labels = sitrepKeys.map(sr => `SitRep ${sr}`);
+        const labels = sitrepKeys.map(sr => `SR ${sr}`);
 
-        // Data Arrays
         const popAff = [], popServed = [];
         const floodActive = [], floodSub = [];
         const roadNot = [], roadPass = [];
         const dmgInfra = [], dmgAgri = [];
         const astCost = [];
 
-        // 2. Loop through history and generate snapshots
         sitrepKeys.forEach(srTarget => {
-            
-            // --- POPULATION (Affected vs Served) ---
+            // POPULATION
             let srEvacs = getSnapshotAtSitrep(srTarget, dbData.evacs, ['municipality']);
             let sumAffFam = 0, sumServedFam = 0;
             srEvacs.forEach(e => {
@@ -414,25 +531,28 @@
             popAff.push(sumAffFam);
             popServed.push(sumServedFam);
 
-            // --- FLOODS (Active vs Subsided) ---
+            // FLOODS (Delta Ledger Compliant)
             let srFloods = getSnapshotAtSitrep(srTarget, dbData.floods, ['municipality', 'barangay']);
             let fActive = 0, fSub = 0;
             srFloods.forEach(f => {
-                if(f.status.includes('Subsided') || f.status.includes('No Flood')) fSub++; else fActive++;
+                let stat = (f.status || '').toUpperCase().trim();
+                if(stat === 'SUBSIDED' || stat === 'NO FLOOD REPORTED') fSub++;
+                else fActive++;
             });
             floodActive.push(fActive);
             floodSub.push(fSub);
 
-            // --- ROADS (Passable vs Not Passable) ---
+            // ROADS
             let srRoads = getSnapshotAtSitrep(srTarget, dbData.roads, ['municipality', 'specificArea']);
             let rNot = 0, rPass = 0;
             srRoads.forEach(r => {
-                if(r.status.includes('Not Passable')) rNot++; else rPass++;
+                if((r.status||'').includes('Not Passable')) rNot++;
+                else rPass++;
             });
             roadNot.push(rNot);
             roadPass.push(rPass);
 
-            // --- DAMAGES (Infra vs Agri) ---
+            // DAMAGES
             let srInfra = getSnapshotAtSitrep(srTarget, dbData.infra, ['specificArea']);
             let srAgri = getSnapshotAtSitrep(srTarget, dbData.agri, ['commodity']);
             let dInfra = 0, dAgri = 0;
@@ -441,68 +561,67 @@
             dmgInfra.push(dInfra);
             dmgAgri.push(dAgri);
 
-            // --- ASSISTANCE (Total Cost) ---
+            // ASSISTANCE
             let srAst = getSnapshotAtSitrep(srTarget, dbData.assistance, ['municipality', 'source', 'reliefItem']);
             let sumAst = 0;
             srAst.forEach(a => sumAst += parseNum(a.cost));
             astCost.push(sumAst);
-
         });
 
-        // 3. Inject Data into Charts
-
-        // Population Chart
+        // 1. POPULATION CHART
         document.getElementById('trendPopChart-empty').style.display = 'none';
         trendPopChart.data.labels = labels;
         trendPopChart.data.datasets = [
-            { label: 'Affected Families', data: popAff, borderColor: '#FF9500', backgroundColor: 'rgba(255, 149, 0, 0.1)', fill: true, tension: 0.4, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 },
-            { label: 'Served Families', data: popServed, borderColor: '#34C759', backgroundColor: 'rgba(52, 199, 89, 0.1)', fill: true, tension: 0.4, pointRadius: 4, pointHoverRadius: 6, borderWidth: 3 }
+            { label: 'Affected Families', data: popAff, borderColor: '#FF7A2F', backgroundColor: 'rgba(255, 122, 47, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 3 },
+            { label: 'Served Families', data: popServed, borderColor: '#18A874', backgroundColor: 'rgba(24, 168, 116, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 3 }
         ];
         trendPopChart.update();
 
-        // Flood Chart
+        // 2. FLOOD CHART
         document.getElementById('trendFloodChart-empty').style.display = 'none';
         trendFloodChart.data.labels = labels;
         trendFloodChart.data.datasets = [
-            { label: 'Active Flooded Areas', data: floodActive, borderColor: '#FF3B30', backgroundColor: 'rgba(255, 59, 48, 0.1)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 },
-            { label: 'Subsided Areas', data: floodSub, borderColor: '#007AFF', backgroundColor: 'rgba(0, 122, 255, 0.1)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 }
+            { label: 'Active Flooded Areas', data: floodActive, borderColor: '#E5484D', backgroundColor: 'rgba(229, 72, 77, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 },
+            { label: 'Subsided Areas', data: floodSub, borderColor: '#2F6BFF', backgroundColor: 'rgba(47, 107, 255, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }
         ];
         trendFloodChart.update();
 
-        // Roads Chart
+        // 3. ROADS CHART
         document.getElementById('trendRoadsChart-empty').style.display = 'none';
         trendRoadsChart.data.labels = labels;
         trendRoadsChart.data.datasets = [
-            { label: 'Not Passable', data: roadNot, borderColor: '#FF3B30', backgroundColor: 'rgba(255, 59, 48, 0.1)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 },
-            { label: 'Passable', data: roadPass, borderColor: '#34C759', backgroundColor: 'rgba(52, 199, 89, 0.1)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 }
+            { label: 'Not Passable', data: roadNot, borderColor: '#FF7A2F', backgroundColor: 'rgba(255, 122, 47, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 },
+            { label: 'Passable', data: roadPass, borderColor: '#18A874', backgroundColor: 'rgba(24, 168, 116, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }
         ];
         trendRoadsChart.update();
 
-        // Damages Chart
+        // 4. DAMAGES CHART
         document.getElementById('trendDmgChart-empty').style.display = 'none';
         trendDmgChart.data.labels = labels;
         trendDmgChart.data.datasets = [
-            { label: 'Infrastructure Damages', data: dmgInfra, borderColor: '#AF52DE', backgroundColor: 'rgba(175, 82, 222, 0.1)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 },
-            { label: 'Agriculture Damages', data: dmgAgri, borderColor: '#FFCC00', backgroundColor: 'rgba(255, 204, 0, 0.1)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 }
+            { label: 'Infrastructure Damages', data: dmgInfra, borderColor: '#7C4DFF', backgroundColor: 'rgba(124, 77, 255, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 },
+            { label: 'Agriculture Damages', data: dmgAgri, borderColor: '#F5B301', backgroundColor: 'rgba(245, 179, 1, 0.1)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }
         ];
         trendDmgChart.update();
 
-        // Assistance Chart
+        // 5. ASSISTANCE CHART
         document.getElementById('trendAstChart-empty').style.display = 'none';
         trendAstChart.data.labels = labels;
         trendAstChart.data.datasets = [
-            { label: 'Relief Cost Distributed', data: astCost, borderColor: '#34C759', backgroundColor: 'rgba(52, 199, 89, 0.2)', fill: true, tension: 0.4, pointRadius: 4, borderWidth: 3 }
+            { label: 'Relief Cost Distributed', data: astCost, borderColor: '#18A874', backgroundColor: 'rgba(24, 168, 116, 0.14)', fill: true, tension: 0.35, pointRadius: 4, borderWidth: 2 }
         ];
         trendAstChart.update();
 
-        hideGlobalLoader();
+        setTimeout(() => {
+            const loader = document.getElementById('global-loader');
+            if (loader) {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; }, 500);
+            }
+        }, 600);
     }
 
-
-    // ==========================================
-    // DATABASE LISTENERS
-    // ==========================================
-    const watch = (col, key) => onSnapshot(query(collection(db, col), orderBy("timeMonitored", "desc")), snap => { 
+    const watch = (col, key) => onSnapshot(query(collection(db, col), orderBy("timeMonitored", "asc")), snap => { 
         dbData[key] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
         calculateTrends(); 
     });
@@ -513,12 +632,66 @@
     watch("agri_damages", "agri"); 
     watch("assistance_data", "assistance");
     
-    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { 
+    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "asc")), (snap) => { 
         let allInfra = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
         dbData.roads = allInfra.filter(d => d.recordType === 'Passability' || d.category === 'Road' || d.category === 'Bridge'); 
         dbData.infra = allInfra.filter(d => d.recordType === 'Damage' || (!d.recordType && d.cost > 0)); 
         calculateTrends(); 
     });
+
+// ==========================================
+// SOFT SPA ROUTING INTERCEPTOR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    // 1. Determine Tab Order
+    const pageOrder = ['index.html', 'trend_analysis.html', 'data_entry.html', 'inventory.html', 'archives.html', 'admin.html'];
+    
+    // 2. Identify Current Page
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentIndex = pageOrder.indexOf(currentPath);
+
+    // 3. Check Session Storage for Entry Direction
+    const incomingDirection = sessionStorage.getItem('slideDirection');
+    if (incomingDirection === 'left') {
+        mainContent.classList.add('slide-in-left');
+    } else if (incomingDirection === 'right') {
+        mainContent.classList.add('slide-in-right');
+    } else {
+        mainContent.classList.add('slide-in-right'); // Default load
+    }
+    sessionStorage.removeItem('slideDirection'); // Clear after use
+
+    // 4. Intercept Navigation Clicks
+    const navLinks = document.querySelectorAll('.dashboard-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+            
+            // Ignore external links (Infographic) or current page clicks
+            if (link.target === "_blank" || targetUrl === currentPath || targetUrl === '#') return;
+            
+            e.preventDefault();
+            const targetIndex = pageOrder.indexOf(targetUrl);
+            
+            // Calculate Slide Direction based on layout
+            if (targetIndex > currentIndex) {
+                mainContent.classList.add('slide-out-left');
+                sessionStorage.setItem('slideDirection', 'right'); // Next page should slide in from right
+            } else {
+                mainContent.classList.add('slide-out-right');
+                sessionStorage.setItem('slideDirection', 'left'); // Next page should slide in from left
+            }
+            
+            // Wait for slide animation to complete before telling the browser to load the file
+            setTimeout(() => { 
+                window.location.href = targetUrl; 
+            }, 200);
+        });
+    });
+});
 
 </script>
 </body>
