@@ -4,148 +4,145 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDRRMO System Admin | Workspace</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <!-- SECURITY: Hides page until authenticated -->
     <style> body { visibility: hidden; } </style>
 
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        @import url('https://fonts.googleapis.com/css2?family=Fira+Code:wght@400;600&display=swap');
+
+/* SOFT SPA SLIDE ANIMATIONS */
+.main-content {
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.main-content.slide-out-left { transform: translateX(-40px); opacity: 0; }
+.main-content.slide-out-right { transform: translateX(40px); opacity: 0; }
+.main-content.slide-in-left { transform: translateX(-40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.main-content.slide-in-right { transform: translateX(40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes slideRest {
+    to { transform: translateX(0); opacity: 1; }
+}
 
         :root { 
-            --bg-body: #F2F2F7; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF; --bg-input: #F2F2F7; --bg-hover: #E5E5EA; 
-            --text-main: #1C1C1E; --text-muted: #86868B; 
-            --accent-blue: #007AFF; --accent-green: #34C759; --accent-orange: #FF9500; --accent-red: #FF3B30; --accent-purple: #AF52DE; --accent-teal: #5AC8FA; --accent-yellow: #FFCC00;
-            --border-subtle: #D1D1D6; --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04); --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
-            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-body: #F2F4F8; --bg-card: #fff; --bg-hover: #EEF1F6; 
+            --text-main: #0F172A; --text-muted: #5B6678; 
+            --accent-blue: #2F6BFF; --accent-green: #0E9467; --accent-orange: #E8590C; --accent-red: #D92D3A; --accent-purple: #7C4DFF; --accent-teal: #0A8FA6; --accent-yellow: #B7791F; 
+            --border-subtle: #E1E6EE; --ink: #0B1730; --hot: #FF8A8E; --signal: #FF7A2F; 
+            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --shadow-soft: 0 4px 20px rgba(16,24,40,.03);
+            --shadow-modal: 0 30px 70px rgba(11,23,48,.4);
+            --radius-lg: 20px; --radius-md: 12px; --radius-sm: 8px;
         }
 
-        body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased;}
+        * { box-sizing: border-box; }
+        body { font-family: var(--font-stack); background: var(--bg-body); color: var(--text-main); font-size: 13px; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
         
-        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER (BULLETPROOF FLEXBOX) */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
-        .sidebar-inner::-webkit-scrollbar { width: 0px; }
+        /* TOP NAVIGATION */
+        .sidebar { position: sticky; top: 0; z-index: 10000; background: #fff; border-bottom: 1px solid var(--border-subtle); }
+        .sidebar-inner { max-width: 1480px; margin: 0 auto; padding: 0 28px; height: 60px; display: flex; align-items: center; gap: 26px; }
+        .sidebar-brand-container { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .sidebar-logo { width: 34px; height: 34px; object-fit: contain; }
+        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
+        .nav { display: flex; gap: 2px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+        .nav::-webkit-scrollbar { display: none; }
+        .dashboard-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; color: var(--text-muted); font-weight: 600; text-decoration: none; white-space: nowrap; transition: 0.2s; font-size: 14px;}
+        .dashboard-link:hover { background: var(--bg-hover); color: var(--text-main); }
+        .active-tab, .active-tab:hover { background: var(--ink); color: #fff; }
 
-        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
-        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
-        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
-        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
-        
-        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0; margin-right: -4px;}
-        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
-        
-        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
-        
-        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
-        
-        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
-        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
-        .dashboard-link:hover { background-color: var(--bg-hover); }
-        
-        /* Specific active tab for Admin */
-        .active-tab { background-color: #FFEBEB; font-weight: 600; color: var(--accent-red); }
-        .active-tab i { color: var(--accent-red); }
+        /* MAIN WRAPPER */
+        .main-content { padding: 20px 0 60px 0; }
+        .wrap { max-width: 900px; margin: 0 auto; padding: 0 28px; display: flex; flex-direction: column; }
 
-        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
-        
-        /* COLLAPSED STATE LOGIC */
-        .sidebar.collapsed { width: 75px; }
-        .sidebar.collapsed .fade-text { opacity: 0; }
-        .sidebar.collapsed .sidebar-header { padding: 15px; justify-content: center; }
-        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; margin: 0; display: none; }
-        .sidebar.collapsed .sidebar-toggle { margin: 0; }
-        .sidebar.collapsed .sidebar-subtitle { border-color: transparent; height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 5px; overflow: hidden; opacity: 0; }
-        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
-        .sidebar.collapsed .dashboard-link { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
-        .sidebar.collapsed .dashboard-link i { width: auto; margin: 0; font-size: 18px; }
-        .sidebar.collapsed .link-text { display: none; }
-
-        .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; }
-        
-        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; max-width: 900px; margin-left: auto; margin-right: auto;}
+        .top-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 35px; width: 100%;}
         .header-left { display: flex; align-items: center; gap: 15px;}
-        .header-left .avatar { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #FF3B30 0%, #FF2D55 100%); display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
-        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 700; letter-spacing: -0.5px;}
+        .header-left .avatar { width: 45px; height: 45px; border-radius: 12px; background: linear-gradient(135deg, #D92D3A 0%, #FF2D55 100%); display: flex; justify-content: center; align-items: center; font-size: 20px; color: #fff; box-shadow: 0 4px 10px rgba(217,45,58,0.2);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main);}
         .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
 
-        .lock-btn { background-color: #FFEBEB; color: var(--accent-red); border: none; padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-family: var(--font-stack);}
-        .lock-btn:hover { background-color: #FFD6D6; }
+        .lock-btn { background-color: rgba(217,45,58,0.1); color: var(--accent-red); border: 1px solid rgba(217,45,58,0.2); padding: 10px 20px; border-radius: var(--radius-sm); font-weight: 700; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-size: 13px; font-family: var(--font-stack);}
+        .lock-btn:hover { background-color: rgba(217,45,58,0.2); }
 
-        .admin-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-soft); max-width: 900px; margin: 0 auto; margin-bottom: 30px;}
+        .admin-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); padding: 30px; box-shadow: var(--shadow-soft); width: 100%; margin-bottom: 30px;}
         .admin-card-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px;}
         .header-title-group { display: flex; align-items: center; gap: 15px; }
         .header-title-group i { font-size: 24px; color: var(--accent-blue); }
-        .header-title-group h3 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 700; letter-spacing: -0.3px;}
-        .admin-card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px;}
+        .header-title-group h3 { margin: 0; font-size: 18px; color: var(--text-main); font-weight: 800; letter-spacing: -0.3px;}
+        .admin-card-desc { font-size: 14px; color: var(--text-muted); line-height: 1.6; margin-bottom: 30px; font-weight: 500;}
         
         /* AUDIT ENGINE STYLES */
-        .health-score-container { display: flex; align-items: center; gap: 20px; background: #F9F9FB; padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom: 25px; }
+        .health-score-container { display: flex; align-items: center; gap: 20px; background: #F8F9FC; padding: 20px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom: 25px; }
         
-        .health-score-circle { width: 70px; height: 70px; flex-shrink: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 800; border: 4px solid var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(52, 199, 89, 0.2); transition: all 0.3s ease; background: #fff;}
+        .health-score-circle { width: 70px; height: 70px; flex-shrink: 0; border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 20px; font-weight: 800; border: 4px solid var(--accent-green); color: var(--accent-green); box-shadow: 0 0 15px rgba(14,148,103,0.2); transition: all 0.3s ease; background: #fff;}
         
-        .health-score-circle.warning { border-color: var(--accent-orange); color: var(--accent-orange); box-shadow: 0 0 15px rgba(255, 149, 0, 0.2); }
-        .health-score-circle.critical { border-color: var(--accent-red); color: var(--accent-red); box-shadow: 0 0 15px rgba(255, 59, 48, 0.2); }
-        .health-details h4 { margin: 0 0 5px 0; font-size: 15px; color: var(--text-main); font-weight: 700;}
-        .health-details p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; }
+        .health-score-circle.warning { border-color: var(--accent-orange); color: var(--accent-orange); box-shadow: 0 0 15px rgba(232,89,12,0.2); }
+        .health-score-circle.critical { border-color: var(--accent-red); color: var(--accent-red); box-shadow: 0 0 15px rgba(217,45,58,0.2); }
+        .health-details h4 { margin: 0 0 5px 0; font-size: 15px; color: var(--text-main); font-weight: 800;}
+        .health-details p { margin: 0; font-size: 13px; color: var(--text-muted); line-height: 1.5; font-weight: 500;}
 
         .flag-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; gap: 10px; max-height: 350px; overflow-y: auto; padding-right: 5px;}
         .flag-list::-webkit-scrollbar { width: 6px; }
         .flag-list::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
-        .flag-item { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-subtle); padding: 15px; border-radius: var(--radius-sm); transition: 0.2s; box-shadow: 0 2px 8px rgba(0,0,0,0.02);}
-        .flag-item:hover { background: #F9F9FB; }
+        .flag-item { display: flex; justify-content: space-between; align-items: center; background: #fff; border: 1px solid var(--border-subtle); padding: 15px; border-radius: var(--radius-sm); transition: 0.2s; box-shadow: 0 2px 8px rgba(16,24,40,.02);}
+        .flag-item:hover { background: #F8F9FC; }
         .flag-item.critical { border-left: 4px solid var(--accent-red); }
         .flag-item.warning { border-left: 4px solid var(--accent-orange); }
         
         .flag-info { display: flex; flex-direction: column; gap: 6px; }
-        .flag-title { font-size: 14px; font-weight: 700; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
-        .badge-red { font-size: 9px; font-weight: 800; background: #FFEBEB; color: var(--accent-red); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255, 59, 48, 0.2);}
-        .badge-yellow { font-size: 9px; font-weight: 800; background: #FFF4E5; color: var(--accent-orange); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(255, 149, 0, 0.2);}
+        .flag-title { font-size: 14px; font-weight: 800; color: var(--text-main); display: flex; align-items: center; gap: 8px;}
+        .badge-red { font-size: 9px; font-weight: 800; background: rgba(217,45,58,0.1); color: var(--accent-red); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(217,45,58,0.2);}
+        .badge-yellow { font-size: 9px; font-weight: 800; background: rgba(232,89,12,0.1); color: var(--accent-orange); padding: 4px 8px; border-radius: 4px; text-transform: uppercase; border: 1px solid rgba(232,89,12,0.2);}
         
-        .flag-context { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px;}
+        .flag-context { font-size: 11px; color: var(--text-muted); font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px;}
         
         .btn-action-group { display: flex; gap: 8px; }
-        .btn-fix { background: #E5F0FF; color: var(--accent-blue); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
-        .btn-fix:hover { background: #CCE0FF; }
-        .btn-delete { background: #FFEBEB; color: var(--accent-red); border: none; border-radius: 6px; padding: 8px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
-        .btn-delete:hover { background: #FFD6D6; }
+        .btn-fix { background: #F3F5F9; color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
+        .btn-fix:hover { background: #fff; border-color: var(--text-main); }
+        .btn-delete { background: rgba(217,45,58,0.1); color: var(--accent-red); border: 1px solid rgba(217,45,58,0.2); border-radius: 8px; padding: 8px 12px; font-size: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; font-family: var(--font-stack);}
+        .btn-delete:hover { background: rgba(217,45,58,0.2); }
 
         .input-group { margin-bottom: 25px; }
-        .input-group label { display: block; font-size: 12px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-        .input-group input { width: 100%; padding: 14px 15px; border: 1px solid #C7C7CC; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 14px; color: var(--text-main); background-color: #fff; box-sizing: border-box; outline: none; transition: 0.2s;}
-        .input-group input:focus { border-color: var(--accent-red); box-shadow: 0 0 0 3px rgba(255,59,48,0.15); }
+        .input-group label { display: block; font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
+        .input-group input { width: 100%; padding: 14px 15px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 14px; font-weight: 500; color: var(--text-main); background-color: #F8F9FC; box-sizing: border-box; outline: none; transition: 0.2s;}
+        .input-group input:focus { border-color: var(--accent-red); background-color: #fff; box-shadow: 0 0 0 3px rgba(217,45,58,0.15); }
 
-        .btn-archive { background: #FF3B30; color: #fff; border: none; padding: 16px 25px; border-radius: var(--radius-md); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; letter-spacing: 0.5px; font-family: var(--font-stack);}
-        .btn-archive:hover { background: #D92D20; transform: scale(0.99); }
+        .btn-archive { background: var(--accent-red); color: #fff; border: none; padding: 16px 25px; border-radius: var(--radius-md); font-weight: 700; font-size: 15px; cursor: pointer; transition: all 0.3s ease; display: flex; align-items: center; justify-content: center; gap: 10px; width: 100%; letter-spacing: 0.5px; font-family: var(--font-stack);}
+        .btn-archive:hover { background: #ba222d; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(217,45,58,0.25);}
         
         /* RAW EDITOR MODAL STYLES */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(8px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11,23,48,.6); backdrop-filter: blur(4px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .modal-overlay.active { display: flex; opacity: 1; }
         .modal-card { background: #1C1C1E; border: 1px solid #333; border-radius: var(--radius-lg); width: 90%; max-width: 700px; max-height: 90vh; display: flex; flex-direction: column; box-shadow: var(--shadow-modal); transform: translateY(20px) scale(0.95); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.active .modal-card { transform: translateY(0) scale(1); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #333; background: #121212; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
-        .modal-header h3 { margin: 0; color: #fff; font-size: 16px; font-weight: 600; display: flex; align-items: center; gap: 10px; }
-        .modal-close { background: rgba(255,255,255,0.1); border: none; color: #a0a0a0; font-size: 16px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 6px; }
-        .modal-close:hover { background: rgba(239, 68, 68, 0.2); color: var(--accent-red); }
+        .modal-header h3 { margin: 0; color: #fff; font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; letter-spacing: -0.2px;}
+        .modal-close { background: rgba(255,255,255,0.1); border: none; color: #a0a0a0; font-size: 16px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
+        .modal-close:hover { background: rgba(217,45,58,0.2); color: var(--accent-red); }
         .modal-body { padding: 25px; overflow-y: auto; display: flex; flex-direction: column; gap: 15px;}
         
         .json-editor { width: 100%; height: 350px; background: #000; color: #34C759; font-family: 'Fira Code', monospace; font-size: 13px; padding: 15px; border: 1px solid #333; border-radius: var(--radius-sm); outline: none; resize: vertical; box-sizing: border-box; line-height: 1.6; }
         .json-editor:focus { border-color: var(--accent-blue); }
         
-        .btn-save-edit { background: var(--accent-blue); color: #fff; border: none; border-radius: var(--radius-sm); padding: 14px 20px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; font-size: 14px; font-family: var(--font-stack);}
-        .btn-save-edit:hover { background: #0056B3; }
+        .btn-save-edit { background: var(--accent-blue); color: #fff; border: none; border-radius: var(--radius-md); padding: 14px 20px; font-weight: 700; cursor: pointer; transition: 0.2s; width: 100%; font-size: 14px; font-family: var(--font-stack);}
+        .btn-save-edit:hover { background: #1a56ff; transform: translateY(-1px);}
 
         /* OVERLAY AND ANIMATION STYLES */
-        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(8px); z-index: 9999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
+        .loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(11,23,48,.85); backdrop-filter: blur(8px); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: 0.3s ease; }
         .loading-overlay.active { opacity: 1; visibility: visible; }
         
         .terminal-box { background: #1C1C1E; border: 1px solid #333; border-radius: var(--radius-lg); width: 550px; max-width: 90%; box-shadow: var(--shadow-modal); overflow: hidden; transform: translateY(20px); transition: 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .loading-overlay.active .terminal-box { transform: translateY(0); }
         
         .terminal-header { background: #121212; padding: 12px 20px; border-bottom: 1px solid #333; display: flex; align-items: center; justify-content: space-between; }
-        .terminal-title { font-size: 11px; font-weight: 700; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;}
+        .terminal-title { font-size: 11px; font-weight: 800; color: #a0a0a0; text-transform: uppercase; letter-spacing: 1.5px; display: flex; align-items: center; gap: 8px;}
         .terminal-dots { display: flex; gap: 6px; }
         .dot { width: 10px; height: 10px; border-radius: 50%; }
         .dot-red { background: #ff5f56; } .dot-yellow { background: #ffbd2e; } .dot-green { background: #27c93f; }
@@ -153,11 +150,11 @@
         .terminal-body { padding: 25px; }
         
         .progress-wrapper { margin-bottom: 25px; }
-        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-blue); font-weight: 700; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
+        .progress-label { display: flex; justify-content: space-between; font-size: 12px; color: var(--accent-blue); font-weight: 800; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 1px;}
         .progress-track { width: 100%; height: 6px; background: #333; border-radius: 3px; overflow: hidden; }
         .progress-fill { height: 100%; background: var(--accent-blue); width: 0%; box-shadow: 0 0 10px var(--accent-blue); transition: width 0.3s ease; }
         
-        .console-logs { background: #000; border-radius: 6px; padding: 15px; height: 200px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 12px; color: #34C759; line-height: 1.6; border: 1px solid #222; }
+        .console-logs { background: #000; border-radius: 8px; padding: 15px; height: 200px; overflow-y: auto; font-family: 'Fira Code', monospace; font-size: 12px; color: #34C759; line-height: 1.6; border: 1px solid #222; }
         .console-logs::-webkit-scrollbar { width: 4px; }
         .console-logs::-webkit-scrollbar-track { background: #000; }
         .console-logs::-webkit-scrollbar-thumb { background: #333; border-radius: 4px;}
@@ -170,112 +167,99 @@
         @keyframes slideUpFade { from { opacity: 0; transform: translateY(5px); } to { opacity: 1; transform: translateY(0); } }
 
         .success-overlay { display: none; flex-direction: column; align-items: center; justify-content: center; height: 100%; text-align: center; }
-        .success-text { font-size: 20px; font-weight: 700; color: #fff; margin-bottom: 8px;}
-        .success-subtext { font-size: 14px; color: #a0a0a0; margin-bottom: 25px;}
-        .btn-done { background: #333; color: #fff; border: none; padding: 12px 25px; border-radius: 6px; cursor: pointer; font-weight: 600; font-size: 14px; transition: 0.2s; font-family: var(--font-stack);}
+        .success-text { font-size: 20px; font-weight: 800; color: #fff; margin-bottom: 8px;}
+        .success-subtext { font-size: 14px; color: #a0a0a0; margin-bottom: 25px; font-weight: 500;}
+        .btn-done { background: #333; color: #fff; border: none; padding: 14px 25px; border-radius: 8px; cursor: pointer; font-weight: 700; font-size: 14px; transition: 0.2s; font-family: var(--font-stack);}
         .btn-done:hover { background: #444; }
     </style>
 </head>
 <body>
 
-    <div class="sidebar" id="mainSidebar">
+    <!-- TOP NAVBAR -->
+    <header class="sidebar" id="mainSidebar">
         <div class="sidebar-inner">
-            <div class="sidebar-header">
-                <div class="sidebar-brand-container">
-                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
-                </div>
-                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="3" x2="9" y2="21"></line>
-                    </svg>
-                </button>
+            <div class="sidebar-brand-container">
+                <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
+                <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
             </div>
-            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
-            
-            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
-            <div class="nav-links-container">
-                <a href="index.html" class="dashboard-link" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
-                <a href="trend_analysis.html" class="dashboard-link" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
-                <a href="data_entry.html" class="dashboard-link" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
-                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
-                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
-                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
+            <nav class="nav" aria-label="Main">
+                <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a>
+                <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i><span class="link-text">Trend Analysis</span></a>
+                <a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i><span class="link-text">Command Workspace</span></a>
+                <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i><span class="link-text">Inventory</span></a>
+                <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i><span class="link-text">Archives</span></a>
+                <a href="infographic.html" target="_blank" rel="noopener" class="dashboard-link"><i class="fa-solid fa-file-image"></i><span class="link-text">Infographic</span></a>
+                <a href="admin.html" class="dashboard-link active-tab"><i class="fa-solid fa-server"></i><span class="link-text">System Admin</span></a>
+            </nav>
+        </div>
+    </header>
+
+    <main class="main-content">
+        <div class="wrap">
+            <div class="top-header">
+                <div class="header-left">
+                    <div class="avatar"><i class="fa-solid fa-shield-halved"></i></div>
+                    <div class="top-header-text">
+                        <h2>System Administration Center</h2>
+                        <p>Database Management, Automated Audits & Historical Logging</p>
+                    </div>
+                </div>
+                <button onclick="logoutUser()" class="lock-btn"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
             </div>
 
-            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
-            <div class="nav-links-container" style="padding-bottom: 20px;">
-                <a href="admin.html" class="dashboard-link active-tab" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
+            <!-- SYSTEM AUDIT ENGINE UI -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="header-title-group">
+                        <i class="fa-solid fa-stethoscope"></i>
+                        <h3>System Audit & Diagnostics</h3>
+                    </div>
+                </div>
+                
+                <div class="health-score-container">
+                    <div class="health-score-circle" id="healthScoreCircle">100%</div>
+                    <div class="health-details">
+                        <h4>Database Integrity Score</h4>
+                        <p>The system actively scans all unarchived entries for logic errors, anomalies, and duplicate submissions.</p>
+                    </div>
+                </div>
+
+                <ul class="flag-list" id="auditFlagsList">
+                    <li class="empty-state">System initializing...</li>
+                </ul>
+            </div>
+
+            <!-- ARCHIVE CARD -->
+            <div class="admin-card">
+                <div class="admin-card-header">
+                    <div class="header-title-group">
+                        <i class="fa-solid fa-box-archive" style="color: var(--accent-red);"></i>
+                        <h3>Archive Active Incident Data</h3>
+                    </div>
+                </div>
+                
+                <p class="admin-card-desc">
+                    Executing this protocol will finalize the current disaster response logs. All active data entries currently populating the live dashboards will be securely compiled, time-stamped, and transferred to the Historical Logs.
+                </p>
+
+                <div class="input-group">
+                    <label>Confirm Incident / Event Name to Archive</label>
+                    <input type="text" id="archiveIncidentName" placeholder="e.g., SW Monsoon & Typhon Luis" required>
+                </div>
+
+                <button class="btn-archive" onclick="triggerArchiveProtocol()"><i class="fa-solid fa-box-archive"></i> Execute Archiving Protocol</button>
             </div>
         </div>
-    </div>
-
-    <div class="main-content">
-        <div class="top-header">
-            <div class="header-left">
-                <div class="avatar"><i class="fa-solid fa-shield-halved"></i></div>
-                <div class="top-header-text">
-                    <h2>System Administration Center</h2>
-                    <p>Database Management, Automated Audits & Historical Logging</p>
-                </div>
-            </div>
-            <button onclick="logoutUser()" class="lock-btn"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
-        </div>
-
-        <!-- SYSTEM AUDIT ENGINE UI -->
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <div class="header-title-group">
-                    <i class="fa-solid fa-stethoscope"></i>
-                    <h3>System Audit & Diagnostics</h3>
-                </div>
-            </div>
-            
-            <div class="health-score-container">
-                <div class="health-score-circle" id="healthScoreCircle">100%</div>
-                <div class="health-details">
-                    <h4>Database Integrity Score</h4>
-                    <p>The system actively scans all unarchived entries for logic errors, anomalies, and duplicate submissions.</p>
-                </div>
-            </div>
-
-            <ul class="flag-list" id="auditFlagsList">
-                <li class="empty-state">System initializing...</li>
-            </ul>
-        </div>
-
-        <!-- ARCHIVE CARD -->
-        <div class="admin-card">
-            <div class="admin-card-header">
-                <div class="header-title-group">
-                    <i class="fa-solid fa-box-archive" style="color: var(--accent-red);"></i>
-                    <h3>Archive Active Incident Data</h3>
-                </div>
-            </div>
-            
-            <p class="admin-card-desc">
-                Executing this protocol will finalize the current disaster response logs. All active data entries currently populating the live dashboards will be securely compiled, time-stamped, and transferred to the Historical Logs.
-            </p>
-
-            <div class="input-group">
-                <label>Confirm Incident / Event Name to Archive</label>
-                <input type="text" id="archiveIncidentName" placeholder="e.g., SW Monsoon & Typhon Luis" required>
-            </div>
-
-            <button class="btn-archive" onclick="triggerArchiveProtocol()">Execute Archiving Protocol</button>
-        </div>
-    </div>
-
-    <!-- RAW JSON EDITOR MODAL FOR AUDIT FIXES -->
+    </main>
+<!-- RAW JSON EDITOR MODAL FOR AUDIT FIXES -->
     <div class="modal-overlay" id="editModal" onclick="closeEditModal(event)">
         <div class="modal-card" onclick="event.stopPropagation()">
             <div class="modal-header">
                 <h3>Raw Database Editor</h3>
-                <button class="modal-close" onclick="closeEditModal()">X</button>
+                <button class="modal-close" onclick="closeEditModal()"><i class="fa-solid fa-xmark"></i></button>
             </div>
             <div class="modal-body">
-                <div style="font-size: 13px; color: #a0a0a0; margin-bottom: 5px;">
+                <div style="font-size: 13px; color: #a0a0a0; margin-bottom: 5px; font-weight: 500;">
                     Modify the raw JSON payload below to fix typos. Be careful not to delete quotation marks or commas.
                 </div>
                 <input type="hidden" id="editDocId">
@@ -343,27 +327,20 @@
 
     window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 
-    // Added the smooth collapse JS listener
-    document.addEventListener('DOMContentLoaded', () => {
-        const toggleBtn = document.getElementById('toggleSidebarBtn');
-        const sidebar = document.getElementById('mainSidebar');
-        if(localStorage.getItem('sidebarCollapsed') === 'true') { sidebar.classList.add('collapsed'); }
-        if(toggleBtn) {
-            toggleBtn.addEventListener('click', () => {
-                sidebar.classList.toggle('collapsed');
-                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
-            });
-        }
-    });
-
+    // ATLAS FIX: Cleaned System Collections Array - strictly removed weather and residential
     const systemCollections = [
-        { id: "weather_conditions", name: "Weather Observations" }, { id: "actions_data", name: "Preparedness Actions" },
-        { id: "flooded_areas", name: "Flooded Area Vectors" }, { id: "evacuation_data", name: "Evacuation Center Logs" },
-        { id: "preemptive_data", name: "Pre-Emptive Evac Logs" }, { id: "complement_data", name: "OpCen Complement Logs" },
-        { id: "lifeline_data", name: "Utility Lifeline Status" }, { id: "infrastructure_data", name: "Public Infrastructure" },
-        { id: "casualties_data", name: "Reported Casualties" }, { id: "resource_data", name: "Deployed Asset Tracking" },
-        { id: "suspensions_data", name: "Official Suspensions" }, { id: "agri_damages", name: "Agricultural Damages" },
-        { id: "residential_damages", name: "Residential Damages" }, { id: "assistance_data", name: "Relief Assistance Value" },
+        { id: "actions_data", name: "Preparedness Actions" },
+        { id: "flooded_areas", name: "Flooded Area Vectors" }, 
+        { id: "evacuation_data", name: "Evacuation Center Logs" },
+        { id: "preemptive_data", name: "Pre-Emptive Evac Logs" }, 
+        { id: "complement_data", name: "OpCen Complement Logs" },
+        { id: "lifeline_data", name: "Utility Lifeline Status" }, 
+        { id: "infrastructure_data", name: "Public Infrastructure" },
+        { id: "casualties_data", name: "Reported Casualties" }, 
+        { id: "resource_data", name: "Deployed Asset Tracking" },
+        { id: "suspensions_data", name: "Official Suspensions" }, 
+        { id: "agri_damages", name: "Agricultural Damages" },
+        { id: "assistance_data", name: "Relief Assistance Value" },
         { id: "related_incidents", name: "Hazard Monitoring Logs" }
     ];
 
@@ -377,9 +354,10 @@
     let liveAuditData = {};
     let auditFlags = [];
 
+    // ATLAS FIX: Cleaned Audit Scanner Array - removed residential
     const collectionsToAudit = [
         'evacuation_data', 'casualties_data', 'infrastructure_data', 'assistance_data', 
-        'flooded_areas', 'actions_data', 'resource_data', 'agri_damages', 'residential_damages'
+        'flooded_areas', 'actions_data', 'resource_data', 'agri_damages'
     ];
     
     collectionsToAudit.forEach(colName => {
@@ -389,7 +367,6 @@
         });
     });
 
-    /* STRICT STRING CONCATENATION - ZERO TEMPLATE LITERALS */
     function runSystemAudit() {
         auditFlags = [];
         let totalRecordsScanned = 0;
@@ -569,8 +546,8 @@
         if (score < 60) scoreEl.classList.add('critical');
 
         if (auditFlags.length === 0) {
-            let emptyHtml = '<li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: #E8F8EE; border: 1px dashed rgba(52, 199, 89, 0.4); border-radius: 12px; gap: 12px;">';
-            emptyHtml += '<span style="font-size: 14px; font-weight: 600;">No logic errors, anomalies, or duplicates detected in the active database.</span>';
+            let emptyHtml = '<li class="empty-state" style="padding: 40px 20px; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; color: var(--accent-green); background: rgba(14,148,103,0.05); border: 1px dashed rgba(14,148,103,0.3); border-radius: 12px; gap: 12px;">';
+            emptyHtml += '<span style="font-size: 14px; font-weight: 700;">No logic errors, anomalies, or duplicates detected in the active database.</span>';
             emptyHtml += '</li>';
             listEl.innerHTML = emptyHtml;
             return;
@@ -582,7 +559,7 @@
             let html = '<li class="flag-item ' + flag.type + '">';
             html += '<div class="flag-info">';
             html += '<div class="flag-title">' + badgeObj + ' ' + flag.title + '</div>';
-            html += '<div style="font-size: 13px; color: var(--text-main); margin-top: 2px;">' + flag.reason + '</div>';
+            html += '<div style="font-size: 13px; color: var(--text-main); margin-top: 2px; font-weight: 500;">' + flag.reason + '</div>';
             html += '<div class="flag-context">' + flag.context + '</div>';
             html += '</div>';
             html += '<div class="btn-action-group">';
@@ -754,6 +731,60 @@
     window.closeOverlay = function() {
         document.getElementById('loadingOverlay').classList.remove('active');
     };
+
+    // ==========================================
+// SOFT SPA ROUTING INTERCEPTOR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    // 1. Determine Tab Order
+    const pageOrder = ['index.html', 'trend_analysis.html', 'data_entry.html', 'inventory.html', 'archives.html', 'admin.html'];
+    
+    // 2. Identify Current Page
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentIndex = pageOrder.indexOf(currentPath);
+
+    // 3. Check Session Storage for Entry Direction
+    const incomingDirection = sessionStorage.getItem('slideDirection');
+    if (incomingDirection === 'left') {
+        mainContent.classList.add('slide-in-left');
+    } else if (incomingDirection === 'right') {
+        mainContent.classList.add('slide-in-right');
+    } else {
+        mainContent.classList.add('slide-in-right'); // Default load
+    }
+    sessionStorage.removeItem('slideDirection'); // Clear after use
+
+    // 4. Intercept Navigation Clicks
+    const navLinks = document.querySelectorAll('.dashboard-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+            
+            // Ignore external links (Infographic) or current page clicks
+            if (link.target === "_blank" || targetUrl === currentPath || targetUrl === '#') return;
+            
+            e.preventDefault();
+            const targetIndex = pageOrder.indexOf(targetUrl);
+            
+            // Calculate Slide Direction based on layout
+            if (targetIndex > currentIndex) {
+                mainContent.classList.add('slide-out-left');
+                sessionStorage.setItem('slideDirection', 'right'); // Next page should slide in from right
+            } else {
+                mainContent.classList.add('slide-out-right');
+                sessionStorage.setItem('slideDirection', 'left'); // Next page should slide in from left
+            }
+            
+            // Wait for slide animation to complete before telling the browser to load the file
+            setTimeout(() => { 
+                window.location.href = targetUrl; 
+            }, 200);
+        });
+    });
+});
 
 </script>
 </body>
