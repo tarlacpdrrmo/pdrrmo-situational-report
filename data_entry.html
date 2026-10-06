@@ -4,7 +4,12 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDRRMO Command Center | Workspace</title>
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/flatpickr/dist/flatpickr.min.css">
@@ -13,7 +18,7 @@
     <script type="importmap">
       {
         "imports": {
-          "@google/generative-ai": "https://esm.run/@google/generative-ai"
+          "@google/generative-ai": "https://esm.run/@google/generative-ai@0.21.0"
         }
       }
     </script>
@@ -21,260 +26,241 @@
     <style> body { visibility: hidden; } </style>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
         
+/* SOFT SPA SLIDE ANIMATIONS */
+.main-content {
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.main-content.slide-out-left { transform: translateX(-40px); opacity: 0; }
+.main-content.slide-out-right { transform: translateX(40px); opacity: 0; }
+.main-content.slide-in-left { transform: translateX(-40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.main-content.slide-in-right { transform: translateX(40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes slideRest {
+    to { transform: translateX(0); opacity: 1; }
+}
+
         :root { 
-            --bg-body: #F2F2F7; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF; --bg-input: #F2F2F7; --bg-hover: #E5E5EA; 
-            --text-main: #1C1C1E; --text-muted: #86868B; 
-            --accent-blue: #007AFF; --accent-green: #34C759; --accent-orange: #FF9500; --accent-red: #FF3B30; --accent-purple: #AF52DE; --accent-teal: #5AC8FA; --accent-yellow: #FFCC00;
-            --border-subtle: #D1D1D6; --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04); --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
-            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --bg-body: #F2F4F8; --bg-card: #fff; --bg-hover: #EEF1F6; 
+            --text-main: #0F172A; --text-muted: #5B6678; 
+            --accent-blue: #2F6BFF; --accent-green: #0E9467; --accent-orange: #E8590C; --accent-red: #D92D3A; --accent-purple: #7C4DFF; --accent-teal: #0A8FA6; --accent-yellow: #B7791F; 
+            --border-subtle: #E1E6EE; --ink: #0B1730; --hot: #FF8A8E; --signal: #FF7A2F; 
+            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --shadow-soft: 0 4px 20px rgba(16,24,40,.03);
+            --shadow-modal: 0 30px 70px rgba(11,23,48,.4);
+            --radius-lg: 20px; --radius-md: 12px; --radius-sm: 8px;
         }
 
-        body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased; }
+        * { box-sizing: border-box; }
+        body { font-family: var(--font-stack); background: var(--bg-body); color: var(--text-main); font-size: 13px; margin: 0; padding: 0; -webkit-font-smoothing: antialiased; }
         
-        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER (BULLETPROOF FLEXBOX) */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
-        .sidebar-inner::-webkit-scrollbar { width: 0px; }
 
-        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
-        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
-        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
-        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
-        
-        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; padding: 0; margin-right: -4px;}
-        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
-        
-        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
-        
-        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
-        
-        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
-        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
-        .dashboard-link:hover { background-color: var(--bg-hover); }
+        /* TOP NAVIGATION */
+        .sidebar { position: sticky; top: 0; z-index: 10000; background: #fff; border-bottom: 1px solid var(--border-subtle); }
+        .sidebar-inner { max-width: 1480px; margin: 0 auto; padding: 0 28px; height: 60px; display: flex; align-items: center; gap: 26px; }
+        .sidebar-brand-container { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+        .sidebar-logo { width: 34px; height: 34px; object-fit: contain; }
+        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; letter-spacing: -.02em; }
+        .nav { display: flex; gap: 2px; flex: 1; overflow-x: auto; scrollbar-width: none; }
+        .nav::-webkit-scrollbar { display: none; }
+        .dashboard-link { display: flex; align-items: center; gap: 8px; padding: 8px 12px; border-radius: 10px; color: var(--text-muted); font-weight: 600; text-decoration: none; white-space: nowrap; transition: 0.2s; font-size: 14px;}
+        .dashboard-link:hover { background: var(--bg-hover); color: var(--text-main); }
+        .active-tab, .active-tab:hover { background: var(--ink); color: #fff; }
 
-        .active-tab { background-color: var(--bg-hover); font-weight: 600; color: var(--accent-blue); }
-        .active-tab i { color: var(--accent-blue); }
-        
-        .tab-btn { background: none; color: var(--text-main); border: none; padding: 10px 15px; margin: 0 12px 2px 12px; text-align: left; font-size: 13px; font-weight: 500; cursor: pointer; transition: 0.2s; border-radius: var(--radius-md); display: flex; align-items: center; gap: 12px; width: calc(100% - 24px); box-sizing: border-box; white-space: nowrap;}
-        .tab-btn i { font-size: 14px; width: 20px; text-align: center; color: var(--text-muted); transition: 0.2s;}
-        .tab-btn:hover { background-color: var(--bg-hover); }
-        .tab-btn.active { background-color: var(--accent-blue); color: #fff; font-weight: 600; box-shadow: 0 4px 10px rgba(0, 122, 255, 0.3);}
-        .tab-btn.active i { color: #fff; }
+        /* MAIN WRAPPER */
+        .main-content { padding: 20px 0 60px 0; }
+        .wrap { max-width: 1480px; margin: 0 auto; padding: 0 28px; display: flex; flex-direction: column; }
 
-        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
-        
-        /* COLLAPSED STATE LOGIC */
-        .sidebar.collapsed { width: 70px; }
-        .sidebar.collapsed .sidebar-header { padding: 0; justify-content: center; }
-        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; display: none; }
-        .sidebar.collapsed .sidebar-toggle { margin-left: 0; }
-        .sidebar.collapsed .sidebar-subtitle { display: none; }
-        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
-        
-        .sidebar.collapsed .dashboard-link, .sidebar.collapsed .tab-btn { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
-        .sidebar.collapsed .dashboard-link i, .sidebar.collapsed .tab-btn i { width: auto; margin: 0; font-size: 18px; }
-        .sidebar.collapsed .link-text, .sidebar.collapsed .tab-text { display: none; }
-        
-        /* MAIN CONTENT & WORKSPACE WRAPPER */
-        .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow: hidden; position: relative; }
-        .workspace-wrapper { width: 100%; margin: 0 auto; display: flex; flex-direction: column; height: 100%; }
-
-        /* GLOBAL CLOUD SYNC LOADER */
-        .global-loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-        .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        .loader-text { color: var(--text-main); font-size: 14px; font-weight: 700; letter-spacing: 0.5px; animation: pulseText 1.5s ease-in-out infinite; font-family: var(--font-stack); }
-        
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulseText { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-
-        .top-header { display: flex; align-items: center; gap: 15px; margin-bottom: 20px; flex-shrink: 0; justify-content: space-between;}
+        .top-header { display: flex; align-items: center; gap: 15px; margin-bottom: 25px; flex-shrink: 0; justify-content: space-between;}
         .header-left { display: flex; align-items: center; gap: 15px;}
-        .top-header .avatar { width: 42px; height: 42px; border-radius: 12px; background: linear-gradient(135deg, #007AFF 0%, #5856D6 100%); display: flex; justify-content: center; align-items: center; font-size: 18px; color: #fff; box-shadow: 0 4px 10px rgba(0,122,255,0.3);}
-        .top-header-text h2 { margin: 0; font-size: 20px; font-weight: 700; letter-spacing: -0.5px;}
-        .top-header-text p { margin: 2px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
-        
-        /* COLLAPSIBLE CONTEXT */
-        .context-panel { background: var(--bg-card); padding: 20px 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 20px; flex-shrink: 0; transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); box-shadow: var(--shadow-soft); }
+        .top-header .avatar { width: 42px; height: 42px; border-radius: 12px; background: var(--ink); display: flex; justify-content: center; align-items: center; font-size: 18px; color: #fff; box-shadow: 0 4px 10px rgba(0,0,0,0.1);}
+        .top-header-text h2 { margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main);}
+        .top-header-text p { margin: 4px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;}
+
+        /* CONTEXT PANEL */
+        .context-panel { background: var(--bg-card); padding: 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 25px; box-shadow: var(--shadow-soft); transition: all 0.4s cubic-bezier(0.16, 1, 0.3, 1); }
         .context-panel-header { display: flex; justify-content: space-between; align-items: center; }
-        .context-panel h3 { margin: 0; color: var(--text-main); font-size: 15px; font-weight: 700; display: flex; align-items: center; gap: 8px;}
+        .context-panel h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;}
         .collapsible-area { overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; max-height: 500px; opacity: 1; margin-top: 20px;}
         .context-panel.locked .collapsible-area { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none;}
         .context-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end; }
         
         /* WORKSPACE TOOLBAR */
-        .workspace-toolbar { display: none; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 12px 20px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 20px; box-shadow: var(--shadow-soft); flex-shrink: 0; animation: fadeIn 0.3s ease;}
+        .workspace-toolbar { display: none; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 15px 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 20px; box-shadow: var(--shadow-soft); flex-shrink: 0; animation: fadeIn 0.3s ease;}
         .workspace-toolbar.active { display: flex; }
         .toolbar-left { display: flex; gap: 15px; align-items: center; }
         .toolbar-right { display: flex; gap: 10px; justify-content: flex-end; }
-        .toolbar-input { width: 350px; padding: 10px 14px; border: 1px solid #C7C7CC; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; color: var(--text-main); background: #fff; transition: 0.2s; outline: none; }
-        .toolbar-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
+        .toolbar-input { width: 350px; padding: 10px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; color: var(--text-main); background: #F8F9FC; transition: 0.2s; outline: none; font-weight: 500;}
+        .toolbar-input:focus { border-color: var(--accent-blue); background: #fff; box-shadow: 0 0 0 3px rgba(47,107,255,0.15); }
         .toolbar-left .ts-wrapper { width: 250px; }
-        .btn-add { background: var(--accent-blue); color: white; border: none; padding: 10px 18px; border-radius: var(--radius-md); font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: var(--font-stack);}
-        .btn-add:hover { filter: brightness(0.9); transform: scale(0.98); }
+        
+        .btn-add { background: var(--ink); color: white; border: none; padding: 10px 18px; border-radius: var(--radius-md); font-weight: 600; font-size: 13px; cursor: pointer; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: var(--font-stack);}
+        .btn-add:hover { background: #1C274C; transform: translateY(-1px); }
 
-        /* FULL WIDTH TABLES & HORIZONTAL SCROLL */
-        .form-section { display: none; flex: 1; min-height: 0; }
-        .form-section.active { display: flex; flex-direction: column; animation: fadeIn 0.3s ease-in-out; }
-        .table-side { width: 100%; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); height: 100%; overflow-y: auto; overflow-x: auto; box-sizing: border-box; box-shadow: var(--shadow-soft);}
+        /* WORKSPACE HORIZONTAL TABS */
+        .workspace-tabs { display: none; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: thin; }
+        .workspace-tabs.active { display: flex; animation: fadeIn 0.3s ease; }
+        .workspace-tabs::-webkit-scrollbar { height: 6px; }
+        .workspace-tabs::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
+        .tab-btn { flex-shrink: 0; background: #fff; border: 1px solid var(--border-subtle); border-radius: 99px; padding: 8px 16px; font-weight: 600; font-size: 13px; color: var(--text-muted); cursor: pointer; white-space: nowrap; display: flex; align-items: center; gap: 8px; transition: 0.2s; font-family: var(--font-stack); box-shadow: 0 1px 2px rgba(16,24,40,.02); }
+        .tab-btn:hover { background: var(--bg-hover); color: var(--text-main); }
+        .tab-btn.active { background: var(--ink); color: #fff; border-color: var(--ink); box-shadow: 0 4px 10px rgba(11,23,48,.15);}
+        .tab-btn i { font-size: 14px; }
+
+        /* DATA TABLES */
+        .form-section { display: none; flex-direction: column; animation: fadeIn 0.3s ease-in-out; }
+        .form-section.active { display: flex; }
+        .table-side { width: 100%; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); overflow-y: auto; overflow-x: auto; box-shadow: var(--shadow-soft); max-height: 600px;}
         .table-side::-webkit-scrollbar { width: 6px; height: 8px;}
         .table-side::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
 
-        /* LEDGER TYPOGRAPHY HIERARCHY */
-        .historical-row td { opacity: 0.65; font-style: italic; }
-        .historical-row .strong-text { font-weight: 500; }
-        .historical-row .btn-table-edit { opacity: 0.7; font-style: normal; }
-        .historical-row .badge { filter: grayscale(40%); font-style: normal; }
+        .data-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: auto; white-space: nowrap; }
+        .data-table th { background: #F8F9FC; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2;}
+        .data-table td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #EDF0F5; color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; transition: background 0.2s;}
+        .data-table tr:hover td { background-color: #F8F9FC; }
         
+        /* LEDGER TYPOGRAPHY */
+        .historical-row td { opacity: 0.7; font-style: italic; }
+        .historical-row .strong-text { font-weight: 500; }
+        .historical-row .badge { filter: grayscale(30%); }
         .current-row td { opacity: 1; }
         .current-row .strong-text { font-weight: 700; }
-        .current-row { background-color: rgba(0, 122, 255, 0.02); }
+        .current-row { background-color: rgba(47, 107, 255, 0.02); }
+
+        .btn-table-edit { background: #F3F5F9; color: var(--accent-blue); border: 1px solid var(--border-subtle); border-radius: 8px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-stack);}
+        .btn-table-edit:hover { background: #fff; border-color: var(--accent-blue); }
+
+        /* BADGES */
+        .badge { padding: 4px 10px; border-radius: 6px; font-size: 11px; font-weight: 700; display: inline-flex; align-items: center; justify-content: center; text-align: center; margin-top: 2px; letter-spacing: 0.3px;}
+        .bg-danger { color: var(--accent-red); background: rgba(217,45,58,0.1); border: 1px solid rgba(217,45,58,0.2); }
+        .bg-warning { color: var(--accent-yellow); background: rgba(183,121,31,0.1); border: 1px solid rgba(183,121,31,0.2); }
+        .bg-success { color: var(--accent-green); background: rgba(14,148,103,0.1); border: 1px solid rgba(14,148,103,0.2); }
+        .bg-primary { color: var(--accent-blue); background: rgba(47,107,255,0.1); border: 1px solid rgba(47,107,255,0.2); }
+        .bg-secondary { color: var(--text-muted); background: #F3F5F9; border: 1px solid var(--border-subtle); }
 
         /* MODAL STYLES */
-        .slide-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 99999; display: flex; justify-content: center; align-items: flex-start; opacity: 0; visibility: hidden; transition: all 0.3s ease; padding-top: 40px; }
+        .slide-modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11,23,48,.6); backdrop-filter: blur(3px); z-index: 99999; display: flex; justify-content: center; align-items: center; opacity: 0; visibility: hidden; transition: all 0.3s ease; }
         .slide-modal-overlay.active { opacity: 1; visibility: visible; }
-        .slide-modal-card { background: var(--bg-card); width: 100%; max-width: 650px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); box-shadow: var(--shadow-modal); transform: translateY(-100px); transition: transform 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 88vh; }
+        .slide-modal-card { background: var(--bg-card); width: 92%; max-width: 660px; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); transform: translateY(20px) scale(0.98); transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); display: flex; flex-direction: column; max-height: 85vh; }
         .slide-modal-card.wide-modal { max-width: 900px; }
-        .slide-modal-overlay.active .slide-modal-card { transform: translateY(0); }
-        .slide-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--border-subtle); background: #F9F9FB; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
-        .slide-modal-header h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; letter-spacing: -0.3px;}
+        .slide-modal-overlay.active .slide-modal-card { transform: translateY(0) scale(1); }
+        .slide-modal-header { display: flex; justify-content: space-between; align-items: center; padding: 18px 25px; border-bottom: 1px solid var(--border-subtle); background: #fff; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
+        .slide-modal-header h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 10px; letter-spacing: -0.2px;}
         .slide-modal-body { padding: 25px; overflow-y: auto; }
-        .slide-modal-body::-webkit-scrollbar { width: 4px; }
+        .slide-modal-body::-webkit-scrollbar { width: 6px; }
         .slide-modal-body::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
-        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
-        .modal-close:hover { background: #FFEBEB; color: var(--accent-red); }
+        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 34px; height: 34px; border-radius: 10px; }
+        .modal-close:hover { background: #FDE8EA; color: var(--accent-red); }
 
         /* SMART SCANNER & BATCH STAGING STYLES */
-        .scan-dropzone { border: 2px dashed var(--accent-purple); border-radius: var(--radius-md); padding: 35px 20px; text-align: center; cursor: pointer; transition: 0.2s; background: #F9F9FB; color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 10px; }
-        .scan-dropzone:hover, .scan-dropzone.dragover { background: #F3E8FF; border-color: var(--accent-purple); color: var(--accent-purple); }
-        .scan-preview-container { display: none; margin-top: 15px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-subtle); position: relative; background: #E5E5EA; }
+        .scan-dropzone { border: 2px dashed var(--accent-purple); border-radius: var(--radius-md); padding: 40px 20px; text-align: center; cursor: pointer; transition: 0.2s; background: rgba(124, 77, 255, 0.05); color: var(--text-muted); display: flex; flex-direction: column; align-items: center; gap: 12px; }
+        .scan-dropzone:hover, .scan-dropzone.dragover { background: rgba(124, 77, 255, 0.1); border-color: var(--accent-purple); color: var(--accent-purple); }
+        .scan-preview-container { display: none; margin-top: 15px; border-radius: var(--radius-md); overflow: hidden; border: 1px solid var(--border-subtle); position: relative; background: #F8F9FC; }
         .scan-preview-img { width: 100%; max-height: 250px; object-fit: contain; display: block; }
-        .btn-remove-scan { position: absolute; top: 10px; right: 10px; background: rgba(0,0,0,0.6); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
+        .btn-remove-scan { position: absolute; top: 10px; right: 10px; background: rgba(11,23,48,.6); color: #fff; border: none; border-radius: 50%; width: 32px; height: 32px; cursor: pointer; display: flex; justify-content: center; align-items: center; transition: 0.2s; }
         .btn-remove-scan:hover { background: var(--accent-red); }
         
         .staging-table-wrapper { width: 100%; max-height: 380px; overflow-y: auto; overflow-x: auto; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); margin-top: 15px; }
         .staging-table { width: 100%; border-collapse: collapse; text-align: left; font-size: 12px; }
         .staging-table th, .staging-table td { white-space: nowrap; }
-        .staging-table th { background: #F9F9FB; padding: 10px 12px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; }
+        .staging-table th { background: #F8F9FC; padding: 12px; font-weight: 700; color: var(--text-muted); border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; }
         .staging-table td { padding: 10px 12px; border-bottom: 1px solid var(--border-subtle); vertical-align: middle; }
-        .staging-table tr:hover { background: #F9F9FB; }
+        .staging-table tr:hover { background: #F8F9FC; }
         .staging-input { width: 100%; padding: 6px 8px; font-size: 12px; border: 1px solid var(--border-subtle); border-radius: 6px; background: #fff; box-sizing: border-box; min-width: 80px;}
-        .btn-row-delete { background: transparent; border: none; color: var(--accent-red); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 4px; }
-        .btn-row-delete:hover { background: #FFEBEB; }
+        .btn-row-delete { background: transparent; border: none; color: var(--accent-red); cursor: pointer; font-size: 14px; padding: 4px 8px; border-radius: 6px; }
+        .btn-row-delete:hover { background: #FDE8EA; }
 
         /* SAVING ANIMATION OVERLAY */
-        .global-save-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.4); backdrop-filter: blur(5px); z-index: 999999; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
+        .global-save-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(11,23,48,.6); backdrop-filter: blur(5px); z-index: 999999; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
         .global-save-overlay.active { display: flex; opacity: 1; }
-        .save-card { background: var(--bg-card); padding: 35px 50px; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); display: flex; flex-direction: column; align-items: center; gap: 15px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .save-card { background: var(--bg-card); padding: 40px 50px; border-radius: var(--radius-lg); box-shadow: var(--shadow-modal); display: flex; flex-direction: column; align-items: center; gap: 18px; transform: scale(0.9); transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .global-save-overlay.active .save-card { transform: scale(1); }
         .save-spinner { width: 45px; height: 45px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; }
-        .save-success-icon { font-size: 50px; color: var(--accent-green); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .save-text { font-size: 16px; font-weight: 700; color: var(--text-main); letter-spacing: -0.2px; }
+        .save-success-icon { font-size: 55px; color: var(--accent-green); animation: popIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
+        .save-text { font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.2px; }
         @keyframes popIn { 0% { transform: scale(0); opacity: 0; } 100% { transform: scale(1); opacity: 1; } }
 
         /* FORMS & INPUTS */
-        .form-group { display: flex; flex-direction: column; margin-bottom: 14px; width: 100%;}
-        label { font-size: 11px; font-weight: 600; color: var(--text-muted); margin-bottom: 6px; letter-spacing: 0.2px; text-transform: uppercase;}
-        input, select, textarea { box-sizing: border-box; padding: 10px 14px; border: 1px solid transparent; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; color: var(--text-main); background: var(--bg-input); transition: all 0.2s ease; outline: none; resize: vertical; }
+        .form-group { display: flex; flex-direction: column; margin-bottom: 16px; width: 100%;}
+        label { font-size: 11px; font-weight: 700; color: var(--text-muted); margin-bottom: 8px; letter-spacing: 0.5px; text-transform: uppercase;}
+        input, select, textarea { box-sizing: border-box; padding: 12px 14px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 13px; font-weight: 500; color: var(--text-main); background: #F8F9FC; transition: all 0.2s ease; outline: none; resize: vertical; }
         .form-group input, .form-group select, .form-group textarea, .context-panel input, .context-panel textarea { width: 100%; }
-        input::placeholder, textarea::placeholder { color: #AEAEB2; }
-        input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); background-color: #fff; box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
-        input:disabled, select:disabled, textarea:disabled { background-color: #F9F9FB; color: #C7C7CC; cursor: not-allowed; border-color: #E5E5EA;}
+        input::placeholder, textarea::placeholder { color: #A0ABBB; font-weight: 400;}
+        input:focus, select:focus, textarea:focus { border-color: var(--accent-blue); background-color: #fff; box-shadow: 0 0 0 3px rgba(47,107,255,0.15); }
+        input:disabled, select:disabled, textarea:disabled { background-color: #F1F4F9; color: #9AA4B5; cursor: not-allowed; border-color: #E1E6EE;}
         
         .ts-wrapper { position: relative; font-family: var(--font-stack) !important; }
         .form-group .ts-wrapper { width: 100%; }
-        .ts-control, .ts-control input { color: var(--text-main) !important; font-family: var(--font-stack) !important; font-size: 13px; }
-        .ts-wrapper.single .ts-control, .ts-wrapper.multi .ts-control { background-color: var(--bg-input); border: 1px solid transparent; border-radius: var(--radius-md); padding: 10px 14px; box-shadow: none; cursor: text; transition: 0.2s; min-height: 40px;}
-        .ts-wrapper.single.focus .ts-control, .ts-wrapper.multi.focus .ts-control { border-color: var(--accent-blue); background-color: #fff; box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
-        .ts-dropdown { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: 0 10px 30px rgba(0,0,0,0.1); margin-top: 5px; overflow: hidden;}
+        .ts-control, .ts-control input { color: var(--text-main) !important; font-family: var(--font-stack) !important; font-size: 13px; font-weight: 500;}
+        .ts-wrapper.single .ts-control, .ts-wrapper.multi .ts-control { background-color: #F8F9FC; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); padding: 12px 14px; box-shadow: none; cursor: pointer; transition: 0.2s; min-height: 44px;}
+        .ts-wrapper.single.focus .ts-control, .ts-wrapper.multi.focus .ts-control, .ts-wrapper.input-active .ts-control { border-color: var(--accent-blue); background-color: #fff; box-shadow: 0 0 0 3px rgba(47,107,255,0.15); }
+        .ts-dropdown { background-color: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-md); box-shadow: 0 12px 32px rgba(11,23,48,.15); margin-top: 5px; overflow: hidden; font-weight: 500;}
         .ts-dropdown .option { padding: 10px 14px; color: var(--text-main); font-size: 13px; cursor: pointer; transition: 0.1s;}
-        .ts-dropdown .active { background-color: var(--accent-blue) !important; color: #fff !important; font-weight: 500;}
+        .ts-dropdown .active { background-color: rgba(47,107,255,0.08) !important; color: var(--accent-blue) !important; font-weight: 700;}
         .ts-wrapper.focus .ts-control { background-color: #fff !important; color: var(--text-main) !important; }
         .ts-wrapper .ts-control > input { color: var(--text-main) !important; background-color: transparent !important; }
-        .ts-wrapper.multi .ts-control > div { background: #E5F0FF; color: var(--accent-blue); border: none; border-radius: 6px; padding: 4px 8px; margin: 2px 4px 2px 0; font-size: 12px; font-weight: 500; display: inline-flex; align-items: center;}
+        .ts-wrapper.multi .ts-control > div { background: rgba(47,107,255,0.1); color: var(--accent-blue); border: none; border-radius: 6px; padding: 4px 8px; margin: 2px 4px 2px 0; font-size: 12px; font-weight: 600; display: inline-flex; align-items: center;}
         
         /* FLATPICKR */
-        .flatpickr-calendar { background: #FFFFFF; box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1) !important; border: 1px solid #E5E5EA !important; border-radius: 14px !important; padding: 15px !important; font-family: var(--font-stack) !important; width: 340px !important; max-width: 340px !important; box-sizing: border-box !important; }
+        .flatpickr-calendar { background: #FFFFFF; box-shadow: 0 12px 32px rgba(11,23,48,.15) !important; border: 1px solid var(--border-subtle) !important; border-radius: var(--radius-lg) !important; padding: 15px !important; font-family: var(--font-stack) !important; width: 340px !important; max-width: 340px !important; box-sizing: border-box !important; }
         .flatpickr-innerContainer, .flatpickr-rContainer, .dayContainer, .flatpickr-days { width: 100% !important; max-width: 100% !important; min-width: 100% !important; }
         .flatpickr-months { margin-bottom: 10px; }
-        .flatpickr-month { color: var(--text-main) !important; font-weight: 700 !important; }
-        .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 700; }
-        span.flatpickr-weekday { color: var(--text-muted) !important; font-weight: 600 !important; font-size: 11px !important; text-transform: uppercase; letter-spacing: 0.5px; }
-        .flatpickr-day { border-radius: 50% !important; color: var(--text-main) !important; font-weight: 500; margin: 2px !important; height: 36px !important; line-height: 36px !important; max-width: 36px !important; transition: all 0.2s ease !important; }
-        .flatpickr-day.today { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; font-weight: 700; }
+        .flatpickr-month { color: var(--text-main) !important; font-weight: 800 !important; }
+        .flatpickr-current-month .flatpickr-monthDropdown-months { font-weight: 800; }
+        span.flatpickr-weekday { color: var(--text-muted) !important; font-weight: 700 !important; font-size: 11px !important; text-transform: uppercase; letter-spacing: 0.5px; }
+        .flatpickr-day { border-radius: 8px !important; color: var(--text-main) !important; font-weight: 600; margin: 2px !important; height: 36px !important; line-height: 36px !important; max-width: 36px !important; transition: all 0.2s ease !important; }
+        .flatpickr-day.today { border-color: var(--accent-blue) !important; color: var(--accent-blue) !important; font-weight: 800; }
         .flatpickr-day.selected, .flatpickr-day.startRange, .flatpickr-day.endRange, .flatpickr-day.selected.inRange, .flatpickr-day.startRange.inRange, .flatpickr-day.endRange.inRange, .flatpickr-day.selected:focus, .flatpickr-day.startRange:focus, .flatpickr-day.endRange:focus, .flatpickr-day.selected:hover, .flatpickr-day.startRange:hover, .flatpickr-day.endRange:hover, .flatpickr-day.selected.prevMonthDay, .flatpickr-day.startRange.prevMonthDay, .flatpickr-day.endRange.prevMonthDay, .flatpickr-day.selected.nextMonthDay, .flatpickr-day.startRange.nextMonthDay, .flatpickr-day.endRange.nextMonthDay { background: var(--accent-blue) !important; color: #fff !important; border-color: var(--accent-blue) !important; font-weight: 700; transform: scale(1.05); }
-        .flatpickr-day:hover { background: #F2F2F7 !important; color: var(--text-main) !important; }
-        .flatpickr-time { border-top: 1px solid #E5E5EA !important; margin-top: 10px; }
-        .flatpickr-time input:hover, .flatpickr-time .flatpickr-am-pm:hover, .flatpickr-time input:focus, .flatpickr-time .flatpickr-am-pm:focus { background: #F2F2F7 !important; }
-        .flatpickr-time input { font-weight: 600 !important; color: var(--text-main) !important; }
-        .flatpickr-time .flatpickr-am-pm { color: var(--accent-blue) !important; font-weight: 700 !important; }
+        .flatpickr-day:hover { background: var(--bg-hover) !important; color: var(--text-main) !important; }
+        .flatpickr-time { border-top: 1px solid var(--border-subtle) !important; margin-top: 10px; }
+        .flatpickr-time input:hover, .flatpickr-time .flatpickr-am-pm:hover, .flatpickr-time input:focus, .flatpickr-time .flatpickr-am-pm:focus { background: var(--bg-hover) !important; }
+        .flatpickr-time input { font-weight: 700 !important; color: var(--text-main) !important; }
+        .flatpickr-time .flatpickr-am-pm { color: var(--accent-blue) !important; font-weight: 800 !important; }
         .flatpickr-prev-month svg, .flatpickr-next-month svg { fill: var(--accent-blue) !important; }
-        .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #0056B3 !important; }
+        .flatpickr-prev-month:hover svg, .flatpickr-next-month:hover svg { fill: #004BB5 !important; }
 
-        .gps-row { align-items: end; padding: 15px; background-color: #F9F9FB; border-radius: var(--radius-sm); border: 1px solid var(--border-subtle); margin-top: 10px; margin-bottom: 15px;}
-        .gps-btn { background-color: #fff; color: var(--text-main); padding: 10px; border: 1px solid var(--border-subtle); border-radius: var(--radius-sm); cursor: pointer; font-weight: 500; width: 100%; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px;}
+        .gps-row { align-items: end; padding: 18px; background-color: #F8F9FC; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-top: 10px; margin-bottom: 20px;}
+        .gps-btn { background-color: #fff; color: var(--text-main); padding: 12px; border: 1px solid var(--border-subtle); border-radius: var(--radius-md); cursor: pointer; font-weight: 600; width: 100%; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; font-family: var(--font-stack);}
         .gps-btn:hover { border-color: var(--accent-blue); color: var(--accent-blue);}
         
-        .magic-btn { background: #F3E8FF; color: var(--accent-purple); border: none; border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 700; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
+        .magic-btn { background: rgba(124,77,255,0.1); color: var(--accent-purple); border: none; border-radius: 6px; padding: 4px 10px; font-size: 10px; font-weight: 800; cursor: pointer; transition: 0.2s; text-transform: uppercase; letter-spacing: 0.5px; display: inline-flex; align-items: center; gap: 5px; margin-left: auto; }
         .magic-btn:hover { background: var(--accent-purple); color: #fff; }
-        .flex-label { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 6px; font-size: 11px; font-weight: 600; color: var(--text-muted); letter-spacing: 0.2px; text-transform: uppercase;}
+        .flex-label { display: flex; justify-content: space-between; align-items: center; width: 100%; margin-bottom: 6px; font-size: 11px; font-weight: 700; color: var(--text-muted); letter-spacing: 0.5px; text-transform: uppercase;}
 
-        .lock-btn { background-color: #E5F0FF; color: var(--accent-blue); border: none; padding: 12px 20px; border-radius: var(--radius-sm); font-weight: 600; cursor: pointer; height: 42px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-stack);}
-        .lock-btn:hover { background-color: #CCE0FF; }
-        .lock-btn.locked { color: var(--accent-green); background-color: #E8F8EE; }
+        .lock-btn { background-color: #F3F5F9; color: var(--text-main); border: 1px solid var(--border-subtle); padding: 12px 20px; border-radius: var(--radius-md); font-weight: 700; cursor: pointer; height: 44px; transition: 0.2s; display: flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-stack);}
+        .lock-btn:hover { background-color: #fff; border-color: var(--text-main); }
+        .lock-btn.locked { color: var(--accent-green); background-color: rgba(14,148,103,0.08); border-color: rgba(14,148,103,0.2); }
         
-        .row { display: flex; gap: 12px; align-items: flex-start; }
+        .row { display: flex; gap: 16px; align-items: flex-start; }
         .col { flex: 1; }
         
-        .submit-btn { background-color: var(--accent-blue); color: #fff; padding: 14px 20px; border: none; border-radius: var(--radius-md); cursor: pointer; margin-top: 10px; width: 100%; font-size: 14px; font-weight: 600; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; font-family: var(--font-stack);}
-        .submit-btn:hover { background-color: #0056B3; transform: scale(0.98);}
+        .submit-btn { background-color: var(--accent-blue); color: #fff; padding: 14px 20px; border: none; border-radius: var(--radius-md); cursor: pointer; margin-top: 10px; width: 100%; font-size: 14px; font-weight: 700; transition: 0.2s; display: flex; justify-content: center; align-items: center; gap: 8px; font-family: var(--font-stack); height: 48px;}
+        .submit-btn:hover { background-color: #1a56ff; transform: translateY(-1px); box-shadow: 0 4px 12px rgba(47,107,255,0.25);}
         
         .submit-btn.edit-mode { background-color: var(--accent-orange) !important; color: #fff !important; }
-        .submit-btn.edit-mode:hover { background-color: #E68A00 !important; }
+        .submit-btn.edit-mode:hover { background-color: #d14f08 !important; box-shadow: 0 4px 12px rgba(232,89,12,0.25) !important;}
         
-        .error-alert { font-weight: 500; font-size: 12px; margin-top: 10px; display: none; text-align: center; padding: 10px; border-radius: 8px; color: var(--accent-red); background: #FFEBEB; border: 1px solid rgba(255, 59, 48, 0.2); }
-
-        /* DATA TABLES */
-        .data-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: auto; white-space: nowrap; }
-        .data-table th { background-color: #F9F9FB; color: var(--text-muted); font-size: 11px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; padding: 12px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2; box-shadow: 0 1px 0 var(--border-subtle); }
-        .data-table td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid var(--border-subtle); color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; transition: all 0.2s ease;}
-        .data-table tr:hover { background-color: rgba(0,0,0,0.02); }
-        
-        .btn-table-edit { background: #F2F2F7; color: var(--accent-blue); border: none; border-radius: 6px; padding: 6px 12px; font-size: 12px; font-weight: 600; cursor: pointer; transition: 0.2s; display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-stack);}
-        .btn-table-edit:hover { background: #E5E5EA; }
+        .error-alert { font-weight: 600; font-size: 12px; margin-top: 12px; display: none; text-align: center; padding: 12px; border-radius: 10px; color: var(--accent-red); background: rgba(217,45,58,0.1); border: 1px solid rgba(217,45,58,0.2); }
 
         /* RICH TEXT FORMATTERS */
         .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; font-size: 13px; color: var(--text-main); line-height: 1.5; max-width: 400px;}
-        .read-more-btn { background: #E5F0FF; border: none; border-radius: 6px; padding: 6px 10px; color: var(--accent-blue); font-size: 11px; font-weight: 600; cursor: pointer; margin-top: 8px; transition: 0.2s; display: inline-flex; align-items: center; font-family: var(--font-stack); }
-        .read-more-btn:hover { background: #CCE0FF; }
+        .read-more-btn { background: #EEF3FF; border: none; border-radius: 8px; padding: 6px 12px; color: var(--accent-blue); font-size: 11px; font-weight: 700; cursor: pointer; margin-top: 8px; transition: 0.2s; display: inline-flex; align-items: center; font-family: var(--font-stack); }
+        .read-more-btn:hover { background: #D5E2FF; }
         
-        .strong-text { font-weight: 600; color: var(--text-main); display: block; }
-        .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; }
-        .gps-text { font-family: monospace; color: var(--accent-blue); font-size: 11px; background: #E5F0FF; padding: 3px 6px; border-radius: 4px; border: 1px solid rgba(0, 122, 255, 0.2); display: inline-block; margin-top: 4px;}
+        .strong-text { font-weight: 700; color: var(--text-main); display: block; }
+        .sub-text { display: block; font-size: 11px; color: var(--text-muted); margin-top: 4px; font-weight: 500;}
+        .gps-text { font-family: monospace; color: var(--accent-blue); font-size: 11px; background: rgba(47,107,255,0.1); padding: 4px 8px; border-radius: 6px; border: 1px solid rgba(47,107,255,0.2); display: inline-block; margin-top: 6px; font-weight: 600;}
+        .action-time { font-family: monospace; color: var(--accent-green); font-size: 12px; display: block; font-weight: 600;}
         
-        .action-time { font-family: monospace; color: var(--accent-green); font-size: 12px; display: block;}
-        
-        .badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-flex; align-items: center; justify-content: center; text-align: center; border: 1px solid transparent; margin-top: 2px;}
-        .bg-danger { background: #FFEBEB; color: var(--accent-red); border-color: rgba(255, 59, 48, 0.2); }
-        .bg-warning { background: #FFF4E5; color: var(--accent-orange); border-color: rgba(255, 149, 0, 0.2); }
-        .bg-success { background: #E8F8EE; color: var(--accent-green); border-color: rgba(52, 199, 89, 0.2); }
-        .bg-secondary { background: #F2F2F7; color: var(--text-muted); border-color: rgba(142, 142, 147, 0.2); }
-        .bg-primary { background: #E5F0FF; color: var(--accent-blue); border-color: rgba(0, 122, 255, 0.2); }
-        
-        .empty-state { text-align: center; color: var(--text-muted); font-style: italic; padding: 40px !important; }
+        .empty-state { text-align: center; color: var(--text-muted); font-style: italic; padding: 40px !important; font-weight: 500;}
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
-
-    <!-- CLOUD SYNC GLOBAL LOADER OVERLAY -->
-    <div id="global-loader" class="global-loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">SYNCING CLOUD DATABASE...</div>
-    </div>
 
     <!-- GLOBAL SAVING ANIMATION OVERLAY -->
     <div class="global-save-overlay" id="globalSaveOverlay">
@@ -285,63 +271,27 @@
         </div>
     </div>
 
-    <!-- ATLAS FIX: New Gemini UI Sidebar Header & Modified Tabs -->
-    <div class="sidebar" id="mainSidebar">
+    <!-- TOP NAVBAR -->
+    <header class="sidebar" id="mainSidebar">
         <div class="sidebar-inner">
-            <div class="sidebar-header">
-                <div class="sidebar-brand-container">
-                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
-                </div>
-                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="3" x2="9" y2="21"></line>
-                    </svg>
-                </button>
+            <div class="sidebar-brand-container">
+                <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
+                <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
             </div>
-            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
-            
-            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
-            <div class="nav-links-container">
-                <a href="index.html" class="dashboard-link" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
-                <a href="trend_analysis.html" class="dashboard-link" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
-                <a href="data_entry.html" class="dashboard-link active-tab" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
-                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
-                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
-                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
-            </div>
-
-            <div class="nav-section-title" style="margin-top: 25px;"><span class="fade-text">Data Workspaces</span></div>
-            
-            <div class="nav-links-container">
-                <button class="tab-btn active" onclick="openTab('weather')" title="Local Weather"><i class="fa-solid fa-cloud-sun-rain"></i> <span class="tab-text fade-text">Local Weather</span></button>
-                <button class="tab-btn" onclick="openTab('actions')" title="Actions Taken"><i class="fa-solid fa-clipboard-list"></i> <span class="tab-text fade-text">Actions Taken</span></button>
-                <button class="tab-btn" onclick="openTab('flood')" title="Flooded Areas"><i class="fa-solid fa-water"></i> <span class="tab-text fade-text">Flooded Areas</span></button>
-                <button class="tab-btn" onclick="openTab('evac')" title="Affected Pop & ECs"><i class="fa-solid fa-users-rays"></i> <span class="tab-text fade-text">Affected Pop & ECs</span></button>
-                <button class="tab-btn" onclick="openTab('preemptive')" title="Pre-Emptive Evacs"><i class="fa-solid fa-person-walking-arrow-right"></i> <span class="tab-text fade-text">Pre-Emptive Evacs</span></button>
-                <button class="tab-btn" onclick="openTab('complement')" title="OpCen Complement"><i class="fa-solid fa-clipboard-user"></i> <span class="tab-text fade-text">OpCen Complement</span></button>
-                <button class="tab-btn" onclick="openTab('deployed')" title="Deployed Assets"><i class="fa-solid fa-truck-fast"></i> <span class="tab-text fade-text">Deployed Assets</span></button>
-                <button class="tab-btn" onclick="openTab('lifelines')" title="Status of Lifelines"><i class="fa-solid fa-bolt"></i> <span class="tab-text fade-text">Status of Lifelines</span></button>
-                <button class="tab-btn" onclick="openTab('roads')" title="Roads & Bridges"><i class="fa-solid fa-road-barrier"></i> <span class="tab-text fade-text">Roads & Bridges</span></button>
-                <button class="tab-btn" onclick="openTab('infrastructure')" title="Damaged Infra"><i class="fa-solid fa-building-shield"></i> <span class="tab-text fade-text">Damaged Infra</span></button>
-                <button class="tab-btn" onclick="openTab('casualties')" title="Casualties"><i class="fa-solid fa-truck-medical"></i> <span class="tab-text fade-text">Casualties</span></button>
-                <button class="tab-btn" onclick="openTab('suspensions')" title="Suspensions"><i class="fa-solid fa-school"></i> <span class="tab-text fade-text">Suspensions</span></button>
-                <button class="tab-btn" onclick="openTab('agri')" title="Agriculture Damages"><i class="fa-solid fa-wheat-awn"></i> <span class="tab-text fade-text">Agriculture Damages</span></button>
-                <button class="tab-btn" onclick="openTab('residential')" title="Residential Damages"><i class="fa-solid fa-house-chimney-crack"></i> <span class="tab-text fade-text">Residential Damages</span></button>
-                <button class="tab-btn" onclick="openTab('assistance')" title="Assistance"><i class="fa-solid fa-hand-holding-hand"></i> <span class="tab-text fade-text">Assistance</span></button>
-                <button class="tab-btn" onclick="openTab('incidents')" title="Related Incidents"><i class="fa-solid fa-triangle-exclamation"></i> <span class="tab-text fade-text">Related Incidents</span></button>
-            </div>
-            
-            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
-            <div class="nav-links-container" style="padding-bottom: 20px;">
-                <a href="admin.html" class="dashboard-link" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
-            </div>
+            <nav class="nav" aria-label="Main">
+                <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a>
+                <a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i><span class="link-text">Trend Analysis</span></a>
+                <a href="data_entry.html" class="dashboard-link active-tab"><i class="fa-solid fa-desktop"></i><span class="link-text">Command Workspace</span></a>
+                <a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i><span class="link-text">Inventory</span></a>
+                <a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i><span class="link-text">Archives</span></a>
+                <a href="infographic.html" target="_blank" rel="noopener" class="dashboard-link"><i class="fa-solid fa-file-image"></i><span class="link-text">Infographic</span></a>
+                <a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i><span class="link-text">System Admin</span></a>
+            </nav>
         </div>
-    </div>
+    </header>
 
-    <div class="main-content">
-        <div class="workspace-wrapper">
+    <main class="main-content">
+        <div class="wrap">
             
             <div class="top-header">
                 <div class="header-left">
@@ -351,13 +301,13 @@
                         <p>Modal-Driven Command Center with Strict Historical Archiving</p>
                     </div>
                 </div>
-                <button onclick="logoutUser()" class="lock-btn" style="background: #FFEBEB; color: var(--accent-red);"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
+                <button onclick="logoutUser()" class="lock-btn" style="background: rgba(217,45,58,0.1); color: var(--accent-red); border-color: rgba(217,45,58,0.2);"><i class="fa-solid fa-right-from-bracket"></i> Lock Session</button>
             </div>
 
             <div class="context-panel" id="mainContextPanel">
                 <div class="context-panel-header">
                     <h3><i class="fa-solid fa-sliders" style="color: var(--accent-blue);"></i> Active Incident Context</h3>
-                    <div style="font-size: 11px; font-weight: 700; color: var(--accent-blue); font-family: monospace;" id="context-status-indicator">UNLOCKED - WAITING FOR INPUT</div>
+                    <div style="font-size: 12px; font-weight: 800; color: var(--accent-blue); font-family: monospace;" id="context-status-indicator">UNLOCKED - WAITING FOR INPUT</div>
                 </div>
                 
                 <div class="collapsible-area">
@@ -368,7 +318,6 @@
                         <div class="form-group"><label>As of Date & Time</label><input type="datetime-local" id="ctx-datetime"></div>
                     </div>
                     <div class="row" style="margin-top: 5px;">
-                        <div class="col form-group" style="flex: 3;"><label>Situation Overview / Weather Synopsis</label><textarea id="ctx-synopsis" rows="2" required placeholder="Paste official synopsis here..."></textarea></div>
                         <div class="col form-group" style="flex: 1;"><label>Information Source</label><input type="text" id="ctx-source" value="DOST-PAGASA" required></div>
                     </div>
                 </div>
@@ -389,10 +338,27 @@
                 </div>
             </div>
 
-            <!-- FULL WIDTH DATA TABLES -->
-            <div id="weather" class="form-section active"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Weather Condition</th><th>Reported Date/Time</th><th>Information Source</th><th style="min-width: 250px;">Remarks</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-weather"></tbody></table></div></div>
-            <div id="actions" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Agency / Office</th><th>Action Category</th><th style="min-width: 300px;">Narrative / Details</th><th>Date/Time of Action</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-actions"></tbody></table></div></div>
-            <div id="flood" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay / Area</th><th>Depth (ft)</th><th>Reported Date/Time</th><th>Coordinates</th><th>Status</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-flood"></tbody></table></div></div>
+            <!-- ATLAS FIX: Removed Residential Damages Tab -->
+            <div class="workspace-tabs" id="workspaceTabs">
+                <button class="tab-btn active" onclick="openTab('actions')" title="Actions Taken"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
+                <button class="tab-btn" onclick="openTab('flood')" title="Flooded Areas"><i class="fa-solid fa-water"></i> Flooded Areas</button>
+                <button class="tab-btn" onclick="openTab('evac')" title="Affected Pop & ECs"><i class="fa-solid fa-users-rays"></i> Affected Pop & ECs</button>
+                <button class="tab-btn" onclick="openTab('preemptive')" title="Pre-Emptive Evacs"><i class="fa-solid fa-person-walking-arrow-right"></i> Pre-Emptive</button>
+                <button class="tab-btn" onclick="openTab('complement')" title="OpCen Complement"><i class="fa-solid fa-clipboard-user"></i> OpCen Complement</button>
+                <button class="tab-btn" onclick="openTab('deployed')" title="Deployed Assets"><i class="fa-solid fa-truck-fast"></i> Deployed Assets</button>
+                <button class="tab-btn" onclick="openTab('lifelines')" title="Status of Lifelines"><i class="fa-solid fa-bolt"></i> Lifelines</button>
+                <button class="tab-btn" onclick="openTab('roads')" title="Roads & Bridges"><i class="fa-solid fa-road-barrier"></i> Roads & Bridges</button>
+                <button class="tab-btn" onclick="openTab('infrastructure')" title="Damaged Infra"><i class="fa-solid fa-building-shield"></i> Damaged Infra</button>
+                <button class="tab-btn" onclick="openTab('casualties')" title="Casualties"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
+                <button class="tab-btn" onclick="openTab('suspensions')" title="Suspensions"><i class="fa-solid fa-school"></i> Suspensions</button>
+                <button class="tab-btn" onclick="openTab('agri')" title="Agriculture Damages"><i class="fa-solid fa-wheat-awn"></i> Agri Damages</button>
+                <button class="tab-btn" onclick="openTab('assistance')" title="Assistance"><i class="fa-solid fa-hand-holding-hand"></i> Assistance</button>
+                <button class="tab-btn" onclick="openTab('incidents')" title="Related Incidents"><i class="fa-solid fa-triangle-exclamation"></i> Incidents</button>
+            </div>
+            
+            <!-- FULL WIDTH DATA TABLES (ATLAS FIX: Removed Residential Table) -->
+            <div id="actions" class="form-section active"><div class="table-side"><table class="data-table"><thead><tr><th>Agency / Office</th><th>Action Category</th><th style="min-width: 300px;">Narrative / Details</th><th>Date/Time of Action</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-actions"></tbody></table></div></div>
+            <div id="flood" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay / Area</th><th>Depth (ft)</th><th>Initially Flooded</th><th>Status / Time Observed</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-flood"></tbody></table></div></div>
             <div id="evac" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Affected Brgys</th><th>Active ECs</th><th>Total Affected</th><th>Total Served</th><th>Inside ECs<br><span style="font-size:9px; font-weight:800; color:var(--accent-blue);">CUM | NOW</span></th><th>Status</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-evac"></tbody></table></div></div>
             <div id="preemptive" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay</th><th>Families</th><th>Persons</th><th style="min-width: 200px;">Destination / Remarks</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-preemptive"></tbody></table></div></div>
             <div id="complement" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Agency / Office</th><th>Personnel</th><th style="min-width: 250px;">Assets Details</th><th>Status</th><th>Date/Time Check-In</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-complement"></tbody></table></div></div>
@@ -403,14 +369,12 @@
             <div id="casualties" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay</th><th>Class & Count</th><th>Coordinates</th><th>Reported Date/Time</th><th style="min-width: 250px;">Particulars & Actions</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-casualties"></tbody></table></div></div>
             <div id="suspensions" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Coverage Area</th><th>Type</th><th style="min-width: 350px;">Suspension Details / Narrative</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-suspensions"></tbody></table></div></div>
             <div id="agri" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>No. of Affected LGUs</th><th>Commodity</th><th>Farmers Affected</th><th>Partially Damaged (ha)</th><th>Totally Damaged (ha)</th><th>Total Value Losses (PHP)</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-agri"></tbody></table></div></div>
-            <div id="residential" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay</th><th>Classification</th><th>Number of Damaged Units</th><th>Reported Date/Time</th><th style="min-width: 200px;">Description</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-residential"></tbody></table></div></div>
             <div id="assistance" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th>Barangay</th><th>Source</th><th>Relief Item & Qty</th><th>Total Cost (PHP)</th><th>Reported Date/Time</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-assistance"></tbody></table></div></div>
             <div id="incidents" class="form-section"><div class="table-side"><table class="data-table"><thead><tr><th>Municipality</th><th style="min-width: 200px;">Particulars / Hazard</th><th style="min-width: 250px;">Actions Taken</th><th>Reported Date/Time</th><th style="text-align: right;">System Info / Action</th></tr></thead><tbody id="tb-incidents"></tbody></table></div></div>
 
         </div>
-    </div>
-
-    <!-- SMART SCANNER MODAL -->
+    </main>
+<!-- SMART SCANNER MODAL -->
     <div class="slide-modal-overlay" id="modal-scanner" onclick="closeScannerModal(event)">
         <div class="slide-modal-card wide-modal" onclick="event.stopPropagation()">
             <div class="slide-modal-header">
@@ -423,8 +387,8 @@
                 <div id="scan-step-intake">
                     <div class="form-group">
                         <label>Target Workspace Module</label>
+                        <!-- ATLAS FIX: Removed Residential from Scanner options -->
                         <select id="scan-target-module" class="f-muni" required>
-                            <option value="weather">Local Weather</option>
                             <option value="actions">Actions Taken</option>
                             <option value="flood">Flooded Areas</option>
                             <option value="evac">Affected Pop & ECs</option>
@@ -437,7 +401,6 @@
                             <option value="casualties">Casualties</option>
                             <option value="suspensions">Suspensions</option>
                             <option value="agri">Agriculture Damages</option>
-                            <option value="residential">Residential Damages</option>
                             <option value="assistance">Assistance</option>
                             <option value="incidents">Related Incidents</option>
                         </select>
@@ -499,17 +462,6 @@
     </div>
 
     <!-- STANDARD FORM MODALS -->
-    <div class="slide-modal-overlay" id="modal-weather" onclick="closeFormModal('weather', event)">
-        <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-cloud-sun-rain" style="color: var(--accent-blue);"></i> Weather Input</h3><button class="modal-close" onclick="closeFormModal('weather')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
-            <form id="form-weather">
-                <div class="row"><div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>Weather Condition (Status)</label><select class="f-weather-cond" required><option value=""></option><option value="Fair weather">Fair weather</option><option value="Cloudy skies">Cloudy skies</option><option value="Light rains">Light rains</option><option value="Light to moderate rains">Light to moderate rains</option><option value="Moderate to heavy rains">Moderate to heavy rains</option><option value="Heavy rains">Heavy rains</option></select></div></div>
-                <div class="row"><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-weather-time" required></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-weather-source" placeholder="e.g., LDRRMO" value="LDRRMO" required></div></div>
-                <div class="form-group"><label>Remarks (Optional)</label><input type="text" class="f-weather-remarks" placeholder="e.g., With occasional gusty winds"></div>
-                <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
-            </form>
-        </div></div>
-    </div>
-
     <div class="slide-modal-overlay" id="modal-actions" onclick="closeFormModal('actions', event)">
         <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-clipboard-list" style="color: var(--accent-blue);"></i> Preparedness & Actions Taken</h3><button class="modal-close" onclick="closeFormModal('actions')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
             <form id="form-actions">
@@ -525,7 +477,23 @@
         <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flooded Area Input</h3><button class="modal-close" onclick="closeFormModal('flood')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
             <form id="form-flood">
                 <div class="row"><div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>Barangay / Area</label><input type="text" class="f-brgy" required></div></div>
-                <div class="row"><div class="col form-group"><label>Depth (ft)</label><input type="number" step="0.1" class="f-depth" required></div><div class="col form-group"><label>Status</label><select class="f-status" required><option value=""></option><option value="Still Flooded">Still Flooded</option><option value="Rising">Rising</option><option value="Receding">Receding</option><option value="Subsided">Subsided</option><option value="No Flood reported">No Flood reported</option></select></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-flood-time" required></div></div>
+                <div class="row">
+                    <div class="col form-group"><label>Depth (ft)</label><input type="number" step="0.1" class="f-depth" required></div>
+                    <div class="col form-group">
+                        <label>Operational Status</label>
+                        <select class="f-status" required>
+                            <option value=""></option>
+                            <option value="Flooded">Flooded (Active)</option>
+                            <option value="Receding">Receding (Dropping)</option>
+                            <option value="Subsided">Subsided (Clear)</option>
+                        </select>
+                    </div>
+                </div>
+                <div class="row" style="background: #F8F9FC; padding: 18px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom:20px;">
+                    <div class="col form-group" style="margin-bottom:0;"><label style="color:var(--accent-red);">Date/Time Initially Flooded</label><input type="datetime-local" class="f-flood-start-time" required></div>
+                    <div class="col form-group" style="margin-bottom:0;"><label style="color:var(--accent-blue);">Time Status Observed (Subsided/Receded)</label><input type="datetime-local" class="f-flood-status-time" required></div>
+                </div>
+                
                 <div class="row gps-row"><div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input"></div><div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input"></div><div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> GPS</button></div></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
             </form>
@@ -538,7 +506,7 @@
                 <div class="row"><div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>No. of Affected Brgys</label><input type="number" class="f-brgy-count" required></div><div class="col form-group"><label>No. of Active ECs</label><input type="number" class="f-ec-count" required></div></div>
                 <div class="row"><div class="col form-group"><label>Center Status</label><select class="f-status"><option value=""></option><option value="Active">Active (Occupied)</option><option value="Closed">Closed (Decamped)</option><option value="Standby">Standby (Ready)</option></select></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
                 
-                <div style="background: #F9F9FB; padding: 15px; border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle); margin-bottom:15px;">
+                <div style="background: #F8F9FC; padding: 18px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom:20px;">
                     <div style="font-size: 11px; font-weight: 700; color: var(--accent-blue); margin-bottom: 10px;">MACRO POPULATION SPLIT</div>
                     <div class="row" style="margin-bottom: 10px;"><div class="col form-group"><label>Affected (Fam)</label><input type="number" class="f-aff-fam" style="background:#fff;"></div><div class="col form-group"><label style="color:var(--accent-green);">Served (Fam)</label><input type="number" class="f-served-fam" style="background:#fff;"></div><div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs CUM (Fam)</label><input type="number" class="f-ec-fam-cum" style="background:#fff;"></div><div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs NOW (Fam)</label><input type="number" class="f-ec-fam-now" style="background:#fff;"></div></div>
                     <div class="row" style="margin-bottom: 0;"><div class="col form-group"><label>Affected (Pax)</label><input type="number" class="f-aff-indv" style="background:#fff;"></div><div class="col form-group"><label style="color:var(--accent-green);">Served (Pax)</label><input type="number" class="f-served-indv" style="background:#fff;"></div><div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs CUM (Pax)</label><input type="number" class="f-ec-indv-cum" style="background:#fff;"></div><div class="col form-group"><label style="color:var(--accent-blue);">Inside ECs NOW (Pax)</label><input type="number" class="f-ec-indv-now" style="background:#fff;"></div></div>
@@ -553,7 +521,7 @@
         <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-person-walking-arrow-right" style="color: var(--accent-blue);"></i> Pre-Emptive Evacuations</h3><button class="modal-close" onclick="closeFormModal('preemptive')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
             <form id="form-preemptive">
                 <div class="row"><div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy"></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
-                <div style="background: #F9F9FB; padding: 15px; border-radius: var(--radius-sm); border: 1px dashed var(--border-subtle); margin-bottom:15px;"><div class="row" style="margin-bottom: 0;"><div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Families)</label><input type="number" class="f-pre-fam" required></div><div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Persons)</label><input type="number" class="f-pre-indv" required></div></div></div>
+                <div style="background: #F8F9FC; padding: 18px; border-radius: var(--radius-md); border: 1px dashed var(--border-subtle); margin-bottom:20px;"><div class="row" style="margin-bottom: 0;"><div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Families)</label><input type="number" class="f-pre-fam" required></div><div class="col form-group"><label style="color:var(--accent-teal);">Pre-emptive (Persons)</label><input type="number" class="f-pre-indv" required></div></div></div>
                 <div class="form-group"><label>Destination / Remarks</label><input type="text" class="f-remarks" required></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
             </form>
@@ -612,8 +580,8 @@
             <form id="form-infrastructure">
                 <div class="row"><div class="col form-group"><label>Affected Municipalities</label><select class="f-muni-multi" multiple required><option value=""></option></select></div><div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" required></div></div>
                 <div class="row"><div class="col form-group"><label>Infrastructure Category</label><select class="f-cat" required><option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Slope Protection">Slope Protection</option><option value="Dike / Barricade">Dike / Barricade</option><option value="Dam">Dam</option><option value="Government Building">Government Building</option><option value="Flood Control">Flood Control</option><option value="Other Public Infra">Other Public Infra</option></select></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
-                <div class="row"><div class="col form-group"><label>Damage Cost (PHP) <span style="text-transform: none; font-weight: normal; color: #AEAEB2;">(Leave blank for early reports)</span></label><input type="number" step="0.01" class="f-cost"></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" required></div></div>
-                <div class="form-group"><label class="flex-label">Actions Taken / Narrative <span style="text-transform: none; font-weight: normal; color: #AEAEB2;">(For early SitReps)</span> <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label><textarea class="f-action" rows="3"></textarea></div>
+                <div class="row"><div class="col form-group"><label>Damage Cost (PHP) <span style="text-transform: none; font-weight: normal; color: #9AA4B5;">(Leave blank for early reports)</span></label><input type="number" step="0.01" class="f-cost"></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" required></div></div>
+                <div class="form-group"><label class="flex-label">Actions Taken / Narrative <span style="text-transform: none; font-weight: normal; color: #9AA4B5;">(For early SitReps)</span> <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label><textarea class="f-action" rows="3"></textarea></div>
                 <div class="row gps-row"><div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input"></div><div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input"></div><div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> GPS</button></div></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
             </form>
@@ -648,22 +616,12 @@
                 <div class="row"><div class="col form-group"><label>No. of Affected City/Mun</label><input type="number" class="f-lgu-count" required></div><div class="col form-group"><label>Commodity</label><input type="text" class="f-commodity" required></div><div class="col form-group"><label>Farmers Affected</label><input type="number" class="f-farmers" required></div></div>
                 <div class="row"><div class="col form-group"><label>Partially Damaged (ha)</label><input type="number" step="0.01" class="f-partial-ha" required></div><div class="col form-group"><label>Totally Damaged (ha)</label><input type="number" step="0.01" class="f-total-ha" required></div><div class="col form-group"><label>Estimated Cost (PHP)</label><input type="number" step="0.01" class="f-cost" required></div></div>
                 <div class="row"><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
-                <button type="submit" class="submit-btn" style="background:var(--accent-yellow); color:#000;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
+                <button type="submit" class="submit-btn" style="background:var(--accent-yellow); color:#fff;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
             </form>
         </div></div>
     </div>
 
-    <div class="slide-modal-overlay" id="modal-residential" onclick="closeFormModal('residential', event)">
-        <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-house-chimney-crack" style="color: var(--accent-blue);"></i> Residential Damages</h3><button class="modal-close" onclick="closeFormModal('residential')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
-            <form id="form-residential">
-                <div class="row"><div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>Barangay</label><input type="text" class="f-brgy" required></div></div>
-                <div class="row"><div class="col form-group"><label>Damage Category</label><select class="f-cat" required><option value=""></option><option value="Totally Damaged">Totally Damaged</option><option value="Partially Damaged">Partially Damaged</option></select></div><div class="col form-group"><label>Number of Damaged Units</label><input type="number" class="f-count" required></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
-                <div class="form-group"><label>Detailed Description / Remarks</label><input type="text" class="f-desc" required></div>
-                <div class="row gps-row"><div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input"></div><div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input"></div><div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> GPS</button></div></div>
-                <button type="submit" class="submit-btn" style="background:var(--accent-red); color:#fff;"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
-            </form>
-        </div></div>
-    </div>
+    <!-- ATLAS FIX: Removed Residential Damages Modal -->
 
     <div class="slide-modal-overlay" id="modal-assistance" onclick="closeFormModal('assistance', event)">
         <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-hand-holding-hand" style="color: var(--accent-blue);"></i> Cost of Assistance & Relief</h3><button class="modal-close" onclick="closeFormModal('assistance')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
@@ -699,7 +657,7 @@
             </div>
         </div>
     </div>
-    <script type="module">
+<script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
     import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
@@ -711,14 +669,14 @@
     const db = getFirestore(app);
     const auth = getAuth(app);
 
-    const GEMINI_API_KEY = "AQ.Ab8RN6IPravkHOd_DkS9k8114rxJfGHUC2Ieq6B1L5SdbgG0pg";
+    const GEMINI_API_KEY = "AQ.Ab8RN6K-BXhOXC-ZdKQCDK1f3SokQuuplqgKrsuF0zO4g1cwGA";
     const genAI = new GoogleGenerativeAI(GEMINI_API_KEY);
-    const model = genAI.getGenerativeModel({ model: "gemini-3.6-flash" });
-
+    const model = genAI.getGenerativeModel({ model: "gemini-3.8-flash" }); 
+     
+    // ATLAS FIX: Removed residential schema
     const EXTRACTION_SCHEMAS = {
-        weather: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, weatherCondition: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         actions: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { agency: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, description: { type: SchemaType.STRING } } } },
-        flood: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, waterDepth_ft: { type: SchemaType.STRING }, status: { type: SchemaType.STRING } } } },
+        flood: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, waterDepth_ft: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, timeInitiallyFlooded: { type: SchemaType.STRING }, timeStatusObserved: { type: SchemaType.STRING } } } },
         evac: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, affectedBarangays: { type: SchemaType.STRING }, evacCenterCount: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, affectedFamilies: { type: SchemaType.STRING }, affectedIndividuals: { type: SchemaType.STRING }, servedFamilies: { type: SchemaType.STRING }, servedIndividuals: { type: SchemaType.STRING }, insideEcFamiliesCum: { type: SchemaType.STRING }, insideEcFamiliesNow: { type: SchemaType.STRING }, insideEcIndividualsCum: { type: SchemaType.STRING }, insideEcIndividualsNow: { type: SchemaType.STRING } } } },
         preemptive: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangayOrigin: { type: SchemaType.STRING }, preEmptiveFamilies: { type: SchemaType.STRING }, preEmptiveIndividuals: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         complement: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { agency: { type: SchemaType.STRING }, personnel: { type: SchemaType.STRING }, assetDetails: { type: SchemaType.STRING }, status: { type: SchemaType.STRING } } } },
@@ -729,7 +687,6 @@
         roads: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         suspensions: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { coverage: { type: SchemaType.STRING }, type: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         agri: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { lguCount: { type: SchemaType.STRING }, commodity: { type: SchemaType.STRING }, farmersAffected: { type: SchemaType.STRING }, partialHa: { type: SchemaType.STRING }, totalHa: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING } } } },
-        residential: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, count: { type: SchemaType.STRING }, description: { type: SchemaType.STRING } } } },
         assistance: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, source: { type: SchemaType.STRING }, reliefItem: { type: SchemaType.STRING }, quantity: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         incidents: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, particulars: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } }
     };
@@ -737,7 +694,6 @@
     onAuthStateChanged(auth, (user) => { if (user) { document.body.style.visibility = "visible"; } else { window.location.href = "login.html?redirect=data_entry.html"; } });
     window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
 
-    // ATLAS FIX: Injected the smooth collapse event listener & memory storage
     document.addEventListener('DOMContentLoaded', () => {
         const toggleBtn = document.getElementById('toggleSidebarBtn');
         const sidebar = document.getElementById('mainSidebar');
@@ -756,7 +712,8 @@
     document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { validMunicipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
     const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
     document.querySelectorAll('.f-muni-multi, .f-coverage').forEach(el => { coverages.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: ',', plugins: ['remove_button'], ...tsClearOptions }); });
-    document.querySelectorAll('.f-status, .f-cat, .f-road-cat, .f-road-status, .f-weather-cond, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
+    
+    document.querySelectorAll('.f-status, .f-cat, .f-road-cat, .f-road-status, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
     
     const tsGlobalFilter = new TomSelect("#global-muni-filter", { create: false, delimiter: '|', ...tsClearOptions });
     validMunicipalities.forEach(m => tsGlobalFilter.addOption({value: m, text: m}));
@@ -797,7 +754,7 @@
 
     flatpickr("input[type='datetime-local']", { enableTime: true, dateFormat: "Y-m-d\\TH:i", altInput: true, altFormat: "F j, Y - h:i K" });
 
-    let activeTabId = 'weather';
+    let activeTabId = 'actions';
     window.openTab = function(tabId) {
         activeTabId = tabId;
         document.querySelectorAll('.form-section').forEach(el => el.classList.remove('active'));
@@ -812,7 +769,9 @@
     // BATCH SCANNER & STAGING
     // ==========================================
     let currentScanImageBase64 = null; let currentScanMimeType = null; let stagedBatchData = []; let stagedTargetModule = null;
-    const collectionNameMap = { weather: "weather_conditions", actions: "actions_data", flood: "flooded_areas", evac: "evacuation_data", preemptive: "preemptive_data", complement: "complement_data", deployed: "resource_data", lifelines: "lifeline_data", roads: "infrastructure_data", infrastructure: "infrastructure_data", casualties: "casualties_data", suspensions: "suspensions_data", agri: "agri_damages", residential: "residential_damages", assistance: "assistance_data", incidents: "related_incidents" };
+    
+    // ATLAS FIX: Removed residential map entry
+    const collectionNameMap = { actions: "actions_data", flood: "flooded_areas", evac: "evacuation_data", preemptive: "preemptive_data", complement: "complement_data", deployed: "resource_data", lifelines: "lifeline_data", roads: "infrastructure_data", infrastructure: "infrastructure_data", casualties: "casualties_data", suspensions: "suspensions_data", agri: "agri_damages", assistance: "assistance_data", incidents: "related_incidents" };
 
     window.openScannerModal = function() {
         if (!isLocked) { alert("Please lock context before scanning reports."); return; }
@@ -861,7 +820,7 @@
         if (!currentScanImageBase64 || !GEMINI_API_KEY) { alert("Valid image and API Key required."); return; }
         const btn = document.getElementById('btnStartScan'); const status = document.getElementById('scanStatus');
         stagedTargetModule = document.getElementById('scan-target-module').value;
-        const schema = EXTRACTION_SCHEMAS[stagedTargetModule] || EXTRACTION_SCHEMAS['weather'];
+        const schema = EXTRACTION_SCHEMAS[stagedTargetModule] || EXTRACTION_SCHEMAS['actions'];
 
         btn.innerHTML = '<i class="fa-solid fa-spinner fa-spin"></i> Processing Document...'; btn.disabled = true; 
         status.style.display = 'block'; status.innerText = "Extracting multi-row table via Gemini SDK...";
@@ -873,7 +832,9 @@ CRITICAL RULES:
 2. If you see a hyphen ("-") or a blank cell, extract it exactly as an empty string "". Do not use "0".
 3. Remove commas from numbers (e.g., "1,517" becomes "1517").
 4. Ignore 'TOTAL' rows at the bottom.
-5. If a schema field does not visually exist in the image, leave it as an empty string "".`;
+5. If a schema field does not visually exist in the image, leave it as an empty string "".
+6. COLUMN MAPPING: Intelligently map visual column headers to JSON keys. For flooded areas: Map "Brgy/ Area Flooded" to "barangay" and "Depth of Flood Water" to "waterDepth_ft". Critically, extract the "Date/Time Reported/Monitored" into "timeInitiallyFlooded", and extract the embedded time inside "Status of as this time" into "timeStatusObserved".`;
+            
             const customFilterText = document.getElementById('scan-custom-prompt').value.trim();
             let finalPrompt = basePrompt;
             if (customFilterText && !customFilterText.includes("[Insert Date")) { finalPrompt = `${basePrompt}\n\nSTRICT FILTERING RULE:\n${customFilterText}`; }
@@ -909,8 +870,7 @@ CRITICAL RULES:
         if(dataList.length === 0) { tbody.innerHTML = '<tr><td colspan="6" style="text-align:center; padding:20px;">No rows could be parsed.</td></tr>'; return; }
 
         let headers = [];
-        if (module === 'weather') headers = ['Municipality', 'Condition', 'Remarks', 'Action'];
-        else if (module === 'flood') headers = ['Municipality', 'Barangay', 'Depth (ft)', 'Status', 'Action'];
+        if (module === 'flood') headers = ['Municipality', 'Barangay', 'Depth (ft)', 'Status', 'Initially Flooded', 'Status Time', 'Action'];
         else if (module === 'evac') headers = ['Municipality', 'Affected Brgys', 'No. of Evac Centers', 'Status', 'Aff (Fam)', 'Aff (Pax)', 'Served (Fam)', 'Served (Pax)', 'Inside ECs CUM (Fam)', 'Inside ECs NOW (Fam)', 'Inside ECs CUM (Pax)', 'Inside ECs NOW (Pax)', 'Action'];
         else if (module === 'infrastructure') headers = ['Municipality', 'Specific Area', 'Category', 'Cost (PHP)', 'Actions Taken / Remarks', 'Action'];
         else if (module === 'casualties') headers = ['Municipality', 'Classification', 'Count', 'Remarks', 'Actions Taken', 'Action'];
@@ -922,9 +882,9 @@ CRITICAL RULES:
         else if (module === 'lifelines') headers = ['Municipality', 'Specific Area', 'Category', 'Status', 'Remarks', 'Action'];
         else if (module === 'suspensions') headers = ['Coverage Area', 'Type', 'Remarks', 'Action'];
         else if (module === 'agri') headers = ['LGU Count', 'Commodity', 'Farmers', 'Partial (ha)', 'Total (ha)', 'Cost (PHP)', 'Action'];
-        else if (module === 'residential') headers = ['Municipality', 'Barangay', 'Category', 'Count', 'Description', 'Action'];
         else if (module === 'assistance') headers = ['Municipality', 'Source', 'Item', 'Qty', 'Cost (PHP)', 'Remarks', 'Action'];
         else if (module === 'incidents') headers = ['Municipality', 'Particulars', 'Actions Taken', 'Action'];
+        // ATLAS FIX: Removed residential staging headers
 
         thead.innerHTML = `<tr>${headers.map(h => `<th>${h}</th>`).join('')}</tr>`;
 
@@ -936,8 +896,7 @@ CRITICAL RULES:
                 return `<input class="staging-input" type="${t}" ${step?`step="${step}"`:''} value="${val}" onchange="updateStagedRow(${idx}, '${f}', this.type==='number'?parseFloat(this.value):this.value)">`;
             };
             let rowHtml = '';
-            if (module === 'weather') rowHtml = `<td>${gi('municipality')}</td><td>${gi('weatherCondition')}</td><td>${gi('remarks')}</td>`;
-            else if (module === 'flood') rowHtml = `<td>${gi('municipality')}</td><td>${gi('barangay')}</td><td>${gi('waterDepth_ft','number','0.1')}</td><td>${gi('status')}</td>`;
+            if (module === 'flood') rowHtml = `<td>${gi('municipality')}</td><td>${gi('barangay')}</td><td>${gi('waterDepth_ft','number','0.1')}</td><td>${gi('status')}</td><td>${gi('timeInitiallyFlooded')}</td><td>${gi('timeStatusObserved')}</td>`;
             else if (module === 'evac') rowHtml = `<td>${gi('municipality')}</td><td>${gi('affectedBarangays','number')}</td><td>${gi('evacCenterCount','number')}</td><td>${gi('status')}</td><td>${gi('affectedFamilies','number')}</td><td>${gi('affectedIndividuals','number')}</td><td>${gi('servedFamilies','number')}</td><td>${gi('servedIndividuals','number')}</td><td>${gi('insideEcFamiliesCum','number')}</td><td>${gi('insideEcFamiliesNow','number')}</td><td>${gi('insideEcIndividualsCum','number')}</td><td>${gi('insideEcIndividualsNow','number')}</td>`;
             else if (module === 'infrastructure') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('cost','number')}</td><td>${gi('actionsTaken')}</td>`;
             else if (module === 'casualties') rowHtml = `<td>${gi('municipality')}</td><td>${gi('classification')}</td><td>${gi('count','number')}</td><td>${gi('remarks')}</td><td>${gi('actionsTaken')}</td>`;
@@ -949,9 +908,9 @@ CRITICAL RULES:
             else if (module === 'lifelines') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('status')}</td><td>${gi('remarks')}</td>`;
             else if (module === 'suspensions') rowHtml = `<td>${gi('coverage')}</td><td>${gi('type')}</td><td>${gi('remarks')}</td>`;
             else if (module === 'agri') rowHtml = `<td>${gi('lguCount','number')}</td><td>${gi('commodity')}</td><td>${gi('farmersAffected','number')}</td><td>${gi('partialHa','number','0.01')}</td><td>${gi('totalHa','number','0.01')}</td><td>${gi('cost','number')}</td>`;
-            else if (module === 'residential') rowHtml = `<td>${gi('municipality')}</td><td>${gi('category')}</td><td>${gi('count','number')}</td><td>${gi('description')}</td>`;
             else if (module === 'assistance') rowHtml = `<td>${gi('municipality')}</td><td>${gi('source')}</td><td>${gi('reliefItem')}</td><td>${gi('quantity','number')}</td><td>${gi('cost','number')}</td><td>${gi('remarks')}</td>`;
             else if (module === 'incidents') rowHtml = `<td>${gi('municipality')}</td><td>${gi('particulars')}</td><td>${gi('actionsTaken')}</td>`;
+            // ATLAS FIX: Removed residential staging row html definition
             tbody.innerHTML += `<tr>${rowHtml}<td><button class="btn-row-delete" onclick="deleteStagedRow(${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
         });
     }
@@ -972,7 +931,7 @@ CRITICAL RULES:
         saveText.innerText = `Saving ${stagedBatchData.length} records to Cloud...`; saveOverlay.classList.add('active');
 
         const contextPayload = getContextPayload();
-        const collectionName = collectionNameMap[stagedTargetModule] || "weather_conditions";
+        const collectionName = collectionNameMap[stagedTargetModule] || "actions_data";
         const targetDate = document.getElementById('ctx-datetime').value;
 
         try {
@@ -988,10 +947,19 @@ CRITICAL RULES:
                         sanitizedRow[k] = dbNum(sanitizedRow[k]);
                     }
                 });
+                
                 let finalDoc = { ...sanitizedRow, ...contextPayload, dateReported: targetDate };
+                
+                if (stagedTargetModule === 'flood') {
+                    finalDoc.floodStartedAt = row.timeInitiallyFlooded || targetDate;
+                    finalDoc.statusChangedAt = row.timeStatusObserved || targetDate;
+                    delete finalDoc.timeInitiallyFlooded;
+                    delete finalDoc.timeStatusObserved;
+                }
+                
                 if (stagedTargetModule === 'roads') { finalDoc.recordType = 'Passability'; finalDoc.cost = 0; finalDoc.source = 'LDRRMO'; }
                 if (stagedTargetModule === 'infrastructure') { finalDoc.recordType = 'Damage'; finalDoc.status = 'Assessed for Damage'; finalDoc.source = finalDoc.source || 'LDRRMO'; }
-                if (stagedTargetModule === 'weather') { finalDoc.source = 'LDRRMO'; }
+                
                 batch.set(docRef, finalDoc);
             });
 
@@ -1040,10 +1008,11 @@ CRITICAL RULES:
     // CONTEXT LOCKING
     // ==========================================
     const lockBtn = document.getElementById('lockCtxBtn');
-    const ctxInputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-synopsis', 'ctx-source'];
+    const ctxInputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-source'];
     let isLocked = false; let activeSitrepNo = null; 
 
-    const dbData = { weather: [], actions: [], flood: [], evac: [], preemptive: [], complement: [], deployed: [], lifelines: [], roads: [], infrastructure: [], casualties: [], suspensions: [], agri: [], residential: [], assistance: [], incidents: [] };
+    // ATLAS FIX: Removed residential dbData empty array initialization
+    const dbData = { actions: [], flood: [], evac: [], preemptive: [], complement: [], deployed: [], lifelines: [], roads: [], infrastructure: [], casualties: [], suspensions: [], agri: [], assistance: [], incidents: [] };
     
     ctxInputs.forEach(id => { const el = document.getElementById(id); const savedVal = localStorage.getItem(id); if(savedVal) { el.value = savedVal; if(el._flatpickr) el._flatpickr.setDate(savedVal); } });
 
@@ -1051,29 +1020,30 @@ CRITICAL RULES:
         ctxInputs.forEach(id => { const el = document.getElementById(id); el.disabled = true; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true; });
         lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; lockBtn.classList.add('locked'); 
         document.getElementById('mainContextPanel').classList.add('locked'); document.getElementById('workspaceToolbar').classList.add('active');
+        document.getElementById('workspaceTabs').classList.add('active'); 
         isLocked = true; activeSitrepNo = parseInt(document.getElementById('ctx-sitrep').value); 
         let cause = document.getElementById('ctx-cause').value;
         document.getElementById('context-status-indicator').innerHTML = `SECURED: ROUTING TO SR#${activeSitrepNo} &nbsp;|&nbsp; ${cause.substring(0,35)}${cause.length>35?'...':''}`;
     }
 
     lockBtn.addEventListener('click', () => {
-        const panel = document.getElementById('mainContextPanel'); const statusIndicator = document.getElementById('context-status-indicator'); const toolbar = document.getElementById('workspaceToolbar');
+        const panel = document.getElementById('mainContextPanel'); const statusIndicator = document.getElementById('context-status-indicator'); const toolbar = document.getElementById('workspaceToolbar'); const tabs = document.getElementById('workspaceTabs');
         if (!isLocked) {
             if(!document.getElementById('ctx-cause').value || !document.getElementById('ctx-sitrep').value) { alert("Please fill out Incident Cause and SitRep # before locking."); return; }
             ctxInputs.forEach(id => { const el = document.getElementById(id); localStorage.setItem(id, el.value); el.disabled = true; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true; });
-            localStorage.setItem('sitrepContextLocked', 'true'); lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; lockBtn.classList.add('locked'); panel.classList.add('locked'); toolbar.classList.add('active');
+            localStorage.setItem('sitrepContextLocked', 'true'); lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; lockBtn.classList.add('locked'); panel.classList.add('locked'); toolbar.classList.add('active'); tabs.classList.add('active');
             isLocked = true; activeSitrepNo = parseInt(document.getElementById('ctx-sitrep').value); let cause = document.getElementById('ctx-cause').value;
             statusIndicator.innerHTML = `SECURED: ROUTING TO SR#${activeSitrepNo} &nbsp;|&nbsp; ${cause.substring(0,35)}${cause.length>35?'...':''}`; 
             renderAllTables();
         } else {
             ctxInputs.forEach(id => { const el = document.getElementById(id); el.disabled = false; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = false; });
-            localStorage.setItem('sitrepContextLocked', 'false'); lockBtn.innerHTML = '<i class="fa-solid fa-unlock"></i> Lock Context & Start Encoding'; lockBtn.classList.remove('locked'); panel.classList.remove('locked'); toolbar.classList.remove('active');
+            localStorage.setItem('sitrepContextLocked', 'false'); lockBtn.innerHTML = '<i class="fa-solid fa-unlock"></i> Lock Context & Start Encoding'; lockBtn.classList.remove('locked'); panel.classList.remove('locked'); toolbar.classList.remove('active'); tabs.classList.remove('active');
             isLocked = false; activeSitrepNo = null; statusIndicator.innerText = `UNLOCKED - WAITING FOR INPUT`; 
             renderAllTables();
         }
     });
 
-    function getContextPayload() { return { incidentCause: document.getElementById('ctx-cause').value, sitrepNo: parseInt(document.getElementById('ctx-sitrep').value), advisoryNo: parseInt(document.getElementById('ctx-advisory').value) || 0, asOfDate: document.getElementById('ctx-datetime').value, synopsis: document.getElementById('ctx-synopsis').value, infoSource: document.getElementById('ctx-source').value, timeMonitored: serverTimestamp() }; }
+    function getContextPayload() { return { incidentCause: document.getElementById('ctx-cause').value, sitrepNo: parseInt(document.getElementById('ctx-sitrep').value), advisoryNo: parseInt(document.getElementById('ctx-advisory').value) || 0, asOfDate: document.getElementById('ctx-datetime').value, infoSource: document.getElementById('ctx-source').value, timeMonitored: serverTimestamp() }; }
 
     let filterMuni = "ALL"; let filterKeyword = "";
     document.getElementById('global-muni-filter').addEventListener('change', (e) => { filterMuni = e.target.value; queueRender(); });
@@ -1120,12 +1090,11 @@ CRITICAL RULES:
         const setDate = (selector, val) => { const el = form.querySelector(selector); if(el && el._flatpickr && val) el._flatpickr.setDate(val); };
         const setTSCreate = (selector, val) => { const el = form.querySelector(selector); if(el && el.tomselect && val) { el.tomselect.addOption({value: val, text: val}); el.tomselect.setValue(val); } };
 
-        if(collectionAlias === 'weather') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); setTSCreate('.f-weather-cond', record.weatherCondition); form.querySelector('.f-weather-source').value = record.source||''; form.querySelector('.f-weather-remarks').value = record.remarks||''; setDate('.f-weather-time', record.dateReported); }
-        else if(collectionAlias === 'actions') {
+        if(collectionAlias === 'actions') {
             if(record.agency && record.agency.startsWith('LDRRMC - ')) { form.querySelector('.f-action-agency').tomselect.setValue('LDRRMC'); setTimeout(() => { let lgu = record.agency.replace('LDRRMC - ', '').trim(); if(form.querySelector('.f-action-lgu').tomselect) form.querySelector('.f-action-lgu').tomselect.setValue(lgu); }, 50); } else { setTSCreate('.f-action-agency', record.agency); }
             setTSCreate('.f-action-cat', record.category); form.querySelector('.f-action-desc').value = record.description; setDate('.f-action-time', record.actionTime);
         }
-        else if(collectionAlias === 'flood') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-depth').value = record.waterDepth_ft; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-flood-time', record.dateReported); }
+        else if(collectionAlias === 'flood') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-depth').value = record.waterDepth_ft; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-flood-start-time', record.floodStartedAt); setDate('.f-flood-status-time', record.statusChangedAt); }
         else if(collectionAlias === 'evac') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy-count').value = record.affectedBarangays||0; form.querySelector('.f-ec-count').value = record.evacCenterCount; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-aff-fam').value = record.affectedFamilies||0; form.querySelector('.f-aff-indv').value = record.affectedIndividuals||0; form.querySelector('.f-ec-fam-cum').value = record.insideEcFamiliesCum||0; form.querySelector('.f-ec-fam-now').value = record.insideEcFamiliesNow||0; form.querySelector('.f-ec-indv-cum').value = record.insideEcIndividualsCum||0; form.querySelector('.f-ec-indv-now').value = record.insideEcIndividualsNow||0; form.querySelector('.f-served-fam').value = record.servedFamilies||0; form.querySelector('.f-served-indv').value = record.servedIndividuals||0; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'preemptive') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangayOrigin; form.querySelector('.f-pre-fam').value = record.preEmptiveFamilies; form.querySelector('.f-pre-indv').value = record.preEmptiveIndividuals; form.querySelector('.f-remarks').value = record.remarks; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'complement') { setTSCreate('.f-agency', record.agency); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-personnel').value = record.personnel; form.querySelector('.f-asset-details').value = record.assetDetails; setDate('.f-report-time', record.dateReported); }
@@ -1136,9 +1105,9 @@ CRITICAL RULES:
         else if(collectionAlias === 'casualties') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-class').tomselect.setValue(record.classification); form.querySelector('.f-count').value = record.count; form.querySelector('.f-remarks').value = record.remarks; if(form.querySelector('.f-action')) form.querySelector('.f-action').value = record.actionsTaken||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'suspensions') { form.querySelector('.f-coverage').tomselect.setValue((record.coverage||'').split(',').map(s=>s.trim())); form.querySelector('.f-type').tomselect.setValue(record.type); form.querySelector('.f-remarks').value = record.remarks; }
         else if(collectionAlias === 'agri') { form.querySelector('.f-lgu-count').value = record.lguCount; form.querySelector('.f-commodity').value = record.commodity; form.querySelector('.f-farmers').value = record.farmersAffected; form.querySelector('.f-partial-ha').value = record.partialHa||0; form.querySelector('.f-total-ha').value = record.totalHa; form.querySelector('.f-cost').value = record.cost; setDate('.f-report-time', record.dateReported); }
-        else if(collectionAlias === 'residential') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-count').value = record.count; form.querySelector('.f-desc').value = record.description||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'assistance') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); setTSCreate('.f-source', record.source); setTSCreate('.f-relief', record.reliefItem); form.querySelector('.f-qty').value = record.cost>0?record.cost:record.quantity; form.querySelector('.f-remarks').value = record.remarks||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'incidents') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-hazard').value = record.particulars; form.querySelector('.f-action').value = record.actionsTaken; setDate('.f-report-time', record.dateReported); }
+        // ATLAS FIX: Removed triggerEdit else-if hook for residential
     };
 
     // ==========================================
@@ -1167,17 +1136,16 @@ CRITICAL RULES:
             const finalPayload = { ...coreData, ...contextData };
             
             if (window.currentEditState.id && window.currentEditState.section === sectionAlias) {
-                // RULE 1: SAME SITREP = OVERWRITE EXISTING DOCUMENT
                 if (window.currentEditState.originalSitrep === activeSitrepNo) {
                     await updateDoc(doc(db, collectionName, window.currentEditState.id), finalPayload); 
                 } 
-                // RULE 2 & 3: PREVIOUS SITREP = CREATE NEW RECORD & HIDE THE OLD ONE
                 else { 
                     await addDoc(collection(db, collectionName), finalPayload); 
-                    await updateDoc(doc(db, collectionName, window.currentEditState.id), { isArchived: true });
+                    if (collectionName !== "flooded_areas") {
+                        await updateDoc(doc(db, collectionName, window.currentEditState.id), { isArchived: true });
+                    }
                 }
             } else {
-                // RULE 4: ADD NEW = CREATE BRAND NEW RECORD
                 await addDoc(collection(db, collectionName), finalPayload); 
             }
             
@@ -1197,10 +1165,9 @@ CRITICAL RULES:
 
     function formatNarrative(text) {
         if (!text) return '<span class="sub-text">N/A</span>';
-        let cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
-        cleanedText = cleanedText.replace(/([^\n])\s*([➢➤•●❖▪○✓]|\b\d{1,3}[\.\)]\s+|[\-\*]\s+)/g, '$1\n$2');
-        const unwrapRegex = /([^\n])\n(?![ \t]*(?:[➢➤•●❖▪○✓\-\*]|\b\d{1,3}[\.\)]\s+)|\n)/g;
-        cleanedText = cleanedText.replace(unwrapRegex, '$1 ').trim();
+        let cleanedText = String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+        cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
+        cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
         if (cleanedText.length <= 100) return `<div class="truncate-box" style="-webkit-line-clamp: unset;">${cleanedText}</div>`;
         return `<div class="truncate-box">${cleanedText}</div><div class="full-text-hidden" style="display:none;">${cleanedText}</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>`;
     }
@@ -1218,7 +1185,6 @@ CRITICAL RULES:
     
     function getRowClass(recordSitrep) { return (!activeSitrepNo || recordSitrep !== activeSitrepNo) ? 'historical-row' : 'current-row'; }
 
-    // RENDER FILTER (Only grabs the latest active records per location to prevent duplicates on screen)
     function getLatestRecords(arr, keyFields) {
         if (!arr) return [];
         let map = {};
@@ -1241,9 +1207,12 @@ CRITICAL RULES:
     function renderAllTables() {
         if (!isLocked) { document.querySelectorAll('.data-table tbody').forEach(tb => { tb.innerHTML = `<tr><td colspan="8" class="empty-state">Lock Context to load live records...</td></tr>`; }); hideGlobalLoader(); return; }
         const buildRows = (data, builderFn, emptyColSpan) => { let html = ''; data.forEach(d => html += builderFn(d)); return html || `<tr><td colspan="${emptyColSpan}" class="empty-state">No active records found.</td></tr>`; };
-
-        document.getElementById('tb-weather').innerHTML = buildRows(getLatestRecords(dbData.weather, ['municipality']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${d.weatherCondition}</span></td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge bg-secondary">${d.source || 'LDRRMO'}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('weather', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
-        document.getElementById('tb-flood').innerHTML = buildRows(getLatestRecords(dbData.flood, ['municipality', 'barangay']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Still Flooded' || d.status === 'Rising') ? "bg-danger" : (d.status === 'Receding') ? "bg-warning" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="strong-text">${d.waterDepth_ft} ft</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatGPS(d.latitude, d.longitude)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('flood', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
+        
+        document.getElementById('tb-actions').innerHTML = buildRows(getLatestRecords(dbData.actions, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.agency}</span></td><td><span class="badge bg-secondary">${d.category||'N/A'}</span></td><td>${formatNarrative(d.description)}</td><td>${formatActionTime(d.actionTime)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('actions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 5);
+        document.getElementById('tb-flood').innerHTML = buildRows(getLatestRecords(dbData.flood, ['municipality', 'barangay']).filter(matchesFilter), d => { 
+            let badgeClass = (d.status === 'Flooded') ? "bg-danger" : (d.status === 'Receding') ? "bg-warning" : "bg-success"; 
+            return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="strong-text">${d.waterDepth_ft} ft</span></td><td>${formatActionTime(d.floodStartedAt)}</td><td><span class="badge ${badgeClass}">${d.status}</span><br>${formatActionTime(d.statusChangedAt)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('flood', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Update Status</button></td></tr>`; 
+        }, 6);
         document.getElementById('tb-evac').innerHTML = buildRows(getLatestRecords(dbData.evac, ['municipality']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Active') ? "bg-danger" : (d.status === 'Standby') ? "bg-warning" : "bg-secondary"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text" style="color: var(--accent-purple);">${d.affectedBarangays||0} Brgys</span></td><td><span class="strong-text" style="color: var(--accent-orange);">${d.evacCenterCount||0} ECs</span></td><td><span class="strong-text">${d.affectedFamilies||0} Fam</span><span class="sub-text">${d.affectedIndividuals||0} Persons</span></td><td><span class="strong-text" style="color: var(--accent-green);">${d.servedFamilies||0} Fam</span><span class="sub-text">${d.servedIndividuals||0} Persons</span></td><td><span class="strong-text" style="color: var(--accent-blue);">${d.insideEcFamiliesCum||0} | ${d.insideEcFamiliesNow||0} Fam</span><span class="sub-text">${d.insideEcIndividualsCum||0} | ${d.insideEcIndividualsNow||0} Persons</span></td><td><span class="badge ${badgeClass}">${d.status || 'Unknown'}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('evac', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 8);
         document.getElementById('tb-deployed').innerHTML = buildRows(getLatestRecords(dbData.deployed, ['id']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Deployed') ? "bg-primary" : (d.status === 'Standby') ? "bg-warning" : "bg-secondary"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span><span class="sub-text">${d.barangay}</span>${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text">${d.agency}</span><span class="sub-text">${d.quantity||0}x ${d.assetType} | ${d.personnel||0} Pax</span></td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('deployed', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
         document.getElementById('tb-complement').innerHTML = buildRows(getLatestRecords(dbData.complement, ['agency']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Checked-In') ? "bg-primary" : (d.status === 'Demobilized') ? "bg-secondary" : "bg-warning"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.agency}</span></td><td><span class="strong-text">${d.personnel} Pax</span></td><td>${formatNarrative(d.assetDetails)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('complement', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
@@ -1251,8 +1220,7 @@ CRITICAL RULES:
         document.getElementById('tb-roads').innerHTML = buildRows(getLatestRecords(dbData.roads, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") ? "bg-danger" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.specificArea}</span><span class="sub-text">${d.municipality}</span>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('roads', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 5);
         document.getElementById('tb-infrastructure').innerHTML = buildRows(getLatestRecords(dbData.infrastructure, ['specificArea']).filter(matchesFilter), d => { let actionDisplay = d.actionsTaken ? `<div class="sub-text" style="margin-top: 6px;"><b>Actions Taken:</b> ${d.actionsTaken}</div>` : (d.remarks ? `<div class="sub-text" style="margin-top: 6px;">${d.remarks}</div>` : ''); let costDisplay = d.cost > 0 ? formatCurrency(d.cost) : '<span class="sub-text" style="font-style: italic;">Assessment Ongoing</span>'; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text" style="color:var(--accent-blue);">${d.specificArea}</span>${actionDisplay}${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text" style="color:var(--accent-blue);">${costDisplay}</span></td><td><span class="strong-text" style="color:var(--accent-blue);">${d.source||'Unknown'}</span><br><span style="font-size:11px; color:var(--text-muted);">as of ${formatActionTime(d.dateReported)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('infrastructure', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 4);
         document.getElementById('tb-suspensions').innerHTML = buildRows(getLatestRecords(dbData.suspensions, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.coverage.substring(0,30)}...</span></td><td><span class="badge bg-danger">${d.type}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('suspensions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 4);
-        document.getElementById('tb-residential').innerHTML = buildRows(getLatestRecords(dbData.residential, ['municipality', 'barangay']).filter(matchesFilter), d => { let badgeClass = d.category.includes("Totally") ? "bg-danger" : "bg-warning"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="badge ${badgeClass}">${d.category}</span></td><td><span class="strong-text" style="color:var(--accent-orange);">${(d.count||0).toLocaleString()}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.description)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('residential', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
-        document.getElementById('tb-actions').innerHTML = buildRows(getLatestRecords(dbData.actions, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.agency}</span></td><td><span class="badge bg-secondary">${d.category||'N/A'}</span></td><td>${formatNarrative(d.description)}</td><td>${formatActionTime(d.actionTime)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('actions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 5);
+        // ATLAS FIX: Removed tb-residential rendering
         document.getElementById('tb-preemptive').innerHTML = buildRows(getLatestRecords(dbData.preemptive, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text">${d.barangayOrigin||'N/A'}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveFamilies || 0}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveIndividuals || 0}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('preemptive', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
         document.getElementById('tb-casualties').innerHTML = buildRows(getLatestRecords(dbData.casualties, ['id']).filter(matchesFilter), d => { let badgeClass = (d.classification.includes("Dead")) ? "bg-secondary" : "bg-danger"; let narrative = d.remarks || ''; if (d.actionsTaken) { narrative += `\nActions Taken: ${d.actionsTaken}`; } return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.barangay}</td><td><span class="badge ${badgeClass}">${d.classification}</span> <span class="strong-text" style="display:inline; margin-left:5px;">${d.count}</span></td><td>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(narrative)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('casualties', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 7);
         document.getElementById('tb-agri').innerHTML = buildRows(getLatestRecords(dbData.agri, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.lguCount||0}</span></td><td><span class="strong-text" style="color:var(--accent-yellow);">${d.commodity}</span></td><td><span class="strong-text">${(d.farmersAffected||0).toLocaleString()}</span></td><td>${(d.partialHa||0).toFixed(2)}</td><td>${(d.totalHa||0).toFixed(2)}</td><td><span class="strong-text" style="color:var(--accent-green);">${formatCurrency(d.cost)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('agri', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 7);
@@ -1268,9 +1236,10 @@ CRITICAL RULES:
     // ==========================================
     // FORM SUBMISSION LISTENERS
     // ==========================================
-    document.getElementById('form-weather').addEventListener('submit', (e) => { handleSubmission(e, "weather_conditions", "weather", (f) => ({ municipality: f.querySelector('.f-muni').value, weatherCondition: f.querySelector('.f-weather-cond').value, dateReported: f.querySelector('.f-weather-time').value, source: f.querySelector('.f-weather-source').value, remarks: f.querySelector('.f-weather-remarks').value })); });
     document.getElementById('form-actions').addEventListener('submit', (e) => { handleSubmission(e, "actions_data", "actions", (f) => { let agencyVal = f.querySelector('.f-action-agency').value; if (agencyVal === 'LDRRMC') { const specificLgu = f.querySelector('.f-action-lgu').value; agencyVal = `LDRRMC - ${specificLgu}`; } return { agency: agencyVal, category: f.querySelector('.f-action-cat').value, description: f.querySelector('.f-action-desc').value, actionTime: f.querySelector('.f-action-time').value }; }); });
-    document.getElementById('form-flood').addEventListener('submit', (e) => { handleSubmission(e, "flooded_areas", "flood", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, waterDepth_ft: parseFloat(f.querySelector('.f-depth').value), status: f.querySelector('.f-status').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-flood-time').value })); });
+    
+    document.getElementById('form-flood').addEventListener('submit', (e) => { handleSubmission(e, "flooded_areas", "flood", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, waterDepth_ft: parseFloat(f.querySelector('.f-depth').value), status: f.querySelector('.f-status').value, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, floodStartedAt: f.querySelector('.f-flood-start-time').value, statusChangedAt: f.querySelector('.f-flood-status-time').value })); });
+    
     document.getElementById('form-evac').addEventListener('submit', (e) => { handleSubmission(e, "evacuation_data", "evac", (f) => { const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0; const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0; const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0; const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0; const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0; const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0; const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0; const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0; return { validationFailed: (affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow) === 0, municipality: f.querySelector('.f-muni').value, affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value)||0, evacCenterCount: parseInt(f.querySelector('.f-ec-count').value)||0, status: f.querySelector('.f-status').value, affectedFamilies: affFam, affectedIndividuals: affIndv, servedFamilies: servedFam, servedIndividuals: servedIndv, insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow, insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-preemptive').addEventListener('submit', (e) => { handleSubmission(e, "preemptive_data", "preemptive", (f) => ({ municipality: f.querySelector('.f-muni').value, barangayOrigin: f.querySelector('.f-brgy').value, preEmptiveFamilies: parseInt(f.querySelector('.f-pre-fam').value)||0, preEmptiveIndividuals: parseInt(f.querySelector('.f-pre-indv').value)||0, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-complement').addEventListener('submit', (e) => { handleSubmission(e, "complement_data", "complement", (f) => ({ agency: f.querySelector('.f-agency').value, status: f.querySelector('.f-status').value, personnel: parseInt(f.querySelector('.f-personnel').value)||0, assetDetails: f.querySelector('.f-asset-details').value, dateReported: f.querySelector('.f-report-time').value })); });
@@ -1281,7 +1250,7 @@ CRITICAL RULES:
     document.getElementById('form-casualties').addEventListener('submit', (e) => { handleSubmission(e, "casualties_data", "casualties", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, classification: f.querySelector('.f-class').value, count: parseInt(f.querySelector('.f-count').value), remarks: f.querySelector('.f-remarks').value.trim(), actionsTaken: f.querySelector('.f-action') ? f.querySelector('.f-action').value.trim() : "", latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-suspensions').addEventListener('submit', (e) => { handleSubmission(e, "suspensions_data", "suspensions", (f) => ({ coverage: Array.from(f.querySelector('.f-coverage').selectedOptions).map(opt => opt.value).join(', '), type: f.querySelector('.f-type').value, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: "" })); });
     document.getElementById('form-agri').addEventListener('submit', (e) => { handleSubmission(e, "agri_damages", "agri", (f) => ({ lguCount: parseInt(f.querySelector('.f-lgu-count').value)||0, commodity: f.querySelector('.f-commodity').value, farmersAffected: parseInt(f.querySelector('.f-farmers').value)||0, partialHa: parseFloat(f.querySelector('.f-partial-ha').value)||0, totalHa: parseFloat(f.querySelector('.f-total-ha').value)||0, cost: parseFloat(f.querySelector('.f-cost').value)||0, dateReported: f.querySelector('.f-report-time').value })); });
-    document.getElementById('form-residential').addEventListener('submit', (e) => { handleSubmission(e, "residential_damages", "residential", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, category: f.querySelector('.f-cat').value, count: parseInt(f.querySelector('.f-count').value)||0, description: f.querySelector('.f-desc').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
+    // ATLAS FIX: Removed residential form submission listener
     document.getElementById('form-assistance').addEventListener('submit', (e) => { handleSubmission(e, "assistance_data", "assistance", (f) => { let item = f.querySelector('.f-relief').value; let raw = parseFloat(f.querySelector('.f-qty').value)||0; let isCash = item.toLowerCase().includes('financial') || item.toLowerCase().includes('cash'); return { municipality: f.querySelector('.f-muni').value, source: f.querySelector('.f-source').value, reliefItem: item, quantity: isCash?0:raw, cost: isCash?raw:0, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-incidents').addEventListener('submit', (e) => { handleSubmission(e, "related_incidents", "incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), dateReported: f.querySelector('.f-report-time').value })); });
 
@@ -1293,13 +1262,69 @@ CRITICAL RULES:
         queueRender(); 
     });
 
-    watch("weather_conditions", "weather"); watch("actions_data", "actions"); watch("flooded_areas", "flood"); watch("evacuation_data", "evac"); watch("preemptive_data", "preemptive"); watch("complement_data", "complement"); watch("resource_data", "deployed"); watch("lifeline_data", "lifelines"); watch("casualties_data", "casualties"); watch("suspensions_data", "suspensions"); watch("agri_damages", "agri"); watch("residential_damages", "residential"); watch("assistance_data", "assistance"); watch("related_incidents", "incidents");
+    // ATLAS FIX: Removed Residential watch listener
+    watch("actions_data", "actions"); watch("flooded_areas", "flood"); watch("evacuation_data", "evac"); watch("preemptive_data", "preemptive"); watch("complement_data", "complement"); watch("resource_data", "deployed"); watch("lifeline_data", "lifelines"); watch("casualties_data", "casualties"); watch("suspensions_data", "suspensions"); watch("agri_damages", "agri"); watch("assistance_data", "assistance"); watch("related_incidents", "incidents");
+    
     onSnapshot(collection(db, "infrastructure_data"), (snap) => { 
         let allInfra = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
         dbData.roads = allInfra.filter(d => d.recordType === 'Passability' || ((d.category === 'Road' || d.category === 'Bridge') && d.recordType !== 'Damage' && !(d.status||'').includes('Assessed for Damage'))); 
         dbData.infrastructure = allInfra.filter(d => d.recordType === 'Damage' || (!d.recordType && parseFloat(d.cost) > 0) || (d.status||'').includes('Assessed for Damage')); 
         queueRender(); 
     });
+// ==========================================
+// SOFT SPA ROUTING INTERCEPTOR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    // 1. Determine Tab Order
+    const pageOrder = ['index.html', 'trend_analysis.html', 'data_entry.html', 'inventory.html', 'archives.html', 'admin.html'];
+    
+    // 2. Identify Current Page
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentIndex = pageOrder.indexOf(currentPath);
+
+    // 3. Check Session Storage for Entry Direction
+    const incomingDirection = sessionStorage.getItem('slideDirection');
+    if (incomingDirection === 'left') {
+        mainContent.classList.add('slide-in-left');
+    } else if (incomingDirection === 'right') {
+        mainContent.classList.add('slide-in-right');
+    } else {
+        mainContent.classList.add('slide-in-right'); // Default load
+    }
+    sessionStorage.removeItem('slideDirection'); // Clear after use
+
+    // 4. Intercept Navigation Clicks
+    const navLinks = document.querySelectorAll('.dashboard-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+            
+            // Ignore external links (Infographic) or current page clicks
+            if (link.target === "_blank" || targetUrl === currentPath || targetUrl === '#') return;
+            
+            e.preventDefault();
+            const targetIndex = pageOrder.indexOf(targetUrl);
+            
+            // Calculate Slide Direction based on layout
+            if (targetIndex > currentIndex) {
+                mainContent.classList.add('slide-out-left');
+                sessionStorage.setItem('slideDirection', 'right'); // Next page should slide in from right
+            } else {
+                mainContent.classList.add('slide-out-right');
+                sessionStorage.setItem('slideDirection', 'left'); // Next page should slide in from left
+            }
+            
+            // Wait for slide animation to complete before telling the browser to load the file
+            setTimeout(() => { 
+                window.location.href = targetUrl; 
+            }, 200);
+        });
+    });
+});
+    
 </script>
 </body>
 </html>
