@@ -1,9 +1,11 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PDRRMO Executive Analytics | Workspace</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDRRMO Executive Analytics | Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -11,609 +13,126 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
     
-    <!-- ATLAS FIX: Zoom & Pan Gesture Libraries -->
     <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
     <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<style>
+/* SOFT SPA SLIDE ANIMATIONS */
+.main-content {
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out;
+    transform: translateX(0);
+    opacity: 1;
+}
 
-    <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
-        
-        :root { 
-            --bg-body: #F2F2F7; --bg-sidebar: #FFFFFF; --bg-card: #FFFFFF; --bg-input: #F2F2F7; --bg-hover: #E5E5EA; 
-            --text-main: #1C1C1E; --text-muted: #86868B; 
-            --accent-blue: #007AFF; --accent-green: #34C759; --accent-orange: #FF9500; --accent-red: #FF3B30; --accent-purple: #AF52DE; --accent-teal: #5AC8FA; --accent-yellow: #FFCC00;
-            --border-subtle: #D1D1D6; --shadow-soft: 0 4px 24px rgba(0, 0, 0, 0.04); --shadow-modal: 0 25px 50px -12px rgba(0, 0, 0, 0.4);
-            --radius-lg: 14px; --radius-md: 10px; --radius-sm: 8px;
-            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
-        }
+.main-content.slide-out-left { transform: translateX(-40px); opacity: 0; }
+.main-content.slide-out-right { transform: translateX(40px); opacity: 0; }
+.main-content.slide-in-left { transform: translateX(-40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.main-content.slide-in-right { transform: translateX(40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
 
-        body { font-family: var(--font-stack); background-color: var(--bg-body); margin: 0; display: flex; height: 100vh; overflow: hidden; color: var(--text-main); -webkit-font-smoothing: antialiased; }
-        
-        /* GLOBAL LOADER */
-        .global-loader { position: absolute; top: 0; left: 0; right: 0; bottom: 0; background: rgba(242, 242, 247, 0.85); backdrop-filter: blur(10px); z-index: 99999; display: flex; flex-direction: column; justify-content: center; align-items: center; transition: opacity 0.5s ease; }
-        .loader-spinner { width: 50px; height: 50px; border: 4px solid var(--border-subtle); border-top-color: var(--accent-blue); border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px; }
-        .loader-text { color: var(--text-main); font-size: 14px; font-weight: 700; letter-spacing: 0.5px; animation: pulseText 1.5s ease-in-out infinite; font-family: var(--font-stack); }
-        @keyframes spin { to { transform: rotate(360deg); } }
-        @keyframes pulseText { 0%, 100% { opacity: 0.5; } 50% { opacity: 1; } }
-
-        /* NARRATIVE MODAL OVERLAY */
-        .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(4px); z-index: 100000; display: none; justify-content: center; align-items: center; opacity: 0; transition: opacity 0.3s ease; }
-        .modal-overlay.active { display: flex; opacity: 1; }
-        .modal-card { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: var(--radius-lg); width: 90%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: var(--shadow-modal); transform: translateY(-50px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
-        .modal-overlay.active .modal-card { transform: translateY(0); }
-        .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid var(--border-subtle); background: #F9F9FB; border-radius: var(--radius-lg) var(--radius-lg) 0 0;}
-        .modal-header h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px; }
-        .modal-close { background: transparent; border: none; color: var(--text-muted); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
-        .modal-close:hover { background: #FFEBEB; color: var(--accent-red); }
-        .modal-body { padding: 25px; overflow-y: auto; color: var(--text-main); font-size: 14px; line-height: 1.6; white-space: pre-wrap; }
-        .modal-body::-webkit-scrollbar { width: 4px; }
-        .modal-body::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
-
-        .truncate-box { display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; white-space: pre-wrap; font-size: 13px; color: var(--text-main); line-height: 1.5; }
-        .read-more-btn { background: #E5F0FF; border: none; border-radius: 6px; padding: 6px 10px; color: var(--accent-blue); font-size: 10px; font-weight: 700; cursor: pointer; margin-top: 8px; text-transform: uppercase; letter-spacing: 0.5px; transition: 0.2s; display: inline-flex; align-items: center; font-family: var(--font-stack);}
-        .read-more-btn:hover { background: #CCE0FF; }
-
-        /* SMOOTH COLLAPSIBLE SIDEBAR WITH GEMINI UI HEADER (BULLETPROOF FLEXBOX) */
-        .sidebar { width: 260px; background-color: var(--bg-sidebar); border-right: 1px solid var(--border-subtle); z-index: 10000; flex-shrink: 0; transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1); display: flex; flex-direction: column; }
-        .sidebar-inner { width: 100%; display: flex; flex-direction: column; min-height: 100%; overflow-y: auto; overflow-x: hidden; }
-        .sidebar-inner::-webkit-scrollbar { width: 0px; }
-
-        .sidebar-header { display: flex; align-items: center; justify-content: space-between; height: 75px; padding: 0 16px; box-sizing: border-box; flex-shrink: 0; }
-        .sidebar-brand-container { display: flex; align-items: center; gap: 12px; white-space: nowrap; overflow: hidden; width: 190px; transition: opacity 0.2s ease, width 0.3s ease; }
-        .sidebar-logo { width: 42px; height: 42px; object-fit: contain; flex-shrink: 0; }
-        .sidebar-brand { margin: 0; font-size: 16px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px; transition: opacity 0.3s ease; }
-        
-        .sidebar-toggle { width: 36px; height: 36px; background: transparent; border: none; color: var(--text-muted); cursor: pointer; display: flex; align-items: center; justify-content: center; border-radius: 8px; transition: background-color 0.2s, color 0.2s; flex-shrink: 0; margin-left: auto; }
-        .sidebar-toggle:hover { background-color: var(--bg-hover); color: var(--text-main); }
-        
-        .sidebar-subtitle { padding: 0 20px 20px 65px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; line-height: 1.4; border-bottom: 1px solid var(--border-subtle); margin-bottom: 15px; white-space: nowrap; transition: opacity 0.3s;}
-        
-        .nav-section-title { padding: 10px 10px 10px 20px; font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; white-space: nowrap;}
-        
-        .dashboard-link { display: flex; align-items: center; text-decoration: none; padding: 12px 0; margin: 0 12px 4px 12px; font-size: 14px; font-weight: 500; transition: background-color 0.2s, color 0.2s; color: var(--text-main); border-radius: var(--radius-md); white-space: nowrap; }
-        .dashboard-link i { width: 45px; flex-shrink: 0; text-align: center; color: var(--text-muted); transition: 0.2s; font-size: 16px;}
-        .dashboard-link:hover { background-color: var(--bg-hover); }
-        .active-tab { background-color: #E5F0FF; font-weight: 600; color: var(--accent-blue); }
-        .active-tab:hover { transform: none; }
-        .active-tab i { color: var(--accent-blue); }
-
-        .fade-text { opacity: 1; transition: opacity 0.15s ease; }
-        
-        /* COLLAPSED STATE LOGIC */
-        .sidebar.collapsed { width: 70px; }
-        .sidebar.collapsed .fade-text { opacity: 0; }
-        .sidebar.collapsed .sidebar-header { padding: 15px; justify-content: center; }
-        .sidebar.collapsed .sidebar-brand-container { width: 0; opacity: 0; margin: 0; display: none; }
-        .sidebar.collapsed .sidebar-toggle { margin: 0; }
-        .sidebar.collapsed .sidebar-subtitle { border-color: transparent; height: 0; padding-top: 0; padding-bottom: 0; margin-bottom: 5px; overflow: hidden; opacity: 0; }
-        .sidebar.collapsed .nav-section-title { opacity: 0; padding: 10px 0; height: 0; margin: 0; overflow: hidden; }
-        
-        .sidebar.collapsed .dashboard-link { width: 44px; margin: 0 auto 8px auto; padding: 12px 0; justify-content: center; }
-        .sidebar.collapsed .dashboard-link i { width: auto; margin: 0; font-size: 18px; }
-        .sidebar.collapsed .link-text { display: none; }
-
-        /* MAIN CONTENT */
-        .main-content { flex: 1; padding: 20px 30px; height: 100vh; box-sizing: border-box; overflow-y: auto; position: relative; }
-        .main-content::-webkit-scrollbar { width: 6px; }
-        .main-content::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
-        .workspace-wrapper { max-width: 1400px; width: 100%; margin: 0 auto; display: flex; flex-direction: column; min-height: 100%; }
-
-        /* FILTER BAR */
-        .filter-bar { background: var(--bg-card); padding: 20px 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 25px; box-shadow: var(--shadow-soft); display: flex; justify-content: space-between; align-items: center; }
-        .filter-left { display: flex; gap: 15px; align-items: center; }
-        .filter-group { display: flex; flex-direction: column; gap: 6px; }
-        .filter-group label { font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; }
-        .filter-input { padding: 10px 14px; border: 1px solid #C7C7CC; border-radius: var(--radius-md); font-family: var(--font-stack); font-size: 14px; color: var(--text-main); background: #fff; outline: none; width: 120px; font-weight: 600; transition: border-color 0.2s;}
-        .filter-input:focus { border-color: var(--accent-blue); box-shadow: 0 0 0 3px rgba(0,122,255,0.15); }
-        
-        .btn-apply { background: #E5F0FF; color: var(--accent-blue); border: none; padding: 10px 20px; border-radius: var(--radius-md); font-weight: 600; font-size: 13px; cursor: pointer; transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s; height: 42px; display: flex; align-items: center; gap: 8px;}
-        .btn-apply:hover { background: #CCE0FF; transform: scale(1.02); }
-        .btn-apply:active { transform: scale(0.98); }
-        
-        .sys-status { display: flex; align-items: center; gap: 15px; background: #fff; border: 1px solid var(--border-subtle); padding: 8px 12px; border-radius: 8px; box-shadow: var(--shadow-soft); }
-
-        /* SYNOPSIS BANNER */
-        .synopsis-banner { background: #F9F9FB; padding: 20px 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 25px; display: flex; gap: 20px; align-items: flex-start;}
-        .synopsis-icon { font-size: 24px; color: var(--accent-blue); background: #E5F0FF; padding: 15px; border-radius: 12px; }
-        .synopsis-content h3 { margin: 0 0 5px 0; font-size: 15px; font-weight: 700;}
-        .synopsis-content p { margin: 0; font-size: 14px; color: var(--text-main); line-height: 1.6;}
-
-        /* Physicality Hover Animations */
-        .kpi-card, .sec-card, .chart-card, .feed-card {
-            background: var(--bg-card); 
-            border-radius: var(--radius-lg); 
-            border: 1px solid var(--border-subtle); 
-            box-shadow: var(--shadow-soft); 
-            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275), box-shadow 0.3s cubic-bezier(0.25, 0.8, 0.25, 1);
-        }
-        .kpi-card:hover, .sec-card:hover, .chart-card:hover, .feed-card:hover {
-            transform: translateY(-5px);
-            box-shadow: 0 12px 32px rgba(0, 0, 0, 0.08);
-        }
-
-        /* KPI GRID - HERO */
-        .kpi-hero-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 20px; margin-bottom: 25px; }
-        .kpi-card { padding: 25px; display: flex; flex-direction: column; position: relative; overflow: hidden;}
-        .kpi-icon { position: absolute; top: -15px; right: -15px; font-size: 80px; opacity: 0.04; transform: rotate(-15deg); pointer-events: none;}
-        .kpi-header { display: flex; align-items: center; gap: 10px; margin-bottom: 15px;}
-        .kpi-header-icon { width: 32px; height: 32px; border-radius: 8px; display: flex; justify-content: center; align-items: center; font-size: 14px; }
-        .kpi-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
-        .kpi-value { font-size: 28px; font-weight: 800; color: var(--text-main); letter-spacing: -1px; margin-bottom: 5px;}
-        .kpi-subtext { font-size: 13px; font-weight: 500; color: var(--text-muted); display: flex; justify-content: space-between;}
-        
-        .card-blue .kpi-header-icon { background: #E5F0FF; color: var(--accent-blue); }
-        .card-green .kpi-header-icon { background: #E8F8EE; color: var(--accent-green); }
-        .card-orange .kpi-header-icon { background: #FFF4E5; color: var(--accent-orange); }
-        .card-red .kpi-header-icon { background: #FFEBEB; color: var(--accent-red); }
-        .card-yellow .kpi-header-icon { background: #FFF9E5; color: var(--accent-yellow); }
-
-        /* KPI GRID - SECONDARY */
-        .kpi-secondary-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 20px; margin-bottom: 35px; }
-        .sec-card { padding: 20px 25px; display: flex; align-items: center; justify-content: space-between;}
-        .sec-left { display: flex; flex-direction: column; gap: 5px; }
-        .sec-title { font-size: 12px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;}
-        .sec-value { font-size: 24px; font-weight: 800; color: var(--text-main); letter-spacing: -0.5px;}
-        .sec-right { text-align: right; }
-        .sec-badge { padding: 4px 8px; border-radius: 6px; font-size: 11px; font-weight: 600; display: inline-block; margin-bottom: 4px;}
-
-        /* CHARTS & FEEDS GRIDS */
-        .dashboard-section-title { font-size: 13px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1.5px; margin-bottom: 15px; padding-bottom: 10px; border-bottom: 1px solid var(--border-subtle); display: flex; align-items: center; gap: 10px; }
-        .chart-grid { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 20px; margin-bottom: 40px;}
-        .chart-card { padding: 20px; display: flex; flex-direction: column; position: relative; min-width: 0;}
-        .chart-header { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 15px; border-bottom: 1px solid var(--border-subtle); padding-bottom: 10px; }
-        .chart-header h3 { margin: 0; font-size: 14px; font-weight: 600; display: flex; align-items: center; gap: 8px; color: var(--text-main);}
-        .chart-header-desc { font-size: 11px; color: var(--text-muted); font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; margin-top: 4px; }
-        
-        .chart-container { position: relative; height: 260px; width: 100%; min-width: 0; }
-        .chart-empty-message { position: absolute; top: 0; left: 0; width: 100%; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; color: var(--text-muted); font-size: 12px; font-weight: 600; background: var(--bg-card); z-index: 10; border-radius: 8px; text-transform: uppercase; letter-spacing: 0.5px;}
-
-        .feeds-grid { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 20px; margin-bottom: 40px; }
-        .feed-card { padding: 20px; display: flex; flex-direction: column; min-width: 0;}
-        
-        .incident-feed-container { position: relative; height: 300px; width: 100%; overflow-y: auto; overflow-x: hidden; padding-right: 5px; box-sizing: border-box; }
-        .incident-feed-container::-webkit-scrollbar { width: 6px; }
-        .incident-feed-container::-webkit-scrollbar-track { background: transparent; }
-        .incident-feed-container::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
-        
-        .incident-list { list-style: none; padding: 0; margin: 0; display: flex; flex-direction: column; }
-        
-        .incident-item { display: flex; flex-direction: column; gap: 8px; padding: 14px 10px; border-bottom: 1px solid var(--border-subtle); font-size: 13px; transition: transform 0.2s cubic-bezier(0.25, 0.8, 0.25, 1), background-color 0.2s;}
-        .incident-item:last-child { border-bottom: none; }
-        .incident-item:hover { background: #F9F9FB; transform: translateX(4px); }
-        
-        .incident-loc { font-weight: 600; color: var(--text-main); display: flex; gap: 6px; align-items: center; font-size: 14px;}
-        .incident-desc { color: var(--text-main); line-height: 1.5; }
-        .incident-act { color: var(--text-muted); line-height: 1.4; font-size: 12px;}
-        .incident-label { font-size: 10px; text-transform: uppercase; color: var(--text-muted); font-weight: 700; margin-bottom: 4px; display: block; letter-spacing: 0.5px;}
-        
-        .empty-state { text-align: center; color: var(--text-muted); font-style: italic; display: flex; justify-content: center; align-items: center; height: 100%; letter-spacing: 0.5px; padding: 20px;}
-        @keyframes slideInFade { from { opacity: 0; transform: translateY(12px); } to { opacity: 1; transform: translateY(0); } }
-        .animate-reveal { animation: slideInFade 0.3s ease-out forwards; } 
-
-        .btn-chart-reset { background: #fff; color: var(--text-muted); border: 1px solid #C7C7CC; border-radius: 6px; padding: 5px 10px; font-size: 12px; cursor: pointer; transition: all 0.2s ease; display: flex; align-items: center; justify-content: center; height: 30px; }
-        .btn-chart-reset:hover { color: var(--text-main); background-color: var(--bg-hover); border-color: var(--text-muted); transform: scale(1.05); }
-
-        /* ATLAS FIX: Dedicated Reset Zoom Button */
-        .btn-reset-zoom { background: #fff; color: var(--text-main); border: 1px solid var(--border-subtle); border-radius: 16px; padding: 4px 12px; font-size: 11px; font-weight: 600; cursor: pointer; transition: all 0.2s ease; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .btn-reset-zoom:hover { background: var(--bg-hover); color: var(--accent-blue); border-color: var(--accent-blue); }
-        
-        /* TOM SELECT OVERRIDES */
-        .ts-wrapper.chart-filter { width: 140px !important; position: relative; font-family: var(--font-stack) !important;}
-        .ts-wrapper.chart-filter .ts-control { background: #fff !important; border: 1px solid #C7C7CC; border-radius: 6px; padding: 6px 12px; min-height: 30px; cursor: pointer; color: var(--text-main) !important; font-size: 11px !important; font-weight: 600; box-shadow: none; transition: 0.2s;}
-        .ts-wrapper.chart-filter.focus .ts-control, .ts-wrapper.chart-filter.input-active .ts-control { border-color: var(--accent-blue) !important; box-shadow: 0 0 0 3px rgba(0,122,255,0.15) !important; }
-        .ts-wrapper.chart-filter .ts-dropdown { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 6px; position: absolute !important; z-index: 9999 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.1); margin-top: 4px; }
-        .ts-wrapper.chart-filter .ts-dropdown .option { padding: 8px 12px; font-size: 11px; font-weight: 500; color: var(--text-main); cursor: pointer; }
-        .ts-wrapper.chart-filter .ts-dropdown .active { background: #E5F0FF !important; color: var(--accent-blue) !important; font-weight: 700; }
-        
-        .ts-wrapper.global-sitrep-select { width: auto; min-width: 220px; position: relative; font-family: var(--font-stack) !important;}
-        .ts-wrapper.global-sitrep-select .ts-control { background: #fff !important; border: 1px solid var(--border-subtle); border-radius: 8px; padding: 8px 15px; min-height: 40px; cursor: pointer; color: var(--text-main) !important; font-size: 13px !important; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; box-shadow: none; transition: 0.2s;}
-        .ts-wrapper.global-sitrep-select.focus .ts-control { border-color: var(--accent-blue) !important; box-shadow: 0 0 0 3px rgba(0,122,255,0.15) !important; }
-        .ts-wrapper.global-sitrep-select .ts-dropdown { background: var(--bg-card); border: 1px solid var(--border-subtle); border-radius: 8px; position: absolute !important; z-index: 9999 !important; box-shadow: 0 10px 25px rgba(0,0,0,0.15); margin-top: 4px; }
-        .ts-wrapper.global-sitrep-select .ts-dropdown .option { padding: 10px 15px; font-size: 12px; font-weight: 600; color: var(--text-main); cursor: pointer; text-transform: uppercase;}
-        .ts-wrapper.global-sitrep-select .ts-dropdown .active { background: var(--bg-hover) !important; color: var(--accent-blue) !important; }
-
-        @media (max-width: 1400px) { .kpi-hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } .feeds-grid { grid-template-columns: minmax(0, 1fr); } .chart-grid { grid-template-columns: minmax(0, 1fr); } }
-    </style>
+@keyframes slideRest {
+    to { transform: translateX(0); opacity: 1; }
+}
+    
+:root{--bg-body:#F2F4F8;--bg-card:#fff;--bg-hover:#EEF1F6;--text-main:#0F172A;--text-muted:#5B6678;--accent-blue:#2F6BFF;--accent-green:#0E9467;--accent-orange:#E8590C;--accent-red:#D92D3A;--accent-purple:#7C4DFF;--accent-teal:#0A8FA6;--accent-yellow:#B7791F;--border-subtle:#E1E6EE;--ink:#0B1730;--hot:#FF8A8E;--signal:#FF7A2F;--font-stack:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:124px}
+body{margin:0;font-family:var(--font-stack);background:var(--bg-body);color:var(--text-main);font-size:14px;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
+.modal-overlay{position:fixed;inset:0;background:rgba(11,23,48,.6);backdrop-filter:blur(3px);z-index:100000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal-card{background:#fff;border-radius:18px;width:92%;max-width:660px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(11,23,48,.4)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border-subtle)}
+.modal-header h3{margin:0;font-size:16px;display:flex;gap:10px;align-items:center}
+.modal-close{border:0;background:transparent;width:34px;height:34px;border-radius:10px;font-size:18px;cursor:pointer;color:var(--text-muted)}
+.modal-close:hover{background:#FDE8EA;color:var(--accent-red)}
+.modal-body{padding:22px;overflow-y:auto;line-height:1.7;white-space:pre-wrap}
+.sidebar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border-subtle)}
+.sidebar-inner{max-width:1480px;margin:0 auto;padding:0 28px;height:60px;display:flex;align-items:center;gap:26px}
+.sidebar-brand-container{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.sidebar-logo{width:34px;height:34px;object-fit:contain}
+.sidebar-brand{margin:0;font-size:16px;font-weight:800;letter-spacing:-.02em}
+.sidebar-toggle{display:none}
+.nav{display:flex;gap:2px;flex:1;overflow-x:auto}
+.dashboard-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;color:var(--text-muted);font-weight:600;text-decoration:none;white-space:nowrap}
+.dashboard-link:hover{background:var(--bg-hover);color:var(--text-main)}
+.active-tab,.active-tab:hover{background:var(--ink);color:#fff}
+.wrap{max-width:1480px;margin:0 auto;padding:20px 28px 60px}
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:30px 32px 6px;margin-bottom:6px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.hero h2{margin:0;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.15;max-width:780px}
+.hero p{margin:10px 0 0;color:rgba(255,255,255,.72);display:flex;align-items:center}
+.live{width:8px;height:8px;border-radius:50%;background:#34D399;margin-right:8px;animation:pulse 2s infinite;flex-shrink:0}
+.hero-ctl{display:flex;gap:10px;align-items:center}
+.btn-ghost{height:38px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;font:600 13px var(--font-stack);cursor:pointer}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:28px;border-top:1px solid rgba(255,255,255,.13)}
+.fig{display:block;padding:20px 20px 22px;color:inherit;text-decoration:none;border-left:1px solid rgba(255,255,255,.13);min-width:0}
+.fig:first-child{border-left:0;padding-left:0}
+.fig-label{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.74);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.fig-value{font-size:clamp(28px,2.8vw,40px);font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:8px 0 4px;overflow-wrap:anywhere}
+.fig:hover .fig-value{color:var(--signal)}
+.fig-sub{display:flex;justify-content:space-between;gap:8px;color:rgba(255,255,255,.68);font-size:13px}
+.fig-sub b{color:#fff}
+.strips{display:flex;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.13)}
+.strip{flex:1 1 260px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-left:1px solid rgba(255,255,255,.13)}
+.strip:first-child{border-left:0;padding-left:0}
+.strip-t{font-weight:600;color:rgba(255,255,255,.74)}
+.strip-v{font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.15}
+.strip small{display:block;color:rgba(255,255,255,.62);font-size:12px}
+.chips{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.chip{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12)}
+.chip.ok{background:rgba(52,211,153,.18);color:#6EE7B7}.chip.bad{background:rgba(229,72,77,.24);color:#FDA4AF}
+.tabs{position:sticky;top:60px;z-index:90;margin:0 -28px 24px;padding:12px 28px;background:rgba(242,244,248,.88);backdrop-filter:blur(10px)}
+.jump{display:flex;gap:6px;overflow-x:auto}
+.jump a{padding:7px 15px;border-radius:99px;font-weight:600;color:var(--text-muted);text-decoration:none;white-space:nowrap;border:1px solid transparent}
+.jump a:hover{background:#fff}
+.jump a.on{background:#fff;color:var(--text-main);border-color:var(--border-subtle);box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.sec{margin-bottom:36px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec-h h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}.sec-h p{margin:0;color:var(--text-muted)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+.panel{background:#fff;border:1px solid var(--border-subtle);border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.04);min-width:0;display:flex;flex-direction:column}
+.ph{padding:16px 18px 0}
+.pt{display:flex;align-items:center;gap:10px}
+.pt i{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;font-size:14px;background:color-mix(in srgb,currentColor 12%,#fff)}
+.pt h3{margin:0;font-size:15px;font-weight:700}
+.pc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{margin-left:auto;font-size:12px;color:var(--text-muted)}
+.pb{padding:12px 18px 18px}
+.chart-container{position:relative;height:300px;min-width:0}
+.chart-empty-message{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;justify-content:center;align-items:center;color:var(--text-muted);background:#fff;z-index:10}
+.chart-empty-message i{font-size:26px;color:#C9D1DE}
+.btn-chart-reset,.btn-reset-zoom{background:#F3F5F9;border:1px solid transparent;border-radius:10px;height:32px;padding:0 11px;cursor:pointer;color:var(--text-main);font:600 12px var(--font-stack);display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-chart-reset:hover,.btn-reset-zoom:hover{border-color:var(--border-subtle);background:#fff}
+.incident-feed-container{height:var(--h,300px);overflow-y:auto;margin-top:12px;border-top:1px solid var(--border-subtle)}
+.incident-list{list-style:none;margin:0;padding:0}
+.cols2 .incident-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.incident-item{display:flex;flex-direction:column;gap:6px;padding:13px 18px;border-bottom:1px solid #EDF0F5;font-size:13px;box-shadow:inset 3px 0 0 transparent}
+.incident-item:hover{background:#F8F9FC;box-shadow:inset 3px 0 0 var(--signal)}
+.incident-loc{font-weight:700;display:flex;gap:6px;align-items:center;font-size:14px}
+.incident-desc{line-height:1.5}
+.incident-act{color:var(--text-muted);font-size:12px;line-height:1.45}
+.incident-label{display:block;font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:2px}
+.empty-state{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);padding:20px;text-align:center}
+.truncate-box{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;line-height:1.5}
+.read-more-btn{background:#E8EFFF;border:0;border-radius:8px;padding:6px 10px;margin-top:8px;color:var(--accent-blue);font:700 12px var(--font-stack);cursor:pointer}
+.read-more-btn:hover{background:#D5E2FF}
+.ts-wrapper.chart-filter{width:auto!important;min-width:130px;flex:0 1 170px}
+.ts-wrapper.global-sitrep-select{min-width:190px}
+.ts-wrapper.chart-filter .ts-control{background:#F3F5F9!important;border:1px solid transparent;border-radius:10px;padding:5px 11px;min-height:32px;font-size:13px!important;font-weight:600;color:var(--text-main)!important;box-shadow:none;cursor:pointer}
+.ts-wrapper.global-sitrep-select .ts-control{background:#fff!important;border:0;border-radius:10px;padding:8px 14px;min-height:38px;font-size:13px!important;font-weight:700;color:var(--ink)!important;cursor:pointer}
+.ts-wrapper.focus .ts-control{box-shadow:0 0 0 3px rgba(47,107,255,.25)!important}
+.ts-wrapper .ts-dropdown{border:1px solid var(--border-subtle);border-radius:12px;box-shadow:0 12px 32px rgba(11,23,48,.18);z-index:9999!important;margin-top:6px;color:var(--text-main)}
+.ts-wrapper .ts-dropdown .option{padding:9px 13px;font-size:13px}
+.ts-wrapper .ts-dropdown .active{background:#EEF3FF!important;color:var(--accent-blue)!important}
+@media(max-width:1280px){.s4{grid-column:span 6}.s5,.s7,.s8{grid-column:span 12}}
+@media(max-width:860px){.s4,.s6{grid-column:span 12}.wrap{padding:14px 14px 48px}.tabs{margin:0 -14px 20px;padding:10px 14px}.hero{padding:22px 20px 4px}.hero h2{font-size:24px}.hint{display:none}.sidebar-inner{padding:0 14px;gap:12px}.sidebar-brand{display:none}.cols2 .incident-list{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.sidebar,.tabs,.hero-ctl{display:none}.panel{break-inside:avoid}.incident-feed-container{height:auto}}
+</style>
 </head>
 <body>
-
-    <div id="global-loader" class="global-loader">
-        <div class="loader-spinner"></div>
-        <div class="loader-text">AGGREGATING SITREP DATA...</div>
-    </div>
-
-    <div class="modal-overlay" id="narrativeModal" onclick="closeNarrativeModal(event)">
-        <div class="modal-card" onclick="event.stopPropagation()">
-            <div class="modal-header">
-                <h3><i class="fa-solid fa-file-lines" style="color: var(--accent-blue);"></i> Detailed Narrative</h3>
-                <button class="modal-close" onclick="closeNarrativeModal()"><i class="fa-solid fa-xmark"></i></button>
-            </div>
-            <div class="modal-body" id="modalBodyContent">
-                Loading details...
-            </div>
-        </div>
-    </div>
-
-    <div class="sidebar" id="mainSidebar">
-        <div class="sidebar-inner">
-            <div class="sidebar-header">
-                <div class="sidebar-brand-container">
-                    <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                    <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
-                </div>
-                <button id="toggleSidebarBtn" class="sidebar-toggle" title="Toggle Sidebar">
-                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                        <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-                        <line x1="9" y1="3" x2="9" y2="21"></line>
-                    </svg>
-                </button>
-            </div>
-            <div class="sidebar-subtitle fade-text">Situation Report<br>Monitoring System</div>
-            
-            <div class="nav-section-title"><span class="fade-text">Monitoring System</span></div>
-            <div class="nav-links-container">
-                <a href="index.html" class="dashboard-link active-tab" title="Exec Analytics"><i class="fa-solid fa-chart-pie"></i> <span class="link-text fade-text">Exec Analytics</span></a>
-                <a href="trend_analysis.html" class="dashboard-link" title="Trend Analysis"><i class="fa-solid fa-arrow-trend-up"></i> <span class="link-text fade-text">Trend Analysis</span></a>
-                <a href="data_entry.html" class="dashboard-link" title="Command Workspace"><i class="fa-solid fa-desktop"></i> <span class="link-text fade-text">Command Workspace</span></a>
-                <a href="inventory.html" class="dashboard-link" title="PDRRMO Inventory"><i class="fa-solid fa-boxes-stacked"></i> <span class="link-text fade-text">PDRRMO Inventory</span></a>
-                <a href="archives.html" class="dashboard-link" title="Historical Archives"><i class="fa-solid fa-folder-open"></i> <span class="link-text fade-text">Historical Archives</span></a>
-                <a href="infographic.html" target="_blank" class="dashboard-link" title="Generate Infographic"><i class="fa-solid fa-file-image"></i> <span class="link-text fade-text">Generate Infographic</span></a>
-            </div>
-
-            <div class="nav-section-title" style="margin-top: auto; padding-top: 20px;"><span class="fade-text">Secure Access</span></div>
-            <div class="nav-links-container" style="padding-bottom: 20px;">
-                <a href="admin.html" class="dashboard-link" title="System Admin"><i class="fa-solid fa-server"></i> <span class="link-text fade-text">System Admin</span></a>
-            </div>
-        </div>
-    </div>
-
-    <div class="main-content">
-        
-        <div class="top-header" style="border-bottom: 1px solid var(--border-subtle); padding-bottom: 20px; margin-bottom: 25px; align-items: flex-start;">
-            <div class="header-left" style="flex: 1; padding-right: 20px;">
-                <div class="top-header-text">
-                    <p style="font-size: 11px; font-weight: 700; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; margin: 0 0 6px 0;">Executive Analytics Dashboard</p>
-                    <h2 id="incidentNameDisplay" style="margin: 0; font-size: 22px; font-weight: 800; letter-spacing: -0.5px; color: var(--text-main); line-height: 1.3;">Scanning Network Data...</h2>
-                    <p id="asOfDisplay" style="margin: 6px 0 0 0; font-size: 13px; color: var(--text-muted); font-weight: 500;">--</p>
-                </div>
-            </div>
-            
-            <div class="header-right" style="flex-shrink: 0; display: flex; flex-direction: column; align-items: flex-end; gap: 10px;">
-                <select id="globalSitrepFilter" class="global-sitrep-select" style="background-color: var(--bg-card) !important; border: 1px solid var(--border-subtle); box-shadow: var(--shadow-soft);"></select>
-            </div>
-        </div>
-
-        <div class="filter-bar">
-            <div class="filter-left">
-                <div class="filter-group">
-                    <label>Filter By SitRep #</label>
-                    <input type="number" id="targetSitrep" class="filter-input" placeholder="e.g. 14">
-                </div>
-                <button class="btn-apply" onclick="applySitrepFilter()" style="margin-top: 19px;"><i class="fa-solid fa-rotate"></i> Analyze Snapshot</button>
-                <button class="btn-apply" onclick="resetToLatest()" style="margin-top: 19px; background: transparent; border: 1px solid #C7C7CC; color: var(--text-main);"><i class="fa-solid fa-forward-fast"></i> Jump to Latest</button>
-            </div>
-            <div class="sys-status" id="sys-status" style="box-shadow: none; border-color: rgba(52, 199, 89, 0.2); font-size: 11px; font-weight: 700; color: var(--text-muted);">
-                ALIGNED TO SITREP: CALCULATING...
-            </div>
-        </div>
-
-        <div class="synopsis-banner" id="synopsis-banner" style="display: none;">
-            <div class="synopsis-icon"><i class="fa-solid fa-cloud-bolt"></i></div>
-            <div class="synopsis-content">
-                <h3>Incident Synopsis / Status</h3>
-                <p id="synopsis-text">Loading contextual overview...</p>
-                <p style="font-size: 11px; color: var(--text-muted); margin-top: 5px; font-weight: 600; text-transform: uppercase;">Source: <span id="synopsis-source">N/A</span></p>
-            </div>
-        </div>
-
-        <div class="kpi-hero-grid">
-            <div class="kpi-card card-blue">
-                <i class="fa-solid fa-users kpi-icon"></i>
-                <div class="kpi-header"><div class="kpi-header-icon"><i class="fa-solid fa-users"></i></div><div class="kpi-title">Total Affected</div></div>
-                <div class="kpi-value" id="kpi-aff-fam">0</div>
-                <div class="kpi-subtext"><span>Families</span> <span id="kpi-aff-pax" style="color:var(--text-main); font-weight:700;">0 Pax</span></div>
-            </div>
-
-            <div class="kpi-card card-orange">
-                <i class="fa-solid fa-tents kpi-icon"></i>
-                <div class="kpi-header"><div class="kpi-header-icon"><i class="fa-solid fa-tents"></i></div><div class="kpi-title">Evacuation Centers</div></div>
-                <div class="kpi-value" id="kpi-ec-count">0</div>
-                <div class="kpi-subtext"><span>Active Centers</span> <span id="kpi-ec-pax" style="color:var(--text-main); font-weight:700;">0 Pax Inside</span></div>
-            </div>
-
-            <div class="kpi-card card-red">
-                <i class="fa-solid fa-building-circle-exclamation kpi-icon"></i>
-                <div class="kpi-header"><div class="kpi-header-icon"><i class="fa-solid fa-peso-sign"></i></div><div class="kpi-title">Infra Damages</div></div>
-                <div class="kpi-value" id="kpi-infra-dmg">₱0</div>
-                <div class="kpi-subtext"><span>Infrastructure Sub-Total</span></div>
-            </div>
-
-            <div class="kpi-card card-yellow">
-                <i class="fa-solid fa-wheat-awn kpi-icon"></i>
-                <div class="kpi-header"><div class="kpi-header-icon"><i class="fa-solid fa-peso-sign"></i></div><div class="kpi-title">Agri Damages</div></div>
-                <div class="kpi-value" id="kpi-agri-dmg">₱0</div>
-                <div class="kpi-subtext"><span>Dept. of Agriculture</span></div>
-            </div>
-
-            <div class="kpi-card card-green">
-                <i class="fa-solid fa-hand-holding-hand kpi-icon"></i>
-                <div class="kpi-header"><div class="kpi-header-icon"><i class="fa-solid fa-box-open"></i></div><div class="kpi-title">Relief & Assistance</div></div>
-                <div class="kpi-value" id="kpi-ast-total">₱0</div>
-                <div class="kpi-subtext"><span>Total Cost Provided</span></div>
-            </div>
-        </div>
-
-        <div class="kpi-secondary-grid">
-            <div class="sec-card">
-                <div class="sec-left">
-                    <div class="sec-title">Flooded Areas</div>
-                    <div class="sec-value" id="kpi-flood-active">0</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Currently Flooded</div>
-                </div>
-                <div class="sec-right"><div class="sec-badge" style="background: #E8F8EE; color: var(--accent-green);" id="kpi-flood-sub">0 Subsided</div></div>
-            </div>
-
-            <div class="sec-card">
-                <div class="sec-left">
-                    <div class="sec-title">Roads & Bridges</div>
-                    <div class="sec-value" id="kpi-road-not">0</div>
-                    <div style="font-size: 12px; color: var(--accent-red); font-weight:600;">Not Passable</div>
-                </div>
-                <div class="sec-right"><div class="sec-badge" style="background: #E8F8EE; color: var(--accent-green);" id="kpi-road-pass">0 Passable</div></div>
-            </div>
-
-            <div class="sec-card">
-                <div class="sec-left">
-                    <div class="sec-title">Casualties</div>
-                    <div class="sec-value" id="kpi-cas-total" style="color: var(--accent-red);">0</div>
-                    <div style="font-size: 12px; color: var(--text-muted);">Total Recorded</div>
-                </div>
-                <div class="sec-right">
-                    <div class="sec-badge" style="background: #F9F9FB; color: var(--text-muted);" id="kpi-cas-dead">0 Dead</div><br>
-                    <div class="sec-badge" style="background: #FFEBEB; color: var(--accent-red);" id="kpi-cas-inj">0 Inj / Mis</div>
-                </div>
-            </div>
-        </div>
-        
-        <div class="dashboard-section-title"><i class="fa-solid fa-chart-pie" style="color: var(--accent-orange);"></i> Visual Analytics</div>
-        
-        <div class="chart-grid">
-            
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <h3><i class="fa-solid fa-users-between-lines" style="color: var(--accent-orange);"></i> Affected vs. Evacuated (Pax)</h3>
-                        <div class="chart-header-desc">Click & Drag to Zoom X-Axis</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button id="evacChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('evacChart')">Reset zoom</button>
-                        <button class="btn-chart-reset" onclick="resetChart('evac-category-filter'); resetChart('evac-muni-filter'); resetChartZoom('evacChart');" title="Reset Filters & Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="evac-category-filter" class="chart-filter">
-                            <option value="ALL">All Categories</option>
-                            <option value="Affected">Affected</option>
-                            <option value="Served">Served</option>
-                            <option value="Inside ECs">Inside ECs</option>
-                        </select>
-                        <select id="evac-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="evacChart"></canvas>
-                    <div id="evacChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-users-slash" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No population data reported</span></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <h3><i class="fa-solid fa-truck-medical" style="color: var(--accent-red);"></i> Casualties by Location</h3>
-                        <div class="chart-header-desc">Click & Drag to Zoom X-Axis</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button id="casChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('casChart')">Reset zoom</button>
-                        <button class="btn-chart-reset" onclick="resetChart('cas-category-filter'); resetChart('cas-view-filter'); resetChartZoom('casChart');" title="Reset Filters & Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="cas-category-filter" class="chart-filter">
-                            <option value="ALL">All Categories</option>
-                            <option value="Dead">Dead</option>
-                            <option value="Missing">Missing</option>
-                            <option value="Injured">Injured</option>
-                        </select>
-                        <select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="casChart"></canvas>
-                    <div id="casChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-truck-medical" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px; opacity: 0.5;"></i><span>No casualties reported</span></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <h3><i class="fa-solid fa-person-walking-arrow-right" style="color: var(--accent-teal);"></i> Pre-Emptive Evacuations</h3>
-                        <div class="chart-header-desc">Click & Drag to Zoom X-Axis</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button id="preemptiveChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('preemptiveChart')">Reset zoom</button>
-                        <button class="btn-chart-reset" onclick="resetChart('preemptive-category-filter'); resetChart('preemptive-muni-filter'); resetChartZoom('preemptiveChart');" title="Reset Filters & Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="preemptive-category-filter" class="chart-filter">
-                            <option value="ALL">All Categories</option>
-                            <option value="Individuals">Individuals</option>
-                            <option value="Families">Families</option>
-                        </select>
-                        <select id="preemptive-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="preemptiveChart"></canvas>
-                    <div id="preemptiveChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-person-walking-dashed-line-arrow-right" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No pre-emptive evacuations reported</span></div>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <h3><i class="fa-solid fa-hand-holding-dollar" style="color: var(--accent-green);"></i> Relief & Assistance Cost (₱) by Source</h3>
-                        <div class="chart-header-desc">Click & Drag to Zoom X-Axis</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button id="astCostChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('astCostChart')">Reset zoom</button>
-                        <button class="btn-chart-reset" onclick="resetChart('ast-source-filter'); resetChart('ast-cost-muni-filter'); resetChartZoom('astCostChart');" title="Reset Filters & Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="ast-source-filter" class="chart-filter"><option value="ALL">All Sources</option></select>
-                        <select id="ast-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="astCostChart"></canvas>
-                    <div id="astCostChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-hand-holding-hand" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No assistance data reported</span></div>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <h3><i class="fa-solid fa-truck-fast" style="color: var(--accent-purple);"></i> Deployed Assets by Agency</h3>
-                        <div class="chart-header-desc">Click & Drag to Zoom X-Axis</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button id="resChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('resChart')">Reset zoom</button>
-                        <button class="btn-chart-reset" onclick="resetChart('res-muni-filter'); resetChartZoom('resChart');" title="Reset Filter & Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="resChart"></canvas>
-                    <div id="resChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-truck-ramp-box" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No deployed assets reported</span></div>
-                </div>
-            </div>
-
-            <div class="chart-card">
-                <div class="chart-header">
-                    <div style="display: flex; flex-direction: column; gap: 4px;">
-                        <h3><i class="fa-solid fa-water" style="color: var(--accent-blue);"></i> Flood Lifecycle Overview</h3>
-                        <div class="chart-header-desc">Click & Drag to Zoom X-Axis</div>
-                    </div>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button id="floodChart-reset" class="btn-reset-zoom" style="display: none;" onclick="resetChartZoom('floodChart')">Reset zoom</button>
-                        <button class="btn-chart-reset" onclick="resetChart('flood-status-filter'); resetChart('flood-muni-filter'); resetChartZoom('floodChart');" title="Reset Filters & Zoom"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="flood-status-filter" class="chart-filter">
-                            <option value="ALL">All Statuses</option>
-                            <option value="Still Flooded">Still Flooded</option>
-                            <option value="Receding">Receding</option>
-                            <option value="Subsided">Subsided</option>
-                        </select>
-                        <select id="flood-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="chart-container">
-                    <canvas id="floodChart"></canvas>
-                    <div id="floodChart-empty" class="chart-empty-message" style="display: none;"><i class="fa-solid fa-water" style="font-size: 24px; color: var(--border-subtle); margin-bottom: 8px;"></i><span>No flooded areas reported</span></div>
-                </div>
-            </div>
-            
-            <!-- ATLAS FIX: Restored HTML structure for Tabular Ledgers (roadsFeed & utilityFeed) to match JavaScript -->
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-road-barrier" style="color: var(--accent-orange);"></i> Roads & Bridges Status</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('infra-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="infra-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="incident-feed-container" style="height: 260px;">
-                    <ul id="roadsFeed" class="incident-list"><li class="empty-state">No roads & bridges reported.</li></ul>
-                </div>
-            </div>
-            
-            <div class="chart-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-bolt" style="color: var(--accent-yellow);"></i> Power & Water Utilities</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('utility-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="utility-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="incident-feed-container" style="height: 260px;">
-                    <ul id="utilityFeed" class="incident-list"><li class="empty-state">No utilities reported.</li></ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="dashboard-section-title"><i class="fa-solid fa-file-invoice-dollar" style="color: var(--accent-red);"></i> Sector Damages & Relief Ledgers</div>
-        
-        <div class="feeds-grid">
-            <div class="feed-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-building-shield" style="color: var(--accent-red);"></i> Infrastructure Damages</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('infra-cost-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="infra-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="incident-feed-container" style="height: 250px;">
-                    <ul id="infraCostFeed" class="incident-list"><li class="empty-state">No infrastructure damages reported.</li></ul>
-                </div>
-            </div>
-
-            <div class="feed-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-boxes-packing" style="color: var(--accent-teal);"></i> Distributed Relief Items</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('items-feed-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="items-feed-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="incident-feed-container" style="height: 250px;">
-                    <ul id="itemsFeed" class="incident-list"><li class="empty-state">No relief items distributed.</li></ul>
-                </div>
-            </div>
-            
-            <div class="feed-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-wheat-awn" style="color: var(--accent-yellow);"></i> Agriculture Damages</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('agri-cost-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="agri-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="incident-feed-container" style="height: 250px;">
-                    <ul id="agriCostFeed" class="incident-list"><li class="empty-state">No agriculture damages reported.</li></ul>
-                </div>
-            </div>
-        </div>
-
-        <div class="dashboard-section-title"><i class="fa-solid fa-list-ul" style="color: var(--accent-blue);"></i> Operational Overviews</div>
-        
-        <div class="feeds-grid">
-            <div class="feed-card">
-                <div class="chart-header"><h3><i class="fa-solid fa-triangle-exclamation" style="color: var(--accent-red);"></i> Active Hazards & Incidents</h3></div>
-                <div class="incident-feed-container">
-                    <ul id="incidentFeed" class="incident-list"><li class="empty-state">No related incidents reported.</li></ul>
-                </div>
-            </div>
-
-            <div class="feed-card">
-                <div class="chart-header">
-                    <h3><i class="fa-solid fa-cloud-sun-rain" style="color: var(--accent-teal);"></i> Local Weather Conditions</h3>
-                    <div style="display: flex; gap: 10px; align-items: center;">
-                        <button class="btn-chart-reset" onclick="resetChart('weather-muni-filter')" title="Reset Filter"><i class="fa-solid fa-rotate-left"></i></button>
-                        <select id="weather-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select>
-                    </div>
-                </div>
-                <div class="incident-feed-container">
-                    <ul id="weatherFeed" class="incident-list"><li class="empty-state">No weather reports available.</li></ul>
-                </div>
-            </div>
-
-            <div class="feed-card">
-                <div class="chart-header"><h3><i class="fa-solid fa-clipboard-list" style="color: var(--accent-blue);"></i> Actions Taken (LDRRMCs)</h3></div>
-                <div class="incident-feed-container">
-                    <ul id="actionsFeed" class="incident-list"><li class="empty-state">Awaiting updates.</li></ul>
-                </div>
-            </div>
-        </div>
-
-    </div>
+<div class="modal-overlay" id="narrativeModal" onclick="closeNarrativeModal(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-card" onclick="event.stopPropagation()"><div class="modal-header"><h3 id="modalTitle"><i class="fa-solid fa-file-lines" style="color:var(--accent-blue)"></i> Detailed narrative</h3><button class="modal-close" onclick="closeNarrativeModal()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="modalBodyContent">Loading details...</div></div></div><header class="sidebar" id="mainSidebar"><div class="sidebar-inner"><div class="sidebar-header"><div class="sidebar-brand-container"><img src="logo_pdrrmo.png" alt="PDRRMO logo" class="sidebar-logo"><h1 class="sidebar-brand">Tarlac PDRRMO</h1></div><button id="toggleSidebarBtn" class="sidebar-toggle" aria-hidden="true" tabindex="-1"></button></div><nav class="nav" aria-label="Main"><a href="index.html" class="dashboard-link active-tab"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a><a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i><span class="link-text">Trend Analysis</span></a><a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i><span class="link-text">Command Workspace</span></a><a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i><span class="link-text">Inventory</span></a><a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i><span class="link-text">Archives</span></a><a href="infographic.html" class="dashboard-link" target="_blank" rel="noopener"><i class="fa-solid fa-file-image"></i><span class="link-text">Infographic</span></a><a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i><span class="link-text">System Admin</span></a></nav></div></header><main class="main-content"><div class="wrap"><section class="hero"><div class="hero-top"><div><h2 id="incidentNameDisplay">Loading incident data...</h2><p><span class="live" title="Updates automatically"></span><span id="asOfDisplay">--</span></p></div><div class="hero-ctl"><select id="globalSitrepFilter" class="global-sitrep-select"></select><button class="btn-ghost" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button></div></div><div class="figs"><a class="fig" href="#sec-pop" style="--c:#5B8CFF"><div class="fig-label"><span class="dot"></span>Total affected</div><div class="fig-value" id="kpi-aff-fam">0</div><div class="fig-sub"><span>families</span><b id="kpi-aff-pax">0 Pax</b></div></a><a class="fig" href="#sec-pop" style="--c:#FF9F5A"><div class="fig-label"><span class="dot"></span>Evacuation centers</div><div class="fig-value" id="kpi-ec-count">0</div><div class="fig-sub"><span>active centers</span><b id="kpi-ec-pax">0 Pax Inside</b></div></a><a class="fig" href="#sec-rel" style="--c:#FF6B72"><div class="fig-label"><span class="dot"></span>Infrastructure damage</div><div class="fig-value" id="kpi-infra-dmg">₱0</div><div class="fig-sub"><span>infrastructure sub-total</span></div></a><a class="fig" href="#sec-rel" style="--c:#F5B301"><div class="fig-label"><span class="dot"></span>Agriculture damage</div><div class="fig-value" id="kpi-agri-dmg">₱0</div><div class="fig-sub"><span>Dept. of Agriculture</span></div></a><a class="fig" href="#sec-rel" style="--c:#34D399"><div class="fig-label"><span class="dot"></span>Relief and assistance</div><div class="fig-value" id="kpi-ast-total">₱0</div><div class="fig-sub"><span>total cost provided</span></div></a></div><div class="strips"><div class="strip"><div><div class="strip-t">Flooded areas</div><div class="strip-v" id="kpi-flood-active" style="">0</div><small style="">currently flooded</small></div><div class="chips"><span class="chip ok" id="kpi-flood-sub">0 Subsided</span></div></div><div class="strip"><div><div class="strip-t">Roads and bridges</div><div class="strip-v" id="kpi-road-not" style="">0</div><small style="color:var(--hot)">not passable</small></div><div class="chips"><span class="chip ok" id="kpi-road-pass">0 Passable</span></div></div><div class="strip"><div><div class="strip-t">Casualties</div><div class="strip-v" id="kpi-cas-total" style="color:var(--hot)">0</div><small style="">total recorded</small></div><div class="chips"><span class="chip " id="kpi-cas-dead">0 Dead</span><span class="chip bad" id="kpi-cas-inj">0 Inj / Mis</span></div></div></div></section><div class="tabs"><nav class="jump" aria-label="Sections"><a href="#sec-pop">Population and response</a><a href="#sec-haz">Floods and infrastructure</a><a href="#sec-rel">Relief and damage</a><a href="#sec-ops">Operations</a></nav></div><section class="sec" id="sec-pop"><div class="sec-h"><h2>Population and response</h2><p>Who is affected, who has moved, and what has been deployed</p></div><div class="grid"><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-users-between-lines" style="color:var(--accent-orange)"></i><h3>Affected, served, and inside evacuation centers</h3></div><div class="pc"><select id="evac-category-filter" class="chart-filter"><option value="ALL">All Categories</option><option value="Affected">Affected</option><option value="Served">Served</option><option value="Inside ECs">Inside ECs</option></select><select id="evac-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="evacChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('evacChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('evac-category-filter');resetChart('evac-muni-filter');resetChartZoom('evacChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="evacChart" role="img" aria-label="Affected, served, and inside evacuation centers"></canvas><div id="evacChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-users-slash"></i><span>No population data reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-person-walking-arrow-right" style="color:var(--accent-teal)"></i><h3>Pre-emptive evacuations</h3></div><div class="pc"><select id="preemptive-category-filter" class="chart-filter"><option value="ALL">All Categories</option><option value="Individuals">Individuals</option><option value="Families">Families</option></select><select id="preemptive-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="preemptiveChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('preemptiveChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('preemptive-category-filter');resetChart('preemptive-muni-filter');resetChartZoom('preemptiveChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="preemptiveChart" role="img" aria-label="Pre-emptive evacuations"></canvas><div id="preemptiveChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i><span>No pre-emptive evacuations reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-truck-medical" style="color:var(--accent-red)"></i><h3>Casualties by location</h3></div><div class="pc"><select id="cas-category-filter" class="chart-filter"><option value="ALL">All Categories</option><option value="Dead">Dead</option><option value="Missing">Missing</option><option value="Injured">Injured</option></select><select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="casChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('casChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('cas-category-filter');resetChart('cas-view-filter');resetChartZoom('casChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="casChart" role="img" aria-label="Casualties by location"></canvas><div id="casChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-truck-medical"></i><span>No casualties reported</span></div></div></div></div><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-truck-fast" style="color:var(--accent-purple)"></i><h3>Deployed assets by agency</h3></div><div class="pc"><select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="resChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('resChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('res-muni-filter');resetChartZoom('resChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="resChart" role="img" aria-label="Deployed assets by agency"></canvas><div id="resChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-truck-ramp-box"></i><span>No deployed assets reported</span></div></div></div></div></div></section><section class="sec" id="sec-haz"><div class="sec-h"><h2>Floods and infrastructure</h2><p>Flooded barangays, road access, and utilities</p></div><div class="grid"><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-water" style="color:var(--accent-blue)"></i><h3>Flooded barangays by status</h3></div><div class="pc"><select id="flood-status-filter" class="chart-filter"><option value="ALL">All Statuses</option><option value="Flooded">Flooded</option><option value="Receding">Receding</option><option value="Subsided">Subsided</option></select><select id="flood-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><a href="flood_matrix.html" class="btn-chart-reset"><i class="fa-solid fa-table-list"></i> Open matrix</a><button id="floodChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('floodChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('flood-status-filter');resetChart('flood-muni-filter');resetChartZoom('floodChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="floodChart" role="img" aria-label="Flooded barangays by status"></canvas><div id="floodChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-water"></i><span>No flooded areas reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-road-barrier" style="color:var(--accent-orange)"></i><h3>Roads and bridges status</h3></div><div class="pc"><select id="infra-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('infra-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:372px"><ul id="roadsFeed" class="incident-list"><li class="empty-state">No roads &amp; bridges reported.</li></ul></div></div><div class="panel s12 cols2"><div class="ph"><div class="pt"><i class="fa-solid fa-bolt" style="color:var(--accent-yellow)"></i><h3>Power and water utilities</h3></div><div class="pc"><select id="utility-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('utility-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:300px"><ul id="utilityFeed" class="incident-list"><li class="empty-state">No utilities reported.</li></ul></div></div></div></section><section class="sec" id="sec-rel"><div class="sec-h"><h2>Relief and damage</h2><p>What has been provided and what has been lost</p></div><div class="grid"><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-hand-holding-dollar" style="color:var(--accent-green)"></i><h3>Relief and assistance cost (₱) by source</h3></div><div class="pc"><select id="ast-source-filter" class="chart-filter"><option value="ALL">All Sources</option></select><select id="ast-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="astCostChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('astCostChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('ast-source-filter');resetChart('ast-cost-muni-filter');resetChartZoom('astCostChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="astCostChart" role="img" aria-label="Relief and assistance cost (₱) by source"></canvas><div id="astCostChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-hand-holding-hand"></i><span>No assistance data reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-boxes-packing" style="color:var(--accent-teal)"></i><h3>Distributed relief items</h3></div><div class="pc"><select id="items-feed-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('items-feed-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:372px"><ul id="itemsFeed" class="incident-list"><li class="empty-state">No relief items distributed.</li></ul></div></div><div class="panel s6"><div class="ph"><div class="pt"><i class="fa-solid fa-building-shield" style="color:var(--accent-red)"></i><h3>Infrastructure damages</h3></div><div class="pc"><select id="infra-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('infra-cost-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:320px"><ul id="infraCostFeed" class="incident-list"><li class="empty-state">No infrastructure damages reported.</li></ul></div></div><div class="panel s6"><div class="ph"><div class="pt"><i class="fa-solid fa-wheat-awn" style="color:var(--accent-yellow)"></i><h3>Agriculture damages</h3></div><div class="pc"><select id="agri-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('agri-cost-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:320px"><ul id="agriCostFeed" class="incident-list"><li class="empty-state">No agriculture damages reported.</li></ul></div></div></div></section><section class="sec" id="sec-ops"><div class="sec-h"><h2>Operations</h2><p>Hazards, weather, and actions taken by local councils</p></div><div class="grid"><div class="panel s4"><div class="ph"><div class="pt"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-red)"></i><h3>Active hazards and incidents</h3></div></div><div class="incident-feed-container" style="--h:340px"><ul id="incidentFeed" class="incident-list"><li class="empty-state">No related incidents reported.</li></ul></div></div><div class="panel s4"><div class="ph"><div class="pt"><i class="fa-solid fa-cloud-sun-rain" style="color:var(--accent-teal)"></i><h3>Local weather conditions</h3></div><div class="pc"><select id="weather-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('weather-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:340px"><ul id="weatherFeed" class="incident-list"><li class="empty-state">No weather reports available.</li></ul></div></div><div class="panel s4"><div class="ph"><div class="pt"><i class="fa-solid fa-clipboard-list" style="color:var(--accent-blue)"></i><h3>Actions taken by LDRRMCs</h3></div></div><div class="incident-feed-container" style="--h:340px"><ul id="actionsFeed" class="incident-list"><li class="empty-state">Awaiting updates.</li></ul></div></div></div></section></div></main>
     <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
     import { initializeFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
@@ -720,7 +239,7 @@
 
     function formatNarrative(text) {
         if (!text) return '<span class="sub-text">N/A</span>';
-        let cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+        let cleanedText = String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
         cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
         cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
         if (cleanedText.length <= 100) return `<div class="truncate-box" style="-webkit-line-clamp: unset;">${cleanedText}</div>`;
@@ -789,12 +308,12 @@
     // ==========================================
     // CHART.JS INITIALIZATION & DRAG-TO-ZOOM
     // ==========================================
-    Chart.defaults.color = '#86868B'; 
-    Chart.defaults.font.family = 'Inter'; 
-    Chart.register(ChartDataLabels);
+    Chart.defaults.color = '#5B6678'; 
+    Chart.defaults.font.family = 'Plus Jakarta Sans'; 
+    Chart.register(ChartDataLabels);Chart.defaults.plugins.legend.labels.usePointStyle=true;Chart.defaults.plugins.legend.labels.boxWidth=8;Chart.defaults.scale.border={display:false};Chart.defaults.datasets.bar.maxBarThickness=34;
 
     const globalBarTooltip = { 
-        backgroundColor: '#FFFFFF', titleColor: '#1C1C1E', bodyColor: '#1C1C1E', borderColor: '#E5E5EA', borderWidth: 1, padding: 10, boxPadding: 4,
+        backgroundColor: '#FFFFFF', titleColor: '#0F172A', bodyColor: '#0F172A', borderColor: '#E1E6EE', borderWidth: 1, padding: 10, boxPadding: 4,
         callbacks: { 
             label: function(context) { 
                 let label = context.dataset.fullLabel || context.dataset.label || ''; 
@@ -806,18 +325,12 @@
         } 
     };
 
-    // ATLAS FIX: Disabled pan, enforced X-axis strict zoom for cleanly isolating small data bars.
     const globalZoomConfig = {
-        pan: {
-            enabled: false
-        },
+        pan: { enabled: false },
         zoom: {
             wheel: { enabled: true, speed: 0.1 },
             pinch: { enabled: true },
-            drag: { 
-                enabled: true, 
-                backgroundColor: 'rgba(0, 122, 255, 0.2)' 
-            },
+            drag: { enabled: true, backgroundColor: 'rgba(47, 107, 255, 0.16)' },
             mode: 'x',
             onZoomComplete: function({chart}) {
                 let resetBtn = document.getElementById(chart.canvas.id + '-reset');
@@ -854,25 +367,25 @@
     const evacCtx = document.getElementById('evacChart').getContext('2d');
     const evacChart = new Chart(evacCtx, { 
         type: 'bar', data: { labels: [], datasets: [] }, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: false, beginAtZero: true, suggestedMax: 10, grid: { color: '#F2F2F7' } }, x: { stacked: false, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: false, beginAtZero: true, suggestedMax: 10, grid: { color: '#E9EDF3' } }, x: { stacked: false, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
     });
 
     const casCtx = document.getElementById('casChart').getContext('2d');
     const casChart = new Chart(casCtx, { 
         type: 'bar', data: { labels: [], datasets: [] }, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#F2F2F7' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } }
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#E9EDF3' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } }
     });
 
     const preemptiveCtx = document.getElementById('preemptiveChart').getContext('2d');
     const preemptiveChart = new Chart(preemptiveCtx, { 
         type: 'bar', data: { labels: [], datasets: [] }, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#F2F2F7' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#E9EDF3' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
     });
     
     const astCostCtx = document.getElementById('astCostChart').getContext('2d');
     const astCostChart = new Chart(astCostCtx, { 
         type: 'bar', data: { labels: [], datasets: [] }, 
-        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#F2F2F7' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#E9EDF3' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
     });
 
     const resCtx = document.getElementById('resChart').getContext('2d');
@@ -881,7 +394,7 @@
         options: { 
             indexAxis: 'y', 
             responsive: true, maintainAspectRatio: false, 
-            scales: { x: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#F2F2F7' }, ticks: { precision: 0 } }, y: { stacked: true, grid: { display: false } } }, 
+            scales: { x: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#E9EDF3' }, ticks: { precision: 0 } }, y: { stacked: true, grid: { display: false } } }, 
             plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } 
         }
     });
@@ -891,14 +404,13 @@
         type: 'bar', data: { labels: [], datasets: [] }, 
         options: { 
             responsive: true, maintainAspectRatio: false, 
-            scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#F2F2F7' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, 
+            scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#E9EDF3' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, 
             plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } 
         }
     });
 
     window.resetChart = function(selectId) { if (selectId && tsInstances[selectId]) { tsInstances[selectId].setValue('ALL'); } };
     
-    // ATLAS FIX: Clear chart zoom level and hide reset button simultaneously
     window.resetChartZoom = function(chartId) {
         const chartMap = { 'evacChart': evacChart, 'casChart': casChart, 'preemptiveChart': preemptiveChart, 'astCostChart': astCostChart, 'resChart': resChart, 'floodChart': floodChart };
         if(chartMap[chartId]) { 
@@ -1175,9 +687,9 @@
         let evacHasData = Object.values(evacMap).some(v => v.aff > 0 || v.served > 0 || v.ec > 0); document.getElementById('evacChart-empty').style.display = evacHasData ? 'none' : 'flex'; 
         
         let newDatasets = [ 
-            { label: 'Affected', fullLabel: 'Affected (Pax)', data: Object.values(evacMap).map(v => v.aff), backgroundColor: '#FF9500', borderRadius: 4 }, 
-            { label: 'Served', fullLabel: 'Served (Pax)', data: Object.values(evacMap).map(v => v.served), backgroundColor: '#34C759', borderRadius: 4 }, 
-            { label: 'Inside ECs', fullLabel: 'Inside ECs (Pax)', data: Object.values(evacMap).map(v => v.ec), backgroundColor: '#007AFF', borderRadius: 4 } 
+            { label: 'Affected', fullLabel: 'Affected (Pax)', data: Object.values(evacMap).map(v => v.aff), backgroundColor: '#FF7A2F', borderRadius: 5 }, 
+            { label: 'Served', fullLabel: 'Served (Pax)', data: Object.values(evacMap).map(v => v.served), backgroundColor: '#18A874', borderRadius: 5 }, 
+            { label: 'Inside ECs', fullLabel: 'Inside ECs (Pax)', data: Object.values(evacMap).map(v => v.ec), backgroundColor: '#2F6BFF', borderRadius: 5 } 
         ]; 
         
         if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
@@ -1207,9 +719,9 @@
         let casHasData = Object.values(casMap).some(v => v.Dead > 0 || v.Missing > 0 || v.Injured > 0); document.getElementById('casChart-empty').style.display = casHasData ? 'none' : 'flex';
         
         let newDatasets = [ 
-            { label: 'Dead', fullLabel: 'Dead', data: Object.values(casMap).map(v => v['Dead']), backgroundColor: '#FF3B30', borderRadius: 4 }, 
-            { label: 'Missing', fullLabel: 'Missing', data: Object.values(casMap).map(v => v['Missing']), backgroundColor: '#FFCC00', borderRadius: 4 }, 
-            { label: 'Injured', fullLabel: 'Injured', data: Object.values(casMap).map(v => v['Injured']), backgroundColor: '#007AFF', borderRadius: 4 } 
+            { label: 'Dead', fullLabel: 'Dead', data: Object.values(casMap).map(v => v['Dead']), backgroundColor: '#E5484D', borderRadius: 5 }, 
+            { label: 'Missing', fullLabel: 'Missing', data: Object.values(casMap).map(v => v['Missing']), backgroundColor: '#F5B301', borderRadius: 5 }, 
+            { label: 'Injured', fullLabel: 'Injured', data: Object.values(casMap).map(v => v['Injured']), backgroundColor: '#2F6BFF', borderRadius: 5 } 
         ]; 
         
         if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
@@ -1259,7 +771,7 @@
         syncTomSelect('ast-cost-muni-filter', munis);
         syncTomSelect('ast-source-filter', sources);
         
-        let cols = ['#007AFF', '#34C759', '#FF9500', '#AF52DE', '#FF3B30', '#5AC8FA', '#FFCC00']; 
+        let cols = ['#2F6BFF', '#18A874', '#FF7A2F', '#8B5CF6', '#E5484D', '#14A3B8', '#F5B301']; 
         let arrs = []; let idx = 0;
         
         let locSet = new Set();
@@ -1277,7 +789,7 @@
             
             if (totalCost > 0) {
                 let shortLabel = src.length > 25 ? src.substring(0, 25) + '...' : src; 
-                arrs.push({ label: shortLabel, fullLabel: src, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4 }); 
+                arrs.push({ label: shortLabel, fullLabel: src, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 5 }); 
                 idx++; 
             }
         });
@@ -1311,8 +823,8 @@
         let hasData = Object.values(preMap).some(v => v.indv > 0 || v.fam > 0); document.getElementById('preemptiveChart-empty').style.display = hasData ? 'none' : 'flex'; 
         
         let newDatasets = [ 
-            { label: 'Individuals', fullLabel: 'Pre-Emptive (Pax)', data: Object.values(preMap).map(v=>v.indv), backgroundColor: '#5AC8FA', borderRadius: 4 }, 
-            { label: 'Families', fullLabel: 'Pre-Emptive (Fam)', data: Object.values(preMap).map(v=>v.fam), backgroundColor: '#AF52DE', borderRadius: 4 } 
+            { label: 'Individuals', fullLabel: 'Pre-Emptive (Pax)', data: Object.values(preMap).map(v=>v.indv), backgroundColor: '#14A3B8', borderRadius: 5 }, 
+            { label: 'Families', fullLabel: 'Pre-Emptive (Fam)', data: Object.values(preMap).map(v=>v.fam), backgroundColor: '#8B5CF6', borderRadius: 5 } 
         ]; 
         
         if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
@@ -1346,7 +858,7 @@
         });
         syncTomSelect('res-muni-filter', munis);
         
-        let cols = ['#007AFF', '#34C759', '#FF9500', '#AF52DE', '#FF3B30', '#5AC8FA', '#FFCC00']; 
+        let cols = ['#2F6BFF', '#18A874', '#FF7A2F', '#8B5CF6', '#E5484D', '#14A3B8', '#F5B301']; 
         let arrs = []; let idx = 0;
         
         let locSet = new Set();
@@ -1357,7 +869,7 @@
             Array.from(ags).forEach(ag => { dArr.push(agMap[ag][loc] || 0); }); 
             let shortLabel = loc.length > 20 ? loc.substring(0, 20) + '...' : loc; 
             
-            arrs.push({ label: shortLabel, fullLabel: loc, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 4, maxBarThickness: 24 }); 
+            arrs.push({ label: shortLabel, fullLabel: loc, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 5, maxBarThickness: 24 }); 
             idx++; 
         });
         
@@ -1384,13 +896,12 @@
             
             let rawStatus = (d.status || 'Unknown').toLowerCase();
             let status = 'Unknown';
-            if (rawStatus.includes('still') || rawStatus.includes('rising')) status = 'Still Flooded';
+            if (rawStatus.includes('subsid') || rawStatus.includes('no flood')) status = 'Subsided';
             else if (rawStatus.includes('reced')) status = 'Receding';
-            else if (rawStatus.includes('subsid') || rawStatus.includes('no flood')) status = 'Subsided';
-            else status = d.status; 
+            else status = 'Flooded'; 
             
             let muni = d.municipality || 'Unknown'; 
-            if(!fMap[muni]) fMap[muni] = { 'Still Flooded': 0, 'Receding': 0, 'Subsided': 0, 'Unknown': 0 }; 
+            if(!fMap[muni]) fMap[muni] = { 'Flooded': 0, 'Receding': 0, 'Subsided': 0, 'Unknown': 0 }; 
             fMap[muni][status] += 1;
         });
         syncTomSelect('flood-muni-filter', munis); 
@@ -1399,9 +910,9 @@
         document.getElementById('floodChart-empty').style.display = hasData ? 'none' : 'flex'; 
 
         let newDatasets = [
-            { label: 'Still Flooded', fullLabel: 'Still Flooded (Brgys)', data: Object.values(fMap).map(v => v['Still Flooded']), backgroundColor: '#FF3B30', borderRadius: 4 },
-            { label: 'Receding', fullLabel: 'Receding (Brgys)', data: Object.values(fMap).map(v => v['Receding']), backgroundColor: '#FFCC00', borderRadius: 4 },
-            { label: 'Subsided', fullLabel: 'Subsided (Brgys)', data: Object.values(fMap).map(v => v['Subsided']), backgroundColor: '#34C759', borderRadius: 4 }
+            { label: 'Flooded', fullLabel: 'Flooded (Brgys)', data: Object.values(fMap).map(v => v['Flooded']), backgroundColor: '#E5484D', borderRadius: 5 },
+            { label: 'Receding', fullLabel: 'Receding (Brgys)', data: Object.values(fMap).map(v => v['Receding']), backgroundColor: '#F5B301', borderRadius: 5 },
+            { label: 'Subsided', fullLabel: 'Subsided (Brgys)', data: Object.values(fMap).map(v => v['Subsided']), backgroundColor: '#18A874', borderRadius: 5 }
         ];
         
         if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
@@ -1444,14 +955,6 @@
             targetSitrepNo = max > 0 ? max : null;
         }
 
-        const statusEl = document.getElementById('sys-status');
-        if(targetSitrepNo) {
-            statusEl.innerHTML = `ALIGNED TO SITREP #${targetSitrepNo}`;
-            statusEl.style.color = "var(--text-main)"; 
-            statusEl.style.background = "#fff"; 
-            statusEl.style.borderColor = "var(--border-subtle)";
-        }
-
         const allRecordsWithContext = [...dbData.floods, ...dbData.evacs, ...dbData.infra, ...dbData.weather, ...dbData.casualties, ...dbData.roads, ...dbData.lifelines, ...dbData.preemptives, ...dbData.resources, ...dbData.agri, ...dbData.assistance, ...dbData.incidents, ...dbData.actions];
         let latestRecord = null;
         if (targetSitrepNo) {
@@ -1479,15 +982,6 @@
         } else {
             document.getElementById('incidentNameDisplay').innerText = `Awaiting Data Integration`; 
             document.getElementById('asOfDisplay').innerText = `--`;
-        }
-
-        const validContext = allRecordsWithContext.find(d => d.sitrepNo === targetSitrepNo && d.synopsis);
-        if(validContext) {
-            document.getElementById('synopsis-banner').style.display = 'flex';
-            document.getElementById('synopsis-text').innerText = validContext.synopsis;
-            document.getElementById('synopsis-source').innerText = validContext.infoSource || "LDRRMO";
-        } else {
-            document.getElementById('synopsis-banner').style.display = 'none';
         }
 
         const latestEvacs = getLatestRecords(dbData.evacs, ['municipality']);
@@ -1535,7 +1029,7 @@
         const latestFloods = getLatestRecords(dbData.floods, ['municipality', 'barangay']);
         let activeFlood = 0, subsidedFlood = 0;
         latestFloods.forEach(f => {
-            if((f.status||'').includes('Subsided') || (f.status||'').includes('No Flood')) subsidedFlood++;
+            if((f.status||'').toUpperCase().trim() === 'SUBSIDED') subsidedFlood++;
             else activeFlood++;
         });
         document.getElementById('kpi-flood-active').innerText = activeFlood.toLocaleString();
@@ -1572,11 +1066,6 @@
         const val = parseInt(tsGlobal.getValue());
         if(val && val > 0) { targetSitrepNo = val; calculateKPIs(); }
     }
-    window.applySitrepFilter = function() {
-        const val = parseInt(document.getElementById('targetSitrep').value);
-        if(val && val > 0) { targetSitrepNo = val; calculateKPIs(); }
-    };
-    window.resetToLatest = function() { targetSitrepNo = null; calculateKPIs(); };
 
     // ==========================================
     // DATABASE LISTENERS (Public, no auth needed)
@@ -1605,6 +1094,62 @@
         calculateKPIs(); 
     });
 
+    // ==========================================
+// SOFT SPA ROUTING INTERCEPTOR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    // 1. Determine Tab Order
+    const pageOrder = ['index.html', 'trend_analysis.html', 'data_entry.html', 'inventory.html', 'archives.html', 'admin.html'];
+    
+    // 2. Identify Current Page
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentIndex = pageOrder.indexOf(currentPath);
+
+    // 3. Check Session Storage for Entry Direction
+    const incomingDirection = sessionStorage.getItem('slideDirection');
+    if (incomingDirection === 'left') {
+        mainContent.classList.add('slide-in-left');
+    } else if (incomingDirection === 'right') {
+        mainContent.classList.add('slide-in-right');
+    } else {
+        mainContent.classList.add('slide-in-right'); // Default load
+    }
+    sessionStorage.removeItem('slideDirection'); // Clear after use
+
+    // 4. Intercept Navigation Clicks
+    const navLinks = document.querySelectorAll('.dashboard-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+            
+            // Ignore external links (Infographic) or current page clicks
+            if (link.target === "_blank" || targetUrl === currentPath || targetUrl === '#') return;
+            
+            e.preventDefault();
+            const targetIndex = pageOrder.indexOf(targetUrl);
+            
+            // Calculate Slide Direction based on layout
+            if (targetIndex > currentIndex) {
+                mainContent.classList.add('slide-out-left');
+                sessionStorage.setItem('slideDirection', 'right'); // Next page should slide in from right
+            } else {
+                mainContent.classList.add('slide-out-right');
+                sessionStorage.setItem('slideDirection', 'left'); // Next page should slide in from left
+            }
+            
+            // Wait for slide animation to complete before telling the browser to load the file
+            setTimeout(() => { 
+                window.location.href = targetUrl; 
+            }, 200);
+        });
+    });
+});
+
+
 </script>
+<script>addEventListener('keydown',e=>{if(e.key==='Escape'&&window.closeNarrativeModal)closeNarrativeModal()});const L=[...document.querySelectorAll('.jump a')];const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)L.forEach(a=>a.classList.toggle('on',a.hash==='#'+e.target.id))}),{rootMargin:'-30% 0px -60% 0px'});document.querySelectorAll('.sec').forEach(x=>io.observe(x));</script>
 </body>
 </html>
