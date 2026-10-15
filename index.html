@@ -1,0 +1,1155 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>PDRRMO Executive Analytics | Workspace</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    
+    <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/js/tom-select.complete.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.0.0"></script>
+    
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+<style>
+/* SOFT SPA SLIDE ANIMATIONS */
+.main-content {
+    transition: transform 0.25s cubic-bezier(0.25, 1, 0.5, 1), opacity 0.2s ease-out;
+    transform: translateX(0);
+    opacity: 1;
+}
+
+.main-content.slide-out-left { transform: translateX(-40px); opacity: 0; }
+.main-content.slide-out-right { transform: translateX(40px); opacity: 0; }
+.main-content.slide-in-left { transform: translateX(-40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+.main-content.slide-in-right { transform: translateX(40px); opacity: 0; animation: slideRest 0.3s cubic-bezier(0.25, 1, 0.5, 1) forwards; }
+
+@keyframes slideRest {
+    to { transform: translateX(0); opacity: 1; }
+}
+    
+:root{--bg-body:#F2F4F8;--bg-card:#fff;--bg-hover:#EEF1F6;--text-main:#0F172A;--text-muted:#5B6678;--accent-blue:#2F6BFF;--accent-green:#0E9467;--accent-orange:#E8590C;--accent-red:#D92D3A;--accent-purple:#7C4DFF;--accent-teal:#0A8FA6;--accent-yellow:#B7791F;--border-subtle:#E1E6EE;--ink:#0B1730;--hot:#FF8A8E;--signal:#FF7A2F;--font-stack:'Plus Jakarta Sans',system-ui,-apple-system,'Segoe UI',sans-serif}
+*{box-sizing:border-box}html{scroll-behavior:smooth;scroll-padding-top:124px}
+body{margin:0;font-family:var(--font-stack);background:var(--bg-body);color:var(--text-main);font-size:14px;-webkit-font-smoothing:antialiased}
+:focus-visible{outline:2px solid var(--accent-blue);outline-offset:2px}
+.modal-overlay{position:fixed;inset:0;background:rgba(11,23,48,.6);backdrop-filter:blur(3px);z-index:100000;display:none;align-items:center;justify-content:center}
+.modal-overlay.active{display:flex}
+.modal-card{background:#fff;border-radius:18px;width:92%;max-width:660px;max-height:80vh;display:flex;flex-direction:column;box-shadow:0 30px 70px rgba(11,23,48,.4)}
+.modal-header{display:flex;justify-content:space-between;align-items:center;padding:16px 22px;border-bottom:1px solid var(--border-subtle)}
+.modal-header h3{margin:0;font-size:16px;display:flex;gap:10px;align-items:center}
+.modal-close{border:0;background:transparent;width:34px;height:34px;border-radius:10px;font-size:18px;cursor:pointer;color:var(--text-muted)}
+.modal-close:hover{background:#FDE8EA;color:var(--accent-red)}
+.modal-body{padding:22px;overflow-y:auto;line-height:1.7;white-space:pre-wrap}
+.sidebar{position:sticky;top:0;z-index:100;background:#fff;border-bottom:1px solid var(--border-subtle)}
+.sidebar-inner{max-width:1480px;margin:0 auto;padding:0 28px;height:60px;display:flex;align-items:center;gap:26px}
+.sidebar-brand-container{display:flex;align-items:center;gap:10px;white-space:nowrap}
+.sidebar-logo{width:34px;height:34px;object-fit:contain}
+.sidebar-brand{margin:0;font-size:16px;font-weight:800;letter-spacing:-.02em}
+.sidebar-toggle{display:none}
+.nav{display:flex;gap:2px;flex:1;overflow-x:auto}
+.dashboard-link{display:flex;align-items:center;gap:8px;padding:8px 12px;border-radius:10px;color:var(--text-muted);font-weight:600;text-decoration:none;white-space:nowrap}
+.dashboard-link:hover{background:var(--bg-hover);color:var(--text-main)}
+.active-tab,.active-tab:hover{background:var(--ink);color:#fff}
+.wrap{max-width:1480px;margin:0 auto;padding:20px 28px 60px}
+.hero{background:var(--ink);color:#fff;border-radius:22px;padding:30px 32px 6px;margin-bottom:6px}
+.hero-top{display:flex;justify-content:space-between;align-items:flex-start;gap:20px;flex-wrap:wrap}
+.hero h2{margin:0;font-size:30px;font-weight:800;letter-spacing:-.03em;line-height:1.15;max-width:780px}
+.hero p{margin:10px 0 0;color:rgba(255,255,255,.72);display:flex;align-items:center}
+.live{width:8px;height:8px;border-radius:50%;background:#34D399;margin-right:8px;animation:pulse 2s infinite;flex-shrink:0}
+.hero-ctl{display:flex;gap:10px;align-items:center}
+.btn-ghost{height:38px;padding:0 14px;border-radius:10px;border:1px solid rgba(255,255,255,.28);background:transparent;color:#fff;font:600 13px var(--font-stack);cursor:pointer}
+.btn-ghost:hover{background:rgba(255,255,255,.1)}
+.figs{display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));margin-top:28px;border-top:1px solid rgba(255,255,255,.13)}
+.fig{display:block;padding:20px 20px 22px;color:inherit;text-decoration:none;border-left:1px solid rgba(255,255,255,.13);min-width:0}
+.fig:first-child{border-left:0;padding-left:0}
+.fig-label{display:flex;align-items:center;gap:8px;color:rgba(255,255,255,.74);font-weight:600}
+.dot{width:8px;height:8px;border-radius:50%;background:var(--c)}
+.fig-value{font-size:clamp(28px,2.8vw,40px);font-weight:800;letter-spacing:-.04em;font-variant-numeric:tabular-nums;margin:8px 0 4px;overflow-wrap:anywhere}
+.fig:hover .fig-value{color:var(--signal)}
+.fig-sub{display:flex;justify-content:space-between;gap:8px;color:rgba(255,255,255,.68);font-size:13px}
+.fig-sub b{color:#fff}
+.strips{display:flex;flex-wrap:wrap;border-top:1px solid rgba(255,255,255,.13)}
+.strip{flex:1 1 260px;display:flex;align-items:center;justify-content:space-between;gap:12px;padding:16px 20px;border-left:1px solid rgba(255,255,255,.13)}
+.strip:first-child{border-left:0;padding-left:0}
+.strip-t{font-weight:600;color:rgba(255,255,255,.74)}
+.strip-v{font-size:26px;font-weight:800;letter-spacing:-.03em;font-variant-numeric:tabular-nums;line-height:1.15}
+.strip small{display:block;color:rgba(255,255,255,.62);font-size:12px}
+.chips{display:flex;flex-direction:column;align-items:flex-end;gap:5px}
+.chip{padding:3px 10px;border-radius:99px;font-size:12px;font-weight:600;background:rgba(255,255,255,.12)}
+.chip.ok{background:rgba(52,211,153,.18);color:#6EE7B7}.chip.bad{background:rgba(229,72,77,.24);color:#FDA4AF}
+.tabs{position:sticky;top:60px;z-index:90;margin:0 -28px 24px;padding:12px 28px;background:rgba(242,244,248,.88);backdrop-filter:blur(10px)}
+.jump{display:flex;gap:6px;overflow-x:auto}
+.jump a{padding:7px 15px;border-radius:99px;font-weight:600;color:var(--text-muted);text-decoration:none;white-space:nowrap;border:1px solid transparent}
+.jump a:hover{background:#fff}
+.jump a.on{background:#fff;color:var(--text-main);border-color:var(--border-subtle);box-shadow:0 1px 2px rgba(16,24,40,.06)}
+.sec{margin-bottom:36px}
+.sec-h{display:flex;align-items:baseline;gap:12px;flex-wrap:wrap;margin-bottom:14px}
+.sec-h h2{margin:0;font-size:22px;font-weight:800;letter-spacing:-.02em}.sec-h p{margin:0;color:var(--text-muted)}
+.grid{display:grid;grid-template-columns:repeat(12,minmax(0,1fr));gap:16px}
+.s4{grid-column:span 4}.s5{grid-column:span 5}.s6{grid-column:span 6}.s7{grid-column:span 7}.s8{grid-column:span 8}.s12{grid-column:span 12}
+.panel{background:#fff;border:1px solid var(--border-subtle);border-radius:16px;box-shadow:0 1px 2px rgba(16,24,40,.04);min-width:0;display:flex;flex-direction:column}
+.ph{padding:16px 18px 0}
+.pt{display:flex;align-items:center;gap:10px}
+.pt i{width:30px;height:30px;display:grid;place-items:center;border-radius:9px;font-size:14px;background:color-mix(in srgb,currentColor 12%,#fff)}
+.pt h3{margin:0;font-size:15px;font-weight:700}
+.pc{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-top:12px}
+.hint{margin-left:auto;font-size:12px;color:var(--text-muted)}
+.pb{padding:12px 18px 18px}
+.chart-container{position:relative;height:300px;min-width:0}
+.chart-empty-message{position:absolute;inset:0;display:flex;flex-direction:column;gap:8px;justify-content:center;align-items:center;color:var(--text-muted);background:#fff;z-index:10}
+.chart-empty-message i{font-size:26px;color:#C9D1DE}
+.btn-chart-reset,.btn-reset-zoom{background:#F3F5F9;border:1px solid transparent;border-radius:10px;height:32px;padding:0 11px;cursor:pointer;color:var(--text-main);font:600 12px var(--font-stack);display:inline-flex;align-items:center;gap:6px;text-decoration:none}
+.btn-chart-reset:hover,.btn-reset-zoom:hover{border-color:var(--border-subtle);background:#fff}
+.incident-feed-container{height:var(--h,300px);overflow-y:auto;margin-top:12px;border-top:1px solid var(--border-subtle)}
+.incident-list{list-style:none;margin:0;padding:0}
+.cols2 .incident-list{display:grid;grid-template-columns:repeat(2,minmax(0,1fr))}
+.incident-item{display:flex;flex-direction:column;gap:6px;padding:13px 18px;border-bottom:1px solid #EDF0F5;font-size:13px;box-shadow:inset 3px 0 0 transparent}
+.incident-item:hover{background:#F8F9FC;box-shadow:inset 3px 0 0 var(--signal)}
+.incident-loc{font-weight:700;display:flex;gap:6px;align-items:center;font-size:14px}
+.incident-desc{line-height:1.5}
+.incident-act{color:var(--text-muted);font-size:12px;line-height:1.45}
+.incident-label{display:block;font-size:12px;color:var(--text-muted);font-weight:600;margin-bottom:2px}
+.empty-state{display:flex;align-items:center;justify-content:center;height:100%;color:var(--text-muted);padding:20px;text-align:center}
+.truncate-box{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;white-space:pre-wrap;line-height:1.5}
+.read-more-btn{background:#E8EFFF;border:0;border-radius:8px;padding:6px 10px;margin-top:8px;color:var(--accent-blue);font:700 12px var(--font-stack);cursor:pointer}
+.read-more-btn:hover{background:#D5E2FF}
+.ts-wrapper.chart-filter{width:auto!important;min-width:130px;flex:0 1 170px}
+.ts-wrapper.global-sitrep-select{min-width:190px}
+.ts-wrapper.chart-filter .ts-control{background:#F3F5F9!important;border:1px solid transparent;border-radius:10px;padding:5px 11px;min-height:32px;font-size:13px!important;font-weight:600;color:var(--text-main)!important;box-shadow:none;cursor:pointer}
+.ts-wrapper.global-sitrep-select .ts-control{background:#fff!important;border:0;border-radius:10px;padding:8px 14px;min-height:38px;font-size:13px!important;font-weight:700;color:var(--ink)!important;cursor:pointer}
+.ts-wrapper.focus .ts-control{box-shadow:0 0 0 3px rgba(47,107,255,.25)!important}
+.ts-wrapper .ts-dropdown{border:1px solid var(--border-subtle);border-radius:12px;box-shadow:0 12px 32px rgba(11,23,48,.18);z-index:9999!important;margin-top:6px;color:var(--text-main)}
+.ts-wrapper .ts-dropdown .option{padding:9px 13px;font-size:13px}
+.ts-wrapper .ts-dropdown .active{background:#EEF3FF!important;color:var(--accent-blue)!important}
+@media(max-width:1280px){.s4{grid-column:span 6}.s5,.s7,.s8{grid-column:span 12}}
+@media(max-width:860px){.s4,.s6{grid-column:span 12}.wrap{padding:14px 14px 48px}.tabs{margin:0 -14px 20px;padding:10px 14px}.hero{padding:22px 20px 4px}.hero h2{font-size:24px}.hint{display:none}.sidebar-inner{padding:0 14px;gap:12px}.sidebar-brand{display:none}.cols2 .incident-list{grid-template-columns:1fr}}
+@media(prefers-reduced-motion:reduce){*{animation:none!important;transition:none!important;scroll-behavior:auto!important}}
+@media print{.sidebar,.tabs,.hero-ctl{display:none}.panel{break-inside:avoid}.incident-feed-container{height:auto}}
+</style>
+</head>
+<body>
+<div class="modal-overlay" id="narrativeModal" onclick="closeNarrativeModal(event)" role="dialog" aria-modal="true" aria-labelledby="modalTitle"><div class="modal-card" onclick="event.stopPropagation()"><div class="modal-header"><h3 id="modalTitle"><i class="fa-solid fa-file-lines" style="color:var(--accent-blue)"></i> Detailed narrative</h3><button class="modal-close" onclick="closeNarrativeModal()" aria-label="Close"><i class="fa-solid fa-xmark"></i></button></div><div class="modal-body" id="modalBodyContent">Loading details...</div></div></div><header class="sidebar" id="mainSidebar"><div class="sidebar-inner"><div class="sidebar-header"><div class="sidebar-brand-container"><img src="logo_pdrrmo.png" alt="PDRRMO logo" class="sidebar-logo"><h1 class="sidebar-brand">Tarlac PDRRMO</h1></div><button id="toggleSidebarBtn" class="sidebar-toggle" aria-hidden="true" tabindex="-1"></button></div><nav class="nav" aria-label="Main"><a href="index.html" class="dashboard-link active-tab"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a><a href="trend_analysis.html" class="dashboard-link"><i class="fa-solid fa-arrow-trend-up"></i><span class="link-text">Trend Analysis</span></a><a href="data_entry.html" class="dashboard-link"><i class="fa-solid fa-desktop"></i><span class="link-text">Command Workspace</span></a><a href="inventory.html" class="dashboard-link"><i class="fa-solid fa-boxes-stacked"></i><span class="link-text">Inventory</span></a><a href="archives.html" class="dashboard-link"><i class="fa-solid fa-folder-open"></i><span class="link-text">Archives</span></a><a href="infographic.html" class="dashboard-link" target="_blank" rel="noopener"><i class="fa-solid fa-file-image"></i><span class="link-text">Infographic</span></a><a href="admin.html" class="dashboard-link"><i class="fa-solid fa-server"></i><span class="link-text">System Admin</span></a></nav></div></header><main class="main-content"><div class="wrap"><section class="hero"><div class="hero-top"><div><h2 id="incidentNameDisplay">Loading incident data...</h2><p><span class="live" title="Updates automatically"></span><span id="asOfDisplay">--</span></p></div><div class="hero-ctl"><select id="globalSitrepFilter" class="global-sitrep-select"></select><button class="btn-ghost" onclick="window.print()"><i class="fa-solid fa-print"></i> Print</button></div></div><div class="figs"><a class="fig" href="#sec-pop" style="--c:#5B8CFF"><div class="fig-label"><span class="dot"></span>Total affected</div><div class="fig-value" id="kpi-aff-fam">0</div><div class="fig-sub"><span>families</span><b id="kpi-aff-pax">0 Pax</b></div></a><a class="fig" href="#sec-pop" style="--c:#FF9F5A"><div class="fig-label"><span class="dot"></span>Evacuation centers</div><div class="fig-value" id="kpi-ec-count">0</div><div class="fig-sub"><span>active centers</span><b id="kpi-ec-pax">0 Pax Inside</b></div></a><a class="fig" href="#sec-rel" style="--c:#FF6B72"><div class="fig-label"><span class="dot"></span>Infrastructure damage</div><div class="fig-value" id="kpi-infra-dmg">₱0</div><div class="fig-sub"><span>infrastructure sub-total</span></div></a><a class="fig" href="#sec-rel" style="--c:#F5B301"><div class="fig-label"><span class="dot"></span>Agriculture damage</div><div class="fig-value" id="kpi-agri-dmg">₱0</div><div class="fig-sub"><span>Dept. of Agriculture</span></div></a><a class="fig" href="#sec-rel" style="--c:#34D399"><div class="fig-label"><span class="dot"></span>Relief and assistance</div><div class="fig-value" id="kpi-ast-total">₱0</div><div class="fig-sub"><span>total cost provided</span></div></a></div><div class="strips"><div class="strip"><div><div class="strip-t">Flooded areas</div><div class="strip-v" id="kpi-flood-active" style="">0</div><small style="">currently flooded</small></div><div class="chips"><span class="chip ok" id="kpi-flood-sub">0 Subsided</span></div></div><div class="strip"><div><div class="strip-t">Roads and bridges</div><div class="strip-v" id="kpi-road-not" style="">0</div><small style="color:var(--hot)">not passable</small></div><div class="chips"><span class="chip ok" id="kpi-road-pass">0 Passable</span></div></div><div class="strip"><div><div class="strip-t">Casualties</div><div class="strip-v" id="kpi-cas-total" style="color:var(--hot)">0</div><small style="">total recorded</small></div><div class="chips"><span class="chip " id="kpi-cas-dead">0 Dead</span><span class="chip bad" id="kpi-cas-inj">0 Inj / Mis</span></div></div></div></section><div class="tabs"><nav class="jump" aria-label="Sections"><a href="#sec-pop">Population and response</a><a href="#sec-haz">Floods and infrastructure</a><a href="#sec-rel">Relief and damage</a><a href="#sec-ops">Operations</a></nav></div><section class="sec" id="sec-pop"><div class="sec-h"><h2>Population and response</h2><p>Who is affected, who has moved, and what has been deployed</p></div><div class="grid"><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-users-between-lines" style="color:var(--accent-orange)"></i><h3>Affected, served, and inside evacuation centers</h3></div><div class="pc"><select id="evac-category-filter" class="chart-filter"><option value="ALL">All Categories</option><option value="Affected">Affected</option><option value="Served">Served</option><option value="Inside ECs">Inside ECs</option></select><select id="evac-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="evacChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('evacChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('evac-category-filter');resetChart('evac-muni-filter');resetChartZoom('evacChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="evacChart" role="img" aria-label="Affected, served, and inside evacuation centers"></canvas><div id="evacChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-users-slash"></i><span>No population data reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-person-walking-arrow-right" style="color:var(--accent-teal)"></i><h3>Pre-emptive evacuations</h3></div><div class="pc"><select id="preemptive-category-filter" class="chart-filter"><option value="ALL">All Categories</option><option value="Individuals">Individuals</option><option value="Families">Families</option></select><select id="preemptive-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="preemptiveChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('preemptiveChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('preemptive-category-filter');resetChart('preemptive-muni-filter');resetChartZoom('preemptiveChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="preemptiveChart" role="img" aria-label="Pre-emptive evacuations"></canvas><div id="preemptiveChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-person-walking-dashed-line-arrow-right"></i><span>No pre-emptive evacuations reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-truck-medical" style="color:var(--accent-red)"></i><h3>Casualties by location</h3></div><div class="pc"><select id="cas-category-filter" class="chart-filter"><option value="ALL">All Categories</option><option value="Dead">Dead</option><option value="Missing">Missing</option><option value="Injured">Injured</option></select><select id="cas-view-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="casChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('casChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('cas-category-filter');resetChart('cas-view-filter');resetChartZoom('casChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="casChart" role="img" aria-label="Casualties by location"></canvas><div id="casChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-truck-medical"></i><span>No casualties reported</span></div></div></div></div><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-truck-fast" style="color:var(--accent-purple)"></i><h3>Deployed assets by agency</h3></div><div class="pc"><select id="res-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="resChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('resChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('res-muni-filter');resetChartZoom('resChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="resChart" role="img" aria-label="Deployed assets by agency"></canvas><div id="resChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-truck-ramp-box"></i><span>No deployed assets reported</span></div></div></div></div></div></section><section class="sec" id="sec-haz"><div class="sec-h"><h2>Floods and infrastructure</h2><p>Flooded barangays, road access, and utilities</p></div><div class="grid"><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-water" style="color:var(--accent-blue)"></i><h3>Flooded barangays by status</h3></div><div class="pc"><select id="flood-status-filter" class="chart-filter"><option value="ALL">All Statuses</option><option value="Flooded">Flooded</option><option value="Receding">Receding</option><option value="Subsided">Subsided</option></select><select id="flood-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><a href="flood_matrix.html" class="btn-chart-reset"><i class="fa-solid fa-table-list"></i> Open matrix</a><button id="floodChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('floodChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('flood-status-filter');resetChart('flood-muni-filter');resetChartZoom('floodChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="floodChart" role="img" aria-label="Flooded barangays by status"></canvas><div id="floodChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-water"></i><span>No flooded areas reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-road-barrier" style="color:var(--accent-orange)"></i><h3>Roads and bridges status</h3></div><div class="pc"><select id="infra-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('infra-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:372px"><ul id="roadsFeed" class="incident-list"><li class="empty-state">No roads &amp; bridges reported.</li></ul></div></div><div class="panel s12 cols2"><div class="ph"><div class="pt"><i class="fa-solid fa-bolt" style="color:var(--accent-yellow)"></i><h3>Power and water utilities</h3></div><div class="pc"><select id="utility-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('utility-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:300px"><ul id="utilityFeed" class="incident-list"><li class="empty-state">No utilities reported.</li></ul></div></div></div></section><section class="sec" id="sec-rel"><div class="sec-h"><h2>Relief and damage</h2><p>What has been provided and what has been lost</p></div><div class="grid"><div class="panel s7"><div class="ph"><div class="pt"><i class="fa-solid fa-hand-holding-dollar" style="color:var(--accent-green)"></i><h3>Relief and assistance cost (₱) by source</h3></div><div class="pc"><select id="ast-source-filter" class="chart-filter"><option value="ALL">All Sources</option></select><select id="ast-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button id="astCostChart-reset" class="btn-reset-zoom" style="display:none" onclick="resetChartZoom('astCostChart')">Reset zoom</button><button class="btn-chart-reset" onclick="resetChart('ast-source-filter');resetChart('ast-cost-muni-filter');resetChartZoom('astCostChart');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button><span class="hint">Drag to zoom</span></div></div><div class="pb"><div class="chart-container"><canvas id="astCostChart" role="img" aria-label="Relief and assistance cost (₱) by source"></canvas><div id="astCostChart-empty" class="chart-empty-message" style="display:none"><i class="fa-solid fa-hand-holding-hand"></i><span>No assistance data reported</span></div></div></div></div><div class="panel s5"><div class="ph"><div class="pt"><i class="fa-solid fa-boxes-packing" style="color:var(--accent-teal)"></i><h3>Distributed relief items</h3></div><div class="pc"><select id="items-feed-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('items-feed-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:372px"><ul id="itemsFeed" class="incident-list"><li class="empty-state">No relief items distributed.</li></ul></div></div><div class="panel s6"><div class="ph"><div class="pt"><i class="fa-solid fa-building-shield" style="color:var(--accent-red)"></i><h3>Infrastructure damages</h3></div><div class="pc"><select id="infra-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('infra-cost-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:320px"><ul id="infraCostFeed" class="incident-list"><li class="empty-state">No infrastructure damages reported.</li></ul></div></div><div class="panel s6"><div class="ph"><div class="pt"><i class="fa-solid fa-wheat-awn" style="color:var(--accent-yellow)"></i><h3>Agriculture damages</h3></div><div class="pc"><select id="agri-cost-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('agri-cost-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:320px"><ul id="agriCostFeed" class="incident-list"><li class="empty-state">No agriculture damages reported.</li></ul></div></div></div></section><section class="sec" id="sec-ops"><div class="sec-h"><h2>Operations</h2><p>Hazards, weather, and actions taken by local councils</p></div><div class="grid"><div class="panel s4"><div class="ph"><div class="pt"><i class="fa-solid fa-triangle-exclamation" style="color:var(--accent-red)"></i><h3>Active hazards and incidents</h3></div></div><div class="incident-feed-container" style="--h:340px"><ul id="incidentFeed" class="incident-list"><li class="empty-state">No related incidents reported.</li></ul></div></div><div class="panel s4"><div class="ph"><div class="pt"><i class="fa-solid fa-cloud-sun-rain" style="color:var(--accent-teal)"></i><h3>Local weather conditions</h3></div><div class="pc"><select id="weather-muni-filter" class="chart-filter"><option value="ALL">All Municipalities</option></select><button class="btn-chart-reset" onclick="resetChart('weather-muni-filter');" title="Reset filters" aria-label="Reset filters"><i class="fa-solid fa-rotate-left"></i></button></div></div><div class="incident-feed-container" style="--h:340px"><ul id="weatherFeed" class="incident-list"><li class="empty-state">No weather reports available.</li></ul></div></div><div class="panel s4"><div class="ph"><div class="pt"><i class="fa-solid fa-clipboard-list" style="color:var(--accent-blue)"></i><h3>Actions taken by LDRRMCs</h3></div></div><div class="incident-feed-container" style="--h:340px"><ul id="actionsFeed" class="incident-list"><li class="empty-state">Awaiting updates.</li></ul></div></div></div></section></div></main>
+    <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
+    import { initializeFirestore, collection, onSnapshot, query, orderBy } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+
+    const firebaseConfig = { apiKey: "AIzaSyAsvM0PXXWCjqGBiEdRiuBsCCiR1bm_4gk", authDomain: "tarlac-sitrep-backend-5000e.firebaseapp.com", projectId: "tarlac-sitrep-backend-5000e", storageBucket: "tarlac-sitrep-backend-5000e.firebasestorage.app", messagingSenderId: "575825350427", appId: "1:575825350427:web:d4e336b580e44a29900dbe" };
+    const app = initializeApp(firebaseConfig);
+    const db = initializeFirestore(app, { experimentalForceLongPolling: true });
+
+    const dbData = { weather: [], floods: [], evacs: [], infra: [], casualties: [], agri: [], assistance: [], roads: [], lifelines: [], preemptives: [], complements: [], resources: [], suspensions: [], incidents: [], contexts: [], residential: [], actions: [] };
+    
+    let highestKnownSitrep = 0;
+    let targetSitrepNo = null; 
+    let isInitialLoad = true;
+    let initialLoadTimeout = null;
+
+    const parseNum = (val) => parseFloat(String(val).replace(/,/g, '').trim()) || 0;
+
+    document.addEventListener('DOMContentLoaded', () => {
+        const toggleBtn = document.getElementById('toggleSidebarBtn');
+        const sidebar = document.getElementById('mainSidebar');
+        if(localStorage.getItem('sidebarCollapsed') === 'true') { sidebar.classList.add('collapsed'); }
+        if(toggleBtn) {
+            toggleBtn.addEventListener('click', () => {
+                sidebar.classList.toggle('collapsed');
+                localStorage.setItem('sidebarCollapsed', sidebar.classList.contains('collapsed'));
+            });
+        }
+    });
+
+    function hideGlobalLoader() {
+        const loader = document.getElementById('global-loader');
+        if (loader && isInitialLoad) {
+            if (initialLoadTimeout) clearTimeout(initialLoadTimeout);
+            initialLoadTimeout = setTimeout(() => {
+                loader.style.opacity = '0';
+                setTimeout(() => { loader.style.display = 'none'; isInitialLoad = false; }, 500);
+            }, 1000); 
+        }
+    }
+
+    function formatCurrency(amount) { 
+        if(amount >= 1000000000) return '₱' + (amount / 1000000000).toFixed(2) + ' B'; 
+        if(amount >= 1000000) return '₱' + (amount / 1000000).toFixed(2) + ' M'; 
+        return '₱' + (amount || 0).toLocaleString(); 
+    }
+
+    function getLatestRecords(arr, keyFields) {
+        if (!arr) return []; 
+        let map = {};
+        arr.forEach(d => {
+            if (targetSitrepNo && d.sitrepNo > targetSitrepNo) return; 
+            let key = keyFields.map(f => d[f]).join('|');
+            if(!map[key] || d.sitrepNo > map[key].sitrepNo || (d.sitrepNo === map[key].sitrepNo && d.timeMonitored > map[key].timeMonitored)) { 
+                map[key] = d; 
+            }
+        });
+        return Object.values(map);
+    }
+
+    function getLatestAssistanceRecords(arr) {
+        if (!arr) return [];
+        let currentBoundary = targetSitrepNo ? targetSitrepNo : null;
+        let eligible = arr.filter(d => !currentBoundary || d.sitrepNo <= currentBoundary);
+
+        let lineageMap = {};
+        eligible.forEach(d => {
+            if (d.entityId) {
+                lineageMap[d.entityId] = true;
+            }
+        });
+
+        let map = {};
+        eligible.forEach(d => {
+            let key;
+            if (d.entityId) {
+                key = 'ENTITY_' + d.entityId;
+            } 
+            else if (lineageMap[d.id]) {
+                key = 'ENTITY_' + d.id;
+            } 
+            else {
+                let item = (d.reliefItem || '').trim().toLowerCase();
+                key = (d.municipality || 'All') + '|' + (d.source || 'All') + '|' + (item || 'default');
+            }
+
+            if (!map[key] || d.sitrepNo > map[key].sitrepNo || (d.sitrepNo === map[key].sitrepNo && (d.timeMonitored?.toMillis?.() || 0) > (map[key].timeMonitored?.toMillis?.() || 0))) {
+                map[key] = d;
+            }
+        });
+
+        return Object.values(map);
+    }
+
+    window.openNarrativeModal = function(btn) {
+        const hiddenText = btn.previousElementSibling.innerHTML;
+        document.getElementById('modalBodyContent').innerHTML = hiddenText;
+        document.getElementById('narrativeModal').classList.add('active');
+    };
+
+    window.closeNarrativeModal = function(e) {
+        if (e && e.target.id !== 'narrativeModal' && e.target.className !== 'modal-close' && !e.target.closest('.modal-close')) return;
+        document.getElementById('narrativeModal').classList.remove('active');
+    };
+
+    function formatNarrative(text) {
+        if (!text) return '<span class="sub-text">N/A</span>';
+        let cleanedText = String(text).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+        cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
+        cleanedText = cleanedText.replace(/([^\n])\n(?![ \t]*(?:➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+|\n))/g, '$1 ').trim();
+        if (cleanedText.length <= 100) return `<div class="truncate-box" style="-webkit-line-clamp: unset;">${cleanedText}</div>`;
+        return `<div class="truncate-box">${cleanedText}</div><div class="full-text-hidden" style="display:none;">${cleanedText}</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>`;
+    }
+
+    const tsClearOptions = { onItemAdd: function() { this.setTextboxValue(''); }, onBlur: function() { this.setTextboxValue(''); } };
+    
+    function updateGlobalSitrepDropdown() {
+        let uniqueSitreps = new Set();
+        const allDocs = [...dbData.weather, ...dbData.floods, ...dbData.evacs, ...dbData.preemptives, ...dbData.complements, ...dbData.lifelines, ...dbData.infra, ...dbData.roads, ...dbData.casualties, ...dbData.agri, ...dbData.residential, ...dbData.assistance, ...dbData.resources, ...dbData.incidents, ...dbData.actions];
+        allDocs.forEach(d => { if(d.sitrepNo) uniqueSitreps.add(Number(d.sitrepNo)); });
+        let sortedSitreps = Array.from(uniqueSitreps).sort((a,b) => b - a);
+        if (sortedSitreps.length === 0) { tsGlobal.clearOptions(); return; }
+        let actualLatest = sortedSitreps[0]; let forceLatest = false;
+        if (actualLatest > highestKnownSitrep) { highestKnownSitrep = actualLatest; forceLatest = true; }
+        let currentVal = tsGlobal.getValue(); tsGlobal.clearOptions();
+        sortedSitreps.forEach(s => { tsGlobal.addOption({value: String(s), text: `SITREP #${s}`}); });
+        if (forceLatest || !currentVal || currentVal === 'ALL' || !Array.from(uniqueSitreps).includes(Number(currentVal))) { tsGlobal.setValue(String(actualLatest), true); } else { tsGlobal.setValue(currentVal, true); }
+    }
+
+    const tsGlobal = new TomSelect("#globalSitrepFilter", { create: false, controlInput: null, onChange: function() { applySitrepFilterFromDropdown(); } });
+    const tsInstances = {};
+    
+    const chartFilterIds = [
+        'evac-muni-filter', 'evac-category-filter', 
+        'cas-view-filter', 'cas-category-filter', 
+        'res-muni-filter', 
+        'flood-muni-filter', 'flood-status-filter', 
+        'infra-muni-filter', 'utility-muni-filter', 
+        'weather-muni-filter', 'infra-cost-muni-filter', 'agri-cost-muni-filter', 
+        'preemptive-muni-filter', 'preemptive-category-filter', 
+        'ast-cost-muni-filter', 'ast-source-filter', 'items-feed-muni-filter'
+    ];
+    
+    chartFilterIds.forEach(id => {
+        tsInstances[id] = new TomSelect(`#${id}`, { 
+            create: false, controlInput: null,
+            onChange: function(value) {
+                if(id === 'evac-muni-filter' || id === 'evac-category-filter') updateEvacChart();
+                if(id === 'cas-view-filter' || id === 'cas-category-filter') updateCasChart();
+                if(id === 'ast-cost-muni-filter' || id === 'ast-source-filter') updateAstCostChart();
+                if(id === 'res-muni-filter') updateResChart();
+                if(id === 'flood-muni-filter' || id === 'flood-status-filter') updateFloodChart();
+                if(id === 'infra-muni-filter') updateRoadsFeed();
+                if(id === 'utility-muni-filter') updateUtilityFeed();
+                if(id === 'weather-muni-filter') updateWeatherFeed();
+                if(id === 'infra-cost-muni-filter') updateInfraCostFeed();
+                if(id === 'agri-cost-muni-filter') updateAgriCostFeed(); 
+                if(id === 'preemptive-muni-filter' || id === 'preemptive-category-filter') updatePreemptiveChart();
+                if(id === 'items-feed-muni-filter') updateItemsFeed();
+            }
+        });
+    });
+
+    function syncTomSelect(id, munisSet) {
+        let ts = tsInstances[id];
+        if(!ts) return;
+        let currentVal = ts.getValue() || 'ALL';
+        ts.clearOptions();
+        ts.addOption({value: 'ALL', text: id === 'ast-source-filter' ? 'All Sources' : 'All Municipalities'});
+        Array.from(munisSet).sort().forEach(m => ts.addOption({value: m, text: m}));
+        if (Array.from(munisSet).includes(currentVal)) { ts.setValue(currentVal, true); } else { ts.setValue('ALL', true); }
+    }
+
+    // ==========================================
+    // CHART.JS INITIALIZATION & DRAG-TO-ZOOM
+    // ==========================================
+    Chart.defaults.color = '#5B6678'; 
+    Chart.defaults.font.family = 'Plus Jakarta Sans'; 
+    Chart.register(ChartDataLabels);Chart.defaults.plugins.legend.labels.usePointStyle=true;Chart.defaults.plugins.legend.labels.boxWidth=8;Chart.defaults.scale.border={display:false};Chart.defaults.datasets.bar.maxBarThickness=34;
+
+    const globalBarTooltip = { 
+        backgroundColor: '#FFFFFF', titleColor: '#0F172A', bodyColor: '#0F172A', borderColor: '#E1E6EE', borderWidth: 1, padding: 10, boxPadding: 4,
+        callbacks: { 
+            label: function(context) { 
+                let label = context.dataset.fullLabel || context.dataset.label || ''; 
+                if (label) { label += ': '; } 
+                if (context.parsed.x !== null && context.chart.config.options.indexAxis === 'y') { label += context.parsed.x.toLocaleString(); }
+                else if (context.parsed.y !== null) { label += context.parsed.y.toLocaleString(); } 
+                return label; 
+            }
+        } 
+    };
+
+    const globalZoomConfig = {
+        pan: { enabled: false },
+        zoom: {
+            wheel: { enabled: true, speed: 0.1 },
+            pinch: { enabled: true },
+            drag: { enabled: true, backgroundColor: 'rgba(47, 107, 255, 0.16)' },
+            mode: 'x',
+            onZoomComplete: function({chart}) {
+                let resetBtn = document.getElementById(chart.canvas.id + '-reset');
+                if(resetBtn) resetBtn.style.display = 'inline-block';
+            }
+        }
+    };
+
+    window.applyDynamicZeroFilter = function(chart) {
+        if (!chart.originalLabels || !chart.originalDatasets) return;
+        let newLabels = [];
+        let newDatasets = chart.originalDatasets.map(ds => ({ ...ds, data: [] }));
+
+        chart.originalLabels.forEach((label, lIdx) => {
+            let hasValue = false;
+            chart.originalDatasets.forEach(ds => {
+                if (!ds.hidden && ds.data[lIdx] > 0) hasValue = true;
+            });
+            if (hasValue) {
+                newLabels.push(label);
+                chart.originalDatasets.forEach((ds, dIdx) => {
+                    newDatasets[dIdx].data.push(ds.data[lIdx]);
+                });
+            }
+        });
+        chart.data.labels = newLabels;
+        chart.data.datasets = newDatasets;
+        chart.data.datasets.forEach((ds, dIdx) => { ds.hidden = chart.originalDatasets[dIdx].hidden; });
+        chart.update();
+    };
+    
+    const noDataLabels = { datalabels: { display: false } };
+
+    const evacCtx = document.getElementById('evacChart').getContext('2d');
+    const evacChart = new Chart(evacCtx, { 
+        type: 'bar', data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: false, beginAtZero: true, suggestedMax: 10, grid: { color: '#E9EDF3' } }, x: { stacked: false, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
+    });
+
+    const casCtx = document.getElementById('casChart').getContext('2d');
+    const casChart = new Chart(casCtx, { 
+        type: 'bar', data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#E9EDF3' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } }
+    });
+
+    const preemptiveCtx = document.getElementById('preemptiveChart').getContext('2d');
+    const preemptiveChart = new Chart(preemptiveCtx, { 
+        type: 'bar', data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#E9EDF3' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
+    });
+    
+    const astCostCtx = document.getElementById('astCostChart').getContext('2d');
+    const astCostChart = new Chart(astCostCtx, { 
+        type: 'bar', data: { labels: [], datasets: [] }, 
+        options: { responsive: true, maintainAspectRatio: false, scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 10, grid: { color: '#E9EDF3' } }, x: { stacked: true, grid: { display: false } } }, plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } } 
+    });
+
+    const resCtx = document.getElementById('resChart').getContext('2d');
+    const resChart = new Chart(resCtx, { 
+        type: 'bar', data: { labels: [], datasets: [] }, 
+        options: { 
+            indexAxis: 'y', 
+            responsive: true, maintainAspectRatio: false, 
+            scales: { x: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#E9EDF3' }, ticks: { precision: 0 } }, y: { stacked: true, grid: { display: false } } }, 
+            plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } 
+        }
+    });
+
+    const floodCtx = document.getElementById('floodChart').getContext('2d');
+    const floodChart = new Chart(floodCtx, { 
+        type: 'bar', data: { labels: [], datasets: [] }, 
+        options: { 
+            responsive: true, maintainAspectRatio: false, 
+            scales: { y: { stacked: true, beginAtZero: true, suggestedMax: 5, grid: { color: '#E9EDF3' }, ticks: { precision: 0, stepSize: 1 } }, x: { stacked: true, grid: { display: false } } }, 
+            plugins: { legend: { display: false }, tooltip: globalBarTooltip, zoom: globalZoomConfig, ...noDataLabels } 
+        }
+    });
+
+    window.resetChart = function(selectId) { if (selectId && tsInstances[selectId]) { tsInstances[selectId].setValue('ALL'); } };
+    
+    window.resetChartZoom = function(chartId) {
+        const chartMap = { 'evacChart': evacChart, 'casChart': casChart, 'preemptiveChart': preemptiveChart, 'astCostChart': astCostChart, 'resChart': resChart, 'floodChart': floodChart };
+        if(chartMap[chartId]) { 
+            chartMap[chartId].resetZoom(); 
+            let resetBtn = document.getElementById(chartId + '-reset');
+            if(resetBtn) resetBtn.style.display = 'none';
+        }
+    };
+
+    // ==========================================
+    // DATA POPULATION & FEEDS
+    // ==========================================
+    function updateWeatherFeed() {
+        if(!tsInstances['weather-muni-filter']) return; let sel = tsInstances['weather-muni-filter'].getValue() || 'ALL'; let munis = new Set();
+        let filtered = getLatestRecords(dbData.weather, ['municipality']).filter(d => { if(d.municipality) munis.add(d.municipality); if(sel !== 'ALL' && d.municipality !== sel) return false; return true; });
+        syncTomSelect('weather-muni-filter', munis);
+        let feedHtml = '';
+        if(filtered.length === 0) { feedHtml = '<li class="empty-state">No weather reports available.</li>'; } 
+        else {
+            filtered.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                feedHtml += `<li class="incident-item"><div class="incident-loc"><i class="fa-solid fa-map-pin" style="color:var(--text-muted);"></i> ${d.municipality || 'Unknown'}</div><div class="incident-desc"><span class="incident-label">Condition</span><span style="color: var(--accent-blue); font-weight: 600;">${d.weatherCondition || 'N/A'}</span></div><div class="incident-act"><span class="incident-label">Reported</span>${dateStr}</div><div style="margin-top:8px;">${formatNarrative(d.remarks)}</div></li>`;
+            });
+        }
+        document.getElementById('weatherFeed').innerHTML = feedHtml;
+    }
+
+    function updateAgriCostFeed() {
+        if(!tsInstances['agri-cost-muni-filter']) return; let sel = tsInstances['agri-cost-muni-filter'].getValue() || 'ALL'; let munis = new Set();
+        let agriData = getLatestRecords(dbData.agri, ['commodity']);
+        let filtered = agriData.filter(d => {
+            let cost = parseNum(d.cost); if (cost <= 0) return false; 
+            let hasMuni = false;
+            let m = d.municipality || 'Province-Wide';
+            m.split(',').forEach(x => { let xTrim = x.trim(); munis.add(xTrim); if(sel === 'ALL' || xTrim === sel) hasMuni = true; });
+            if (sel !== 'ALL' && !hasMuni) return false; return true;
+        });
+        syncTomSelect('agri-cost-muni-filter', munis);
+        
+        let feedHtml = '';
+        if(filtered.length === 0) { feedHtml = '<li class="empty-state">No agriculture damages reported.</li>'; } 
+        else {
+            filtered.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                let costStr = formatCurrency(parseNum(d.cost)); 
+                let sourceStr = d.source || 'Dept. of Agriculture'; 
+                let muniStr = d.municipality || `${d.lguCount || 0} LGUs Affected`;
+                
+                feedHtml += `<li class="incident-item"><div class="incident-loc" style="width: 140px; flex-direction: column; gap: 6px;"><div style="font-size: 11px; line-height: 1.4;"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-right: 4px;"></i>${muniStr}</div><div style="font-size: 9px; font-weight: 700; color: var(--accent-yellow); background: rgba(255, 204, 0, 0.1); border: 1px solid rgba(255, 204, 0, 0.2); padding: 4px 6px; border-radius: 4px; display: inline-block; width: fit-content; letter-spacing: 0.5px;">${sourceStr}</div></div><div class="incident-desc"><span class="incident-label">Commodity</span><span style="color: var(--text-main); font-weight: 600; font-size: 13px; text-transform: uppercase;">${d.commodity || 'Unknown'}</span><div style="margin-top: 6px; font-size: 11px; color: var(--text-muted);">Farmers: ${parseNum(d.farmersAffected).toLocaleString()} | Totally Damaged: ${parseNum(d.totalHa)} ha</div></div><div class="incident-act" style="flex: 1; text-align: right;"><span class="incident-label">Damage Cost</span><span style="color: var(--accent-yellow); font-weight: 800; font-size: 16px;">${costStr}</span><br><span style="font-size:10px; color:var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px;">As of ${dateStr}</span></div></li>`;
+            });
+        }
+        document.getElementById('agriCostFeed').innerHTML = feedHtml;
+    }
+
+    function updateIncidentsFeed() {
+        const latestIncidents = getLatestRecords(dbData.incidents, ['municipality', 'particulars']);
+        let feedHtml = '';
+        if(latestIncidents.length === 0) { feedHtml = '<li class="empty-state">No related incidents or hazards reported.</li>'; } 
+        else { 
+            latestIncidents.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            latestIncidents.forEach(inc => { 
+                feedHtml += `<li class="incident-item"><div class="incident-loc"><i class="fa-solid fa-map-pin" style="color:var(--text-muted);"></i> ${inc.municipality || 'Unknown'}</div><div class="incident-desc"><span class="incident-label">Reported Hazard</span><span style="color: var(--accent-red); font-weight: 600;">${inc.particulars || inc.incident || 'N/A'}</span></div><div class="incident-act"><span class="incident-label">Action Taken</span>${formatNarrative(inc.actionsTaken)}</div></li>`; 
+            }); 
+        } 
+        document.getElementById('incidentFeed').innerHTML = feedHtml;
+    }
+    
+    function updateActionsFeed() {
+        const latestActions = getLatestRecords(dbData.actions, ['agency', 'category']);
+        let feedHtml = '';
+        if(latestActions.length === 0) { feedHtml = '<li class="empty-state">Awaiting updates.</li>'; } 
+        else { 
+            latestActions.sort((a,b) => new Date(b.actionTime || b.dateReported) - new Date(a.actionTime || a.dateReported));
+            latestActions.forEach(act => { 
+                let dateStr = act.actionTime || act.dateReported ? new Date(act.actionTime || act.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                feedHtml += `<li class="incident-item"><div class="incident-loc"><i class="fa-solid fa-clipboard-list" style="color:var(--text-muted);"></i> ${act.agency || 'Unknown'}</div><div class="incident-desc"><span class="incident-label">Category</span><span style="color: var(--accent-blue); font-weight: 600;">${act.category || 'N/A'}</span></div><div class="incident-act"><span class="incident-label">Details</span>${formatNarrative(act.description)}<div style="margin-top: 6px; font-size: 10px; color: var(--text-muted);">Logged: ${dateStr}</div></div></li>`; 
+            }); 
+        } 
+        document.getElementById('actionsFeed').innerHTML = feedHtml;
+    }
+
+    function updateInfraCostFeed() {
+        if(!tsInstances['infra-cost-muni-filter']) return; let sel = tsInstances['infra-cost-muni-filter'].getValue() || 'ALL'; let munis = new Set();
+        let infraData = getLatestRecords(dbData.infra, ['specificArea']);
+        let filtered = infraData.filter(d => {
+            if(d.category === 'Road' || d.category === 'Bridge') return false; 
+            let hasMuni = false;
+            if(d.municipality) { d.municipality.split(',').forEach(m => { let mTrimmed = m.trim(); munis.add(mTrimmed); if (sel === 'ALL' || mTrimmed === sel) hasMuni = true; }); }
+            if (sel !== 'ALL' && !hasMuni) return false; return true;
+        });
+        syncTomSelect('infra-cost-muni-filter', munis);
+        
+        let feedHtml = '';
+        if(filtered.length === 0) { feedHtml = '<li class="empty-state">No infrastructure damages reported.</li>'; } 
+        else {
+            filtered.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                
+                let costVal = parseNum(d.cost);
+                let costStr = costVal > 0 ? formatCurrency(costVal) : '<span style="color:var(--text-muted); font-size:12px; font-style:italic;">Pending Assessment</span>';
+                let costLabel = costVal > 0 ? 'Damage Cost' : 'Status';
+                let costColor = costVal > 0 ? 'var(--accent-red)' : 'var(--text-muted)';
+                
+                let sourceStr = d.source || 'Unknown Source'; let muniStr = d.municipality || 'Unknown';
+                let remarksData = d.actionsTaken || d.remarks || '';
+                let remarksDisplay = remarksData ? `<div style="margin-top: 6px;">${formatNarrative(remarksData)}</div>` : '';
+                
+                feedHtml += `<li class="incident-item"><div class="incident-loc" style="width: 140px; flex-direction: column; gap: 6px;"><div style="font-size: 11px; line-height: 1.4;"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-right: 4px;"></i>${muniStr}</div><div style="font-size: 9px; font-weight: 700; color: var(--accent-orange); background: rgba(255, 140, 0, 0.1); border: 1px solid rgba(255, 140, 0, 0.2); padding: 4px 6px; border-radius: 4px; display: inline-block; width: fit-content; letter-spacing: 0.5px;">${sourceStr}</div></div><div class="incident-desc"><span class="incident-label">Infrastructure Name</span><span style="color: var(--text-main); font-weight: 600; font-size: 13px;">${d.specificArea || 'Unknown Infra'}</span>${remarksDisplay}</div><div class="incident-act" style="flex: 1; text-align: right;"><span class="incident-label">${costLabel}</span><span style="color: ${costColor}; font-weight: 800; font-size: ${costVal>0?'16px':'13px'};">${costStr}</span><br><span style="font-size:10px; color:var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top:4px; display:inline-block;">As of ${dateStr}</span></div></li>`;
+            });
+        }
+        document.getElementById('infraCostFeed').innerHTML = feedHtml;
+    }
+
+    function updateItemsFeed() {
+        if(!tsInstances['items-feed-muni-filter']) return; 
+        let sel = tsInstances['items-feed-muni-filter'].getValue() || 'ALL'; 
+        let munis = new Set();
+        
+        let astData = getLatestAssistanceRecords(dbData.assistance);
+        let filtered = astData.filter(d => {
+            let hasMuni = false;
+            if(d.municipality) {
+                d.municipality.split(',').forEach(m => { 
+                    let mTrimmed = m.trim(); 
+                    munis.add(mTrimmed); 
+                    if (sel === 'ALL' || mTrimmed === sel) hasMuni = true; 
+                });
+            }
+            if (sel !== 'ALL' && !hasMuni) return false; 
+            return true;
+        });
+        syncTomSelect('items-feed-muni-filter', munis);
+        
+        let feedHtml = '';
+        if(filtered.length === 0) { feedHtml = '<li class="empty-state">No relief items distributed.</li>'; } 
+        else {
+            filtered.sort((a,b) => new Date(b.dateReported) - new Date(a.dateReported));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                
+                let costVal = parseNum(d.cost);
+                let qtyVal = parseNum(d.quantity);
+                let item = d.reliefItem || 'Unknown Item';
+                
+                let isCash = item.toLowerCase().includes('financial') || item.toLowerCase().includes('cash');
+                if (isCash && costVal === 0 && qtyVal > 0) costVal = qtyVal;
+
+                let costStr = costVal > 0 ? formatCurrency(costVal) : '<span style="color:var(--text-muted); font-size:12px; font-style:italic;">Valuation N/A</span>';
+                let qtyStr = (!isCash && qtyVal > 0) ? `<span style="font-weight:bold; color:var(--accent-teal);">x${qtyVal.toLocaleString()}</span> ` : '';
+                
+                let rawSource = d.source || 'Unknown Source'; 
+                let sourceStr = rawSource;
+                if (sourceStr.toUpperCase() === 'NGO') sourceStr = 'NGOs';
+                if (sourceStr.toUpperCase() === 'MUNICIPAL LGU') sourceStr = "Mun. Gov't";
+
+                let muniStr = d.municipality || 'Unknown';
+                let brgyStr = d.barangay ? ` <span style="font-weight: 500; font-size:10px;">(${d.barangay})</span>` : '';
+                let remarksDisplay = d.remarks ? `<div style="margin-top: 6px;">${formatNarrative(d.remarks)}</div>` : '';
+                
+                feedHtml += `<li class="incident-item"><div class="incident-loc" style="width: 140px; flex-direction: column; gap: 6px;"><div style="font-size: 11px; line-height: 1.4;"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-right: 4px;"></i>${muniStr}${brgyStr}</div><div style="font-size: 9px; font-weight: 700; color: var(--accent-teal); background: rgba(90, 200, 250, 0.1); border: 1px solid rgba(90, 200, 250, 0.2); padding: 4px 6px; border-radius: 4px; display: inline-block; width: fit-content; letter-spacing: 0.5px;">${sourceStr}</div></div><div class="incident-desc"><span class="incident-label">Relief Item</span><span style="color: var(--text-main); font-weight: 600; font-size: 13px;">${qtyStr}${item}</span>${remarksDisplay}</div><div class="incident-act" style="flex: 1; text-align: right;"><span class="incident-label">Provided Value</span><span style="color: var(--accent-green); font-weight: 800; font-size: ${costVal>0?'16px':'13px'};">${costStr}</span><br><span style="font-size:10px; color:var(--text-muted); text-transform: uppercase; letter-spacing: 0.5px; margin-top:4px; display:inline-block;">As of ${dateStr}</span></div></li>`;
+            });
+        }
+        document.getElementById('itemsFeed').innerHTML = feedHtml;
+    }
+
+    function updateRoadsFeed() {
+        if(!tsInstances['infra-muni-filter']) return; 
+        let sel = tsInstances['infra-muni-filter'].getValue() || 'ALL'; 
+        let munis = new Set();
+        
+        let roadsData = getLatestRecords(dbData.roads, ['municipality', 'specificArea']);
+        let filtered = roadsData.filter(d => {
+            let hasMuni = false;
+            if(d.municipality) { d.municipality.split(',').forEach(m => { let mTrimmed = m.trim(); munis.add(mTrimmed); if (sel === 'ALL' || mTrimmed === sel) hasMuni = true; }); }
+            if (sel !== 'ALL' && !hasMuni) return false; 
+            return true;
+        });
+        syncTomSelect('infra-muni-filter', munis);
+        
+        let feedHtml = '';
+        if(filtered.length === 0) { feedHtml = '<li class="empty-state">No roads & bridges reported.</li>'; } 
+        else {
+            filtered.sort((a,b) => new Date(b.dateReported || b.timeMonitored) - new Date(a.dateReported || a.timeMonitored));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                
+                let muniStr = d.municipality || 'Unknown';
+                let assetName = d.specificArea || 'Unspecified Road/Bridge';
+                let statusStr = d.status || 'Unknown';
+                let statLower = statusStr.toLowerCase();
+                
+                let badgeBg = 'rgba(142, 142, 147, 0.1)';
+                let badgeColor = 'var(--text-muted)';
+                if (statLower.includes('not passable')) {
+                    badgeBg = 'rgba(255, 59, 48, 0.1)'; badgeColor = 'var(--accent-red)';
+                } else if (statLower.includes('passable to light')) {
+                    badgeBg = 'rgba(255, 204, 0, 0.1)'; badgeColor = 'var(--accent-yellow)';
+                } else if (statLower.includes('passable')) {
+                    badgeBg = 'rgba(52, 199, 89, 0.1)'; badgeColor = 'var(--accent-green)';
+                }
+                
+                let remarksDisplay = d.remarks ? `<div style="font-size:11px; color:var(--text-muted); margin-top:6px;">${formatNarrative(d.remarks)}</div>` : '';
+                
+                feedHtml += `<li class="incident-item" style="flex-direction: row; align-items: center; justify-content: space-between;"><div class="incident-loc" style="width: 130px; flex-shrink: 0; flex-direction: column; gap: 4px; align-items: flex-start;"><div style="font-size: 11px; line-height: 1.4;"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-right: 4px;"></i>${muniStr}</div><div style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">${dateStr}</div></div><div class="incident-desc" style="flex: 1; padding: 0 15px;"><span style="color: var(--text-main); font-weight: 700; font-size: 13px;">${assetName}</span>${remarksDisplay}</div><div class="incident-act" style="text-align: right; flex-shrink: 0;"><span style="font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 6px; background: ${badgeBg}; color: ${badgeColor}; text-transform: uppercase; letter-spacing: 0.5px;">${statusStr}</span></div></li>`;
+            });
+        }
+        document.getElementById('roadsFeed').innerHTML = feedHtml;
+    }
+
+    function updateUtilityFeed() {
+        if(!tsInstances['utility-muni-filter']) return; 
+        let sel = tsInstances['utility-muni-filter'].getValue() || 'ALL'; 
+        let munis = new Set();
+        
+        let utilData = getLatestRecords(dbData.lifelines, ['municipality', 'specificArea']);
+        let filtered = utilData.filter(d => {
+            let hasMuni = false;
+            if(d.municipality) { d.municipality.split(',').forEach(m => { let mTrimmed = m.trim(); munis.add(mTrimmed); if (sel === 'ALL' || mTrimmed === sel) hasMuni = true; }); }
+            if (sel !== 'ALL' && !hasMuni) return false; 
+            return true;
+        });
+        syncTomSelect('utility-muni-filter', munis);
+        
+        let feedHtml = '';
+        if(filtered.length === 0) { feedHtml = '<li class="empty-state">No utilities reported.</li>'; } 
+        else {
+            filtered.sort((a,b) => new Date(b.dateReported || b.timeMonitored) - new Date(a.dateReported || a.timeMonitored));
+            filtered.forEach(d => {
+                let dateStr = d.dateReported ? new Date(d.dateReported).toLocaleString('en-US', { month:'short', day:'numeric', year:'numeric', hour:'numeric', minute:'2-digit' }) : 'N/A';
+                
+                let muniStr = d.municipality || 'Unknown';
+                let assetName = d.specificArea || 'Unspecified Utility';
+                let statusStr = d.status || 'Unknown';
+                let statLower = statusStr.toLowerCase();
+                let cat = d.category || 'Utility';
+                
+                let badgeBg = 'rgba(142, 142, 147, 0.1)';
+                let badgeColor = 'var(--text-muted)';
+                if (statLower.includes('outage') || statLower.includes('not operational')) {
+                    badgeBg = 'rgba(255, 59, 48, 0.1)'; badgeColor = 'var(--accent-red)';
+                } else if (statLower.includes('interrupted')) {
+                    badgeBg = 'rgba(255, 204, 0, 0.1)'; badgeColor = 'var(--accent-yellow)';
+                } else if (statLower.includes('restored') || statLower.includes('operational') || statLower.includes('normal') || statLower.includes('passable')) {
+                    badgeBg = 'rgba(52, 199, 89, 0.1)'; badgeColor = 'var(--accent-green)';
+                }
+                
+                let remarksDisplay = `<div style="font-size:11px; color:var(--text-muted); margin-top:6px; font-weight: 500;"><i class="fa-solid fa-bolt" style="color:var(--accent-yellow); margin-right: 4px;"></i>${cat}</div>`;
+                if(d.remarks) remarksDisplay += `<div style="font-size:11px; color:var(--text-muted); margin-top:4px;">${formatNarrative(d.remarks)}</div>`;
+                
+                feedHtml += `<li class="incident-item" style="flex-direction: row; align-items: center; justify-content: space-between;"><div class="incident-loc" style="width: 130px; flex-shrink: 0; flex-direction: column; gap: 4px; align-items: flex-start;"><div style="font-size: 11px; line-height: 1.4;"><i class="fa-solid fa-map-pin" style="color:var(--text-muted); margin-right: 4px;"></i>${muniStr}</div><div style="font-size: 9px; color: var(--text-muted); font-weight: 600; text-transform: uppercase;">${dateStr}</div></div><div class="incident-desc" style="flex: 1; padding: 0 15px;"><span style="color: var(--text-main); font-weight: 700; font-size: 13px;">${assetName}</span>${remarksDisplay}</div><div class="incident-act" style="text-align: right; flex-shrink: 0;"><span style="font-size: 10px; font-weight: 800; padding: 6px 10px; border-radius: 6px; background: ${badgeBg}; color: ${badgeColor}; text-transform: uppercase; letter-spacing: 0.5px;">${statusStr}</span></div></li>`;
+            });
+        }
+        document.getElementById('utilityFeed').innerHTML = feedHtml;
+    }
+
+    function updateEvacChart() {
+        if(!tsInstances['evac-muni-filter'] || !tsInstances['evac-category-filter']) return; 
+        let sel = tsInstances['evac-muni-filter'].getValue() || 'ALL'; 
+        let catSel = tsInstances['evac-category-filter'].getValue() || 'ALL';
+        
+        let evacMap = {}; let munis = new Set();
+        getLatestRecords(dbData.evacs, ['municipality']).forEach(d => { 
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            if(!evacMap[d.municipality]) evacMap[d.municipality] = { aff: 0, served: 0, ec: 0 }; 
+            let ecNowMap = d.insideEcIndividualsNow !== undefined ? d.insideEcIndividualsNow : (d.insideEcIndividuals || d.individuals || 0); 
+            evacMap[d.municipality].aff += parseNum(d.affectedIndividuals); 
+            evacMap[d.municipality].served += parseNum(d.servedIndividuals); 
+            evacMap[d.municipality].ec += parseNum(ecNowMap); 
+        });
+        syncTomSelect('evac-muni-filter', munis);
+        let evacHasData = Object.values(evacMap).some(v => v.aff > 0 || v.served > 0 || v.ec > 0); document.getElementById('evacChart-empty').style.display = evacHasData ? 'none' : 'flex'; 
+        
+        let newDatasets = [ 
+            { label: 'Affected', fullLabel: 'Affected (Pax)', data: Object.values(evacMap).map(v => v.aff), backgroundColor: '#FF7A2F', borderRadius: 5 }, 
+            { label: 'Served', fullLabel: 'Served (Pax)', data: Object.values(evacMap).map(v => v.served), backgroundColor: '#18A874', borderRadius: 5 }, 
+            { label: 'Inside ECs', fullLabel: 'Inside ECs (Pax)', data: Object.values(evacMap).map(v => v.ec), backgroundColor: '#2F6BFF', borderRadius: 5 } 
+        ]; 
+        
+        if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
+        
+        let preservedHiddenState = {};
+        if (evacChart.originalDatasets) { evacChart.originalDatasets.forEach(d => { preservedHiddenState[d.label] = d.hidden; }); }
+        newDatasets.forEach(d => { d.hidden = preservedHiddenState[d.label] || false; });
+        
+        evacChart.originalLabels = Object.keys(evacMap);
+        evacChart.originalDatasets = newDatasets.map(d => ({ ...d, data: [...d.data] }));
+        window.applyDynamicZeroFilter(evacChart);
+    }
+
+    function updateCasChart() {
+        if(!tsInstances['cas-view-filter'] || !tsInstances['cas-category-filter']) return; 
+        let sel = tsInstances['cas-view-filter'].getValue() || 'ALL'; 
+        let catSel = tsInstances['cas-category-filter'].getValue() || 'ALL';
+        
+        let casMap = {}; let munis = new Set();
+        getLatestRecords(dbData.casualties, ['municipality', 'barangay', 'classification']).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            let loc = sel === 'ALL' ? d.municipality : d.barangay; let cls = d.classification || ''; let cnt = parseNum(d.count);
+            if(!casMap[loc]) casMap[loc] = { 'Dead': 0, 'Missing': 0, 'Injured': 0 };
+            if (cls.includes('Dead')) casMap[loc]['Dead'] += cnt; else if (cls.includes('Missing')) casMap[loc]['Missing'] += cnt; else if (cls.includes('Injured')) casMap[loc]['Injured'] += cnt;
+        });
+        syncTomSelect('cas-view-filter', munis);
+        let casHasData = Object.values(casMap).some(v => v.Dead > 0 || v.Missing > 0 || v.Injured > 0); document.getElementById('casChart-empty').style.display = casHasData ? 'none' : 'flex';
+        
+        let newDatasets = [ 
+            { label: 'Dead', fullLabel: 'Dead', data: Object.values(casMap).map(v => v['Dead']), backgroundColor: '#E5484D', borderRadius: 5 }, 
+            { label: 'Missing', fullLabel: 'Missing', data: Object.values(casMap).map(v => v['Missing']), backgroundColor: '#F5B301', borderRadius: 5 }, 
+            { label: 'Injured', fullLabel: 'Injured', data: Object.values(casMap).map(v => v['Injured']), backgroundColor: '#2F6BFF', borderRadius: 5 } 
+        ]; 
+        
+        if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
+        
+        let preservedHiddenState = {};
+        if (casChart.originalDatasets) { casChart.originalDatasets.forEach(d => { preservedHiddenState[d.label] = d.hidden; }); }
+        newDatasets.forEach(d => { d.hidden = preservedHiddenState[d.label] || false; });
+        
+        casChart.originalLabels = Object.keys(casMap);
+        casChart.originalDatasets = newDatasets.map(d => ({ ...d, data: [...d.data] }));
+        window.applyDynamicZeroFilter(casChart);
+    }
+    
+    function updateAstCostChart() {
+        if(!tsInstances['ast-cost-muni-filter'] || !tsInstances['ast-source-filter']) return; 
+        let muniSel = tsInstances['ast-cost-muni-filter'].getValue() || 'ALL'; 
+        let sourceSel = tsInstances['ast-source-filter'].getValue() || 'ALL'; 
+        let sMap = {}; 
+        let sources = new Set(); 
+        let munis = new Set();
+        
+        getLatestAssistanceRecords(dbData.assistance).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); 
+            if (muniSel !== 'ALL' && d.municipality !== muniSel) return;
+            
+            let loc = d.municipality || 'Unspecified'; 
+            let rawSource = d.source || 'Unknown Source'; 
+            
+            let source = rawSource;
+            if (source.toUpperCase() === 'NGO') source = 'NGOs';
+            if (source.toUpperCase() === 'MUNICIPAL LGU') source = "Mun. Gov't";
+            
+            sources.add(source);
+            if (sourceSel !== 'ALL' && source !== sourceSel) return;
+            
+            let cost = parseNum(d.cost); 
+            let item = (d.reliefItem || '').toLowerCase();
+            if (item.includes('financial') || item.includes('cash') || item.includes('aics') || item.includes('peso')) { 
+                if (cost === 0 && parseNum(d.quantity) > 0) cost = parseNum(d.quantity); 
+            }
+            
+            if(!sMap[source]) sMap[source] = {}; 
+            if(!sMap[source][loc]) sMap[source][loc] = 0;
+            sMap[source][loc] += cost; 
+        });
+        
+        syncTomSelect('ast-cost-muni-filter', munis);
+        syncTomSelect('ast-source-filter', sources);
+        
+        let cols = ['#2F6BFF', '#18A874', '#FF7A2F', '#8B5CF6', '#E5484D', '#14A3B8', '#F5B301']; 
+        let arrs = []; let idx = 0;
+        
+        let locSet = new Set();
+        Object.values(sMap).forEach(locObj => Object.keys(locObj).forEach(l => locSet.add(l)));
+        let locArray = Array.from(locSet).sort();
+        
+        Array.from(sources).forEach(src => { 
+            let dArr = []; 
+            let totalCost = 0;
+            locArray.forEach(loc => { 
+                let c = sMap[src] && sMap[src][loc] ? sMap[src][loc] : 0;
+                dArr.push(c); 
+                totalCost += c;
+            }); 
+            
+            if (totalCost > 0) {
+                let shortLabel = src.length > 25 ? src.substring(0, 25) + '...' : src; 
+                arrs.push({ label: shortLabel, fullLabel: src, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 5 }); 
+                idx++; 
+            }
+        });
+        
+        let hasData = arrs.some(dataset => dataset.data.some(v => v > 0)); 
+        document.getElementById('astCostChart-empty').style.display = hasData ? 'none' : 'flex'; 
+        
+        let preservedHiddenState = {};
+        if (astCostChart.originalDatasets) { astCostChart.originalDatasets.forEach(d => { preservedHiddenState[d.label] = d.hidden; }); }
+        arrs.forEach(d => { d.hidden = preservedHiddenState[d.label] || false; });
+        
+        astCostChart.originalLabels = locArray;
+        astCostChart.originalDatasets = arrs.map(d => ({ ...d, data: [...d.data] }));
+        window.applyDynamicZeroFilter(astCostChart);
+    }
+
+    function updatePreemptiveChart() {
+        if(!tsInstances['preemptive-muni-filter'] || !tsInstances['preemptive-category-filter']) return; 
+        let sel = tsInstances['preemptive-muni-filter'].getValue() || 'ALL'; 
+        let catSel = tsInstances['preemptive-category-filter'].getValue() || 'ALL';
+        
+        let preMap = {}; let munis = new Set();
+        getLatestRecords(dbData.preemptives, ['municipality', 'barangayOrigin']).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            let loc = sel === 'ALL' ? d.municipality : d.barangayOrigin || d.municipality;
+            if(!preMap[loc]) preMap[loc] = { indv: 0, fam: 0 }; 
+            preMap[loc].indv += parseNum(d.preEmptiveIndividuals); 
+            preMap[loc].fam += parseNum(d.preEmptiveFamilies);
+        });
+        syncTomSelect('preemptive-muni-filter', munis);
+        let hasData = Object.values(preMap).some(v => v.indv > 0 || v.fam > 0); document.getElementById('preemptiveChart-empty').style.display = hasData ? 'none' : 'flex'; 
+        
+        let newDatasets = [ 
+            { label: 'Individuals', fullLabel: 'Pre-Emptive (Pax)', data: Object.values(preMap).map(v=>v.indv), backgroundColor: '#14A3B8', borderRadius: 5 }, 
+            { label: 'Families', fullLabel: 'Pre-Emptive (Fam)', data: Object.values(preMap).map(v=>v.fam), backgroundColor: '#8B5CF6', borderRadius: 5 } 
+        ]; 
+        
+        if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
+        
+        let preservedHiddenState = {};
+        if (preemptiveChart.originalDatasets) { preemptiveChart.originalDatasets.forEach(d => { preservedHiddenState[d.label] = d.hidden; }); }
+        newDatasets.forEach(d => { d.hidden = preservedHiddenState[d.label] || false; });
+        
+        preemptiveChart.originalLabels = Object.keys(preMap);
+        preemptiveChart.originalDatasets = newDatasets.map(d => ({ ...d, data: [...d.data] }));
+        window.applyDynamicZeroFilter(preemptiveChart);
+    }
+
+    function updateResChart() {
+        if(!tsInstances['res-muni-filter']) return; let sel = tsInstances['res-muni-filter'].getValue() || 'ALL'; 
+        let agMap = {}; let ags = new Set(); let munis = new Set();
+        
+        getLatestRecords(dbData.resources, ['municipality', 'barangay', 'agency', 'assetType']).forEach(d => {
+            if (!(d.status || '').toLowerCase().includes('deployed')) return;
+            if(d.municipality) munis.add(d.municipality); if (sel !== 'ALL' && d.municipality !== sel) return;
+            
+            let loc = sel === 'ALL' ? d.municipality : (d.barangay || 'Unspecified'); 
+            let ag = d.agency || 'Unknown';
+            
+            if(!agMap[ag]) agMap[ag] = {}; 
+            if(!agMap[ag][loc]) agMap[ag][loc] = 0;
+            
+            let pax = parseNum(d.personnel) || parseNum(d.quantity) || 1;
+            agMap[ag][loc] += pax; 
+            ags.add(ag);
+        });
+        syncTomSelect('res-muni-filter', munis);
+        
+        let cols = ['#2F6BFF', '#18A874', '#FF7A2F', '#8B5CF6', '#E5484D', '#14A3B8', '#F5B301']; 
+        let arrs = []; let idx = 0;
+        
+        let locSet = new Set();
+        Object.values(agMap).forEach(locObj => Object.keys(locObj).forEach(l => locSet.add(l)));
+        
+        Array.from(locSet).forEach(loc => {
+            let dArr = []; 
+            Array.from(ags).forEach(ag => { dArr.push(agMap[ag][loc] || 0); }); 
+            let shortLabel = loc.length > 20 ? loc.substring(0, 20) + '...' : loc; 
+            
+            arrs.push({ label: shortLabel, fullLabel: loc, data: dArr, backgroundColor: cols[idx % cols.length], borderRadius: 5, maxBarThickness: 24 }); 
+            idx++; 
+        });
+        
+        let hasData = arrs.some(dataset => dataset.data.some(v => v > 0)); document.getElementById('resChart-empty').style.display = hasData ? 'none' : 'flex'; 
+        
+        let preservedHiddenState = {};
+        if (resChart.originalDatasets) { resChart.originalDatasets.forEach(d => { preservedHiddenState[d.label] = d.hidden; }); }
+        arrs.forEach(d => { d.hidden = preservedHiddenState[d.label] || false; });
+        
+        resChart.originalLabels = Array.from(ags);
+        resChart.originalDatasets = arrs.map(d => ({ ...d, data: [...d.data] }));
+        window.applyDynamicZeroFilter(resChart);
+    }
+
+    function updateFloodChart() {
+        if(!tsInstances['flood-muni-filter'] || !tsInstances['flood-status-filter']) return; 
+        let sel = tsInstances['flood-muni-filter'].getValue() || 'ALL'; 
+        let catSel = tsInstances['flood-status-filter'].getValue() || 'ALL';
+        
+        let fMap = {}; let munis = new Set();
+        
+        getLatestRecords(dbData.floods, ['municipality', 'barangay']).forEach(d => {
+            if(d.municipality) munis.add(d.municipality); if(sel !== 'ALL' && d.municipality !== sel) return;
+            
+            let rawStatus = (d.status || 'Unknown').toLowerCase();
+            let status = 'Unknown';
+            if (rawStatus.includes('subsid') || rawStatus.includes('no flood')) status = 'Subsided';
+            else if (rawStatus.includes('reced')) status = 'Receding';
+            else status = 'Flooded'; 
+            
+            let muni = d.municipality || 'Unknown'; 
+            if(!fMap[muni]) fMap[muni] = { 'Flooded': 0, 'Receding': 0, 'Subsided': 0, 'Unknown': 0 }; 
+            fMap[muni][status] += 1;
+        });
+        syncTomSelect('flood-muni-filter', munis); 
+        
+        let hasData = Object.keys(fMap).length > 0;
+        document.getElementById('floodChart-empty').style.display = hasData ? 'none' : 'flex'; 
+
+        let newDatasets = [
+            { label: 'Flooded', fullLabel: 'Flooded (Brgys)', data: Object.values(fMap).map(v => v['Flooded']), backgroundColor: '#E5484D', borderRadius: 5 },
+            { label: 'Receding', fullLabel: 'Receding (Brgys)', data: Object.values(fMap).map(v => v['Receding']), backgroundColor: '#F5B301', borderRadius: 5 },
+            { label: 'Subsided', fullLabel: 'Subsided (Brgys)', data: Object.values(fMap).map(v => v['Subsided']), backgroundColor: '#18A874', borderRadius: 5 }
+        ];
+        
+        if (catSel !== 'ALL') { newDatasets = newDatasets.filter(d => d.label === catSel); }
+
+        let preservedHiddenState = {};
+        if (floodChart.originalDatasets) { floodChart.originalDatasets.forEach(d => { preservedHiddenState[d.label] = d.hidden; }); }
+        newDatasets.forEach(d => { d.hidden = preservedHiddenState[d.label] || false; });
+
+        floodChart.originalLabels = Object.keys(fMap);
+        floodChart.originalDatasets = newDatasets.map(d => ({ ...d, data: [...d.data] }));
+        window.applyDynamicZeroFilter(floodChart);
+    }
+
+    function updateCharts() {
+        updateGlobalSitrepDropdown();
+        updateEvacChart();
+        updateCasChart();
+        updateAstCostChart();
+        updateResChart();
+        updatePreemptiveChart();
+        updateFloodChart();
+        updateRoadsFeed();
+        updateUtilityFeed();
+        updateInfraCostFeed();
+        updateItemsFeed();
+        updateAgriCostFeed(); 
+        updateWeatherFeed();
+        updateIncidentsFeed();
+        updateActionsFeed();
+    }
+
+    // ==========================================
+    // KPI CALCULATION ENGINE
+    // ==========================================
+    function calculateKPIs() {
+        if(targetSitrepNo === null) {
+            let max = 0;
+            const allRecords = [...dbData.floods, ...dbData.evacs, ...dbData.infra, ...dbData.casualties, ...dbData.agri, ...dbData.assistance, ...dbData.roads, ...dbData.lifelines];
+            allRecords.forEach(d => { if(d.sitrepNo > max) max = d.sitrepNo; });
+            targetSitrepNo = max > 0 ? max : null;
+        }
+
+        const allRecordsWithContext = [...dbData.floods, ...dbData.evacs, ...dbData.infra, ...dbData.weather, ...dbData.casualties, ...dbData.roads, ...dbData.lifelines, ...dbData.preemptives, ...dbData.resources, ...dbData.agri, ...dbData.assistance, ...dbData.incidents, ...dbData.actions];
+        let latestRecord = null;
+        if (targetSitrepNo) {
+            let sitrepRecords = allRecordsWithContext.filter(d => d.sitrepNo === targetSitrepNo && d.timeMonitored);
+            sitrepRecords.sort((a,b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
+            if (sitrepRecords.length > 0) latestRecord = sitrepRecords[0];
+        }
+
+        if (latestRecord) {
+            let cause = latestRecord.incidentCause || 'UNKNOWN INCIDENT';
+            let dateStrText = "--";
+            let asOfVal = latestRecord.asOfDate || latestRecord.timeMonitored;
+            if (asOfVal) { 
+                let dateObj = (typeof asOfVal === 'string') ? new Date(asOfVal) : (asOfVal.toDate ? asOfVal.toDate() : new Date(asOfVal)); 
+                let month = (dateObj.getMonth() + 1).toString().padStart(2, '0'); 
+                let day = dateObj.getDate().toString().padStart(2, '0'); 
+                let year = dateObj.getFullYear(); 
+                let hours = dateObj.getHours(); 
+                let minutes = dateObj.getMinutes().toString().padStart(2, '0'); 
+                let ampm = hours >= 12 ? 'pm' : 'am'; hours = hours % 12; hours = hours ? hours : 12; 
+                dateStrText = `${month}/${day}/${year} ${hours.toString().padStart(2, '0')}:${minutes} ${ampm}`; 
+            }
+            document.getElementById('incidentNameDisplay').innerText = cause; 
+            document.getElementById('asOfDisplay').innerText = `Data current as of ${dateStrText}`;
+        } else {
+            document.getElementById('incidentNameDisplay').innerText = `Awaiting Data Integration`; 
+            document.getElementById('asOfDisplay').innerText = `--`;
+        }
+
+        const latestEvacs = getLatestRecords(dbData.evacs, ['municipality']);
+        let sumAffFam = 0, sumAffPax = 0, sumActiveEc = 0, sumEcPax = 0;
+        
+        latestEvacs.forEach(e => {
+            let fam = parseNum(e.affectedFamilies);
+            let pax = parseNum(e.affectedIndividuals);
+            
+            let ecVal = parseNum(e.evacCenterCount);
+            let ecPaxNow = parseNum(e.insideEcIndividualsNow !== undefined ? e.insideEcIndividualsNow : (e.insideEcIndividuals || e.individuals));
+            
+            let status = (e.status || '').toUpperCase().trim();
+            let isActive = status === 'ACTIVE' || (status !== 'CLOSED' && ecVal > 0);
+
+            sumAffFam += fam;
+            sumAffPax += pax;
+            
+            if(isActive) {
+                sumActiveEc += ecVal;
+                sumEcPax += ecPaxNow;
+            }
+        });
+        
+        document.getElementById('kpi-aff-fam').innerText = sumAffFam.toLocaleString();
+        document.getElementById('kpi-aff-pax').innerText = sumAffPax.toLocaleString() + " Pax";
+        document.getElementById('kpi-ec-count').innerText = sumActiveEc.toLocaleString();
+        document.getElementById('kpi-ec-pax').innerText = sumEcPax.toLocaleString() + " Pax Inside";
+
+        const latestInfra = getLatestRecords(dbData.infra, ['specificArea']);
+        const latestAgri = getLatestRecords(dbData.agri, ['commodity']);
+        let sumInfraCost = 0, sumAgriCost = 0;
+        
+        latestInfra.forEach(i => sumInfraCost += parseNum(i.cost));
+        latestAgri.forEach(a => sumAgriCost += parseNum(a.cost));
+        
+        document.getElementById('kpi-infra-dmg').innerText = formatCurrency(sumInfraCost);
+        document.getElementById('kpi-agri-dmg').innerText = formatCurrency(sumAgriCost);
+
+        const latestAst = getLatestAssistanceRecords(dbData.assistance);
+        let sumAstCost = 0;
+        latestAst.forEach(a => sumAstCost += parseNum(a.cost));
+        document.getElementById('kpi-ast-total').innerText = formatCurrency(sumAstCost);
+
+        const latestFloods = getLatestRecords(dbData.floods, ['municipality', 'barangay']);
+        let activeFlood = 0, subsidedFlood = 0;
+        latestFloods.forEach(f => {
+            if((f.status||'').toUpperCase().trim() === 'SUBSIDED') subsidedFlood++;
+            else activeFlood++;
+        });
+        document.getElementById('kpi-flood-active').innerText = activeFlood.toLocaleString();
+        document.getElementById('kpi-flood-sub').innerText = subsidedFlood.toLocaleString() + " Subsided";
+
+        const latestRoads = getLatestRecords(dbData.roads, ['municipality', 'specificArea']);
+        let notPassable = 0, passable = 0;
+        latestRoads.forEach(r => {
+            if((r.status||'').includes('Not Passable')) notPassable++;
+            else passable++;
+        });
+        document.getElementById('kpi-road-not').innerText = notPassable.toLocaleString();
+        document.getElementById('kpi-road-pass').innerText = passable.toLocaleString() + " Passable";
+
+        const latestCas = getLatestRecords(dbData.casualties, ['municipality', 'barangay', 'classification']);
+        let dead = 0, injured = 0;
+        latestCas.forEach(c => {
+            let count = parseNum(c.count);
+            if((c.classification||'').includes('Dead')) dead += count;
+            else injured += count;
+        });
+        document.getElementById('kpi-cas-total').innerText = (dead + injured).toLocaleString();
+        document.getElementById('kpi-cas-dead').innerText = dead.toLocaleString() + " Dead";
+        document.getElementById('kpi-cas-inj').innerText = injured.toLocaleString() + " Inj/Mis";
+
+        updateCharts();
+        hideGlobalLoader();
+    }
+
+    // ==========================================
+    // UI CONTROLS
+    // ==========================================
+    window.applySitrepFilterFromDropdown = function() {
+        const val = parseInt(tsGlobal.getValue());
+        if(val && val > 0) { targetSitrepNo = val; calculateKPIs(); }
+    }
+
+    // ==========================================
+    // DATABASE LISTENERS (Public, no auth needed)
+    // ==========================================
+    const watch = (col, key) => onSnapshot(query(collection(db, col), orderBy("timeMonitored", "desc")), snap => { 
+        dbData[key] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
+        calculateKPIs(); 
+    });
+
+    watch("weather_conditions", "weather");
+    watch("flooded_areas", "floods"); 
+    watch("evacuation_data", "evacs"); 
+    watch("preemptive_data", "preemptives");
+    watch("resource_data", "resources");
+    watch("casualties_data", "casualties"); 
+    watch("agri_damages", "agri"); 
+    watch("assistance_data", "assistance");
+    watch("related_incidents", "incidents");
+    watch("lifeline_data", "lifelines");
+    watch("actions_data", "actions");
+    
+    onSnapshot(query(collection(db, "infrastructure_data"), orderBy("timeMonitored", "desc")), (snap) => { 
+        let allInfra = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
+        dbData.roads = allInfra.filter(d => d.recordType === 'Passability' || ((d.category === 'Road' || d.category === 'Bridge') && d.recordType !== 'Damage' && !(d.status||'').includes('Assessed for Damage'))); 
+        dbData.infra = allInfra.filter(d => d.recordType === 'Damage' || (!d.recordType && parseFloat(d.cost) > 0) || (d.status||'').includes('Assessed for Damage')); 
+        calculateKPIs(); 
+    });
+
+    // ==========================================
+// SOFT SPA ROUTING INTERCEPTOR
+// ==========================================
+document.addEventListener('DOMContentLoaded', () => {
+    const mainContent = document.querySelector('.main-content');
+    if (!mainContent) return;
+
+    // 1. Determine Tab Order
+    const pageOrder = ['index.html', 'trend_analysis.html', 'data_entry.html', 'inventory.html', 'archives.html', 'admin.html'];
+    
+    // 2. Identify Current Page
+    const currentPath = window.location.pathname.split('/').pop() || 'index.html';
+    const currentIndex = pageOrder.indexOf(currentPath);
+
+    // 3. Check Session Storage for Entry Direction
+    const incomingDirection = sessionStorage.getItem('slideDirection');
+    if (incomingDirection === 'left') {
+        mainContent.classList.add('slide-in-left');
+    } else if (incomingDirection === 'right') {
+        mainContent.classList.add('slide-in-right');
+    } else {
+        mainContent.classList.add('slide-in-right'); // Default load
+    }
+    sessionStorage.removeItem('slideDirection'); // Clear after use
+
+    // 4. Intercept Navigation Clicks
+    const navLinks = document.querySelectorAll('.dashboard-link');
+    navLinks.forEach(link => {
+        link.addEventListener('click', (e) => {
+            const targetUrl = link.getAttribute('href');
+            
+            // Ignore external links (Infographic) or current page clicks
+            if (link.target === "_blank" || targetUrl === currentPath || targetUrl === '#') return;
+            
+            e.preventDefault();
+            const targetIndex = pageOrder.indexOf(targetUrl);
+            
+            // Calculate Slide Direction based on layout
+            if (targetIndex > currentIndex) {
+                mainContent.classList.add('slide-out-left');
+                sessionStorage.setItem('slideDirection', 'right'); // Next page should slide in from right
+            } else {
+                mainContent.classList.add('slide-out-right');
+                sessionStorage.setItem('slideDirection', 'left'); // Next page should slide in from left
+            }
+            
+            // Wait for slide animation to complete before telling the browser to load the file
+            setTimeout(() => { 
+                window.location.href = targetUrl; 
+            }, 200);
+        });
+    });
+});
+
+
+</script>
+<script>addEventListener('keydown',e=>{if(e.key==='Escape'&&window.closeNarrativeModal)closeNarrativeModal()});const L=[...document.querySelectorAll('.jump a')];const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting)L.forEach(a=>a.classList.toggle('on',a.hash==='#'+e.target.id))}),{rootMargin:'-30% 0px -60% 0px'});document.querySelectorAll('.sec').forEach(x=>io.observe(x));</script>
+</body>
+</html>
