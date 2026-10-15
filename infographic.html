@@ -5,7 +5,9 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>PDRRMO SitRep Dashboard</title>
     
-    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@900&family=PT+Sans:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@500;600;700;800&family=Roboto:wght@400;500;600;700;800&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <style>
@@ -14,10 +16,12 @@
             --dark-blue: #1A7B9B; --gray: #E6E6E6; 
             --text-dark: #444444; --text-light: #888888;
             --accent-red: #FF3B30;
+            --font-body: 'Roboto', Arial, sans-serif;
+            --font-display: 'Montserrat', 'Roboto', Arial, sans-serif;
         }
 
-        body, html { margin: 0; padding: 0; background-color: #F8F9FA; font-family: 'PT Sans', sans-serif; color: var(--text-dark); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
-        h1, h2, h3, h4 { font-family: 'Montserrat', sans-serif; text-transform: uppercase; margin: 0; line-height: 1.1; }
+        body, html { margin: 0; padding: 0; background-color: #F8F9FA; font-family: var(--font-body); color: var(--text-dark); overflow-x: hidden; min-height: 100vh; display: flex; flex-direction: column; }
+        h1, h2, h3, h4 { font-family: var(--font-display); font-weight: 700; text-transform: uppercase; margin: 0; line-height: 1.1; }
 
         .app-wrapper { display: flex; gap: 30px; padding: 20px; max-width: 1600px; margin: 0 auto; flex-grow: 1; width: 100%; box-sizing: border-box; }
         
@@ -68,7 +72,7 @@
         .modal-card { background: white; border-radius: 8px; width: 90%; max-width: 650px; max-height: 80vh; display: flex; flex-direction: column; box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.4); transform: translateY(-50px); transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275); }
         .modal-overlay.active .modal-card { transform: translateY(0); }
         .modal-header { display: flex; justify-content: space-between; align-items: center; padding: 20px 25px; border-bottom: 1px solid #eaeaea; background: #F9F9FB; border-radius: 8px 8px 0 0;}
-        .modal-header h3 { margin: 0; color: var(--text-dark); font-size: 1.2rem; font-family: 'Montserrat', sans-serif;}
+        .modal-header h3 { margin: 0; color: var(--text-dark); font-size: 1.2rem; font-family: var(--font-display);}
         .modal-close { background: transparent; border: none; color: var(--text-light); font-size: 20px; cursor: pointer; transition: 0.2s; padding: 0; display: flex; align-items: center; justify-content: center; width: 32px; height: 32px; border-radius: 8px; }
         .modal-close:hover { background: #FFEBEB; color: #E74C3C; }
         .modal-body { padding: 25px; overflow-y: auto; color: var(--text-dark); font-size: 0.9rem; line-height: 1.6; white-space: pre-wrap; }
@@ -77,13 +81,14 @@
         .read-more-btn { background: #E5F0FF; border: none; border-radius: 4px; padding: 6px 10px; color: var(--blue); font-size: 0.75rem; font-weight: bold; cursor: pointer; margin-top: 8px; transition: 0.2s; display: inline-flex; align-items: center; }
         .read-more-btn:hover { background: #CCE0FF; }
     </style>
+    <link rel="stylesheet" href="theme.css?v=20261013a">
 </head>
 <body>
 
     <div style="max-width: 1600px; margin: 20px auto 0 auto; padding: 0 20px; display: flex; align-items: center; justify-content: space-between; flex-shrink: 0; width: 100%; box-sizing: border-box;">
         <div style="display: flex; align-items: center; gap: 15px;">
             <img src="logo.png" alt="Tarlac PDRRMO Logos" style="height: 65px; width: auto; object-fit: contain;" onerror="this.style.display='none'">
-            <h2 style="color: var(--dark-blue); font-family: 'Montserrat', sans-serif; font-size: 1.4rem; letter-spacing: -0.5px; margin: 0; line-height: 1.1;">
+            <h2 style="color: var(--dark-blue); font-family: var(--font-display); font-size: 1.4rem; letter-spacing: -0.5px; margin: 0; line-height: 1.1;">
                 TARLAC PROVINCIAL DISASTER RISK REDUCTION<br>AND MANAGEMENT OFFICE
             </h2>
         </div>
@@ -125,7 +130,7 @@
                                 <div class="content-box" style="border-bottom: 5px solid var(--gray);">
                                     <h3 class="section-title" style="color: var(--blue);">ADVISORY</h3>
                                     <div style="flex-grow: 1; display: flex; align-items: center; justify-content: center; padding: 10px 5px;">
-                                        <p id="out-advisory" style="color: var(--dark-blue); font-family: 'Montserrat', sans-serif; font-weight: 700; font-size: 0.85rem; line-height: 1.4; text-align: center; margin: 0;">Awaiting official advisory update...</p>
+                                        <p id="out-advisory" style="color: var(--dark-blue); font-family: var(--font-display); font-weight: 700; font-size: 0.85rem; line-height: 1.4; text-align: center; margin: 0;">Awaiting official advisory update...</p>
                                     </div>
                                 </div>
                             </div>
@@ -522,9 +527,15 @@
             }
         };
 
+        function escapeInfographicText(value) {
+            return String(value ?? '').replace(/[&<>"']/g, character => ({
+                '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+            })[character]);
+        }
+
         function formatNarrative(text) {
             if (!text) return '<span class="sub-text">N/A</span>';
-            var cleanedText = text.replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
+            var cleanedText = String(text).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/\b(\d{1,3}[\.\)])([a-zA-Z])/g, '$1 $2');
             cleanedText = cleanedText.replace(/([^\n])\s*(➤|•|●|❖|\b(?:\d{1,3}|[a-zA-Z])[\.\)]\s+)/g, '$1\n$2');
             
             var unwrapRegex = /([^\n])\n(?![ \t]*(?:[➢➤•●❖▪○✓\-\*]|\b\d{1,3}[\.\)]\s+)|\n)/g;
@@ -777,8 +788,8 @@
                 evacList.sort(function(a, b) { return b.fam - a.fam; });
                 if (evacList.length > 0) {
                     var top1 = evacList[0]; var top2 = (evacList.length > 1) ? evacList[1] : null;
-                    var movementsStr = "<strong>" + top1.lgu.toUpperCase() + "</strong> (" + top1.fam + " families)";
-                    if (top2) { movementsStr += " and <strong>" + top2.lgu.toUpperCase() + "</strong> (" + top2.fam + " families)"; }
+                    var movementsStr = "<strong>" + escapeInfographicText(top1.lgu.toUpperCase()) + "</strong> (" + top1.fam + " families)";
+                    if (top2) { movementsStr += " and <strong>" + escapeInfographicText(top2.lgu.toUpperCase()) + "</strong> (" + top2.fam + " families)"; }
                     outEvacNote.innerHTML = '<div style="font-size: 0.85rem; color: var(--text-dark); line-height: 1.5;">Evacuations executed across <strong>' + evacList.length + ' municipalities</strong>. Largest movements from ' + movementsStr + '.</div>';
                 } else {
                     outEvacNote.innerHTML = '<div style="font-size: 0.85rem; font-style: italic; color: var(--text-light);">No active preemptive evacuations reported.</div>';
@@ -818,7 +829,7 @@
                     var pageEcs = ecList.slice(startIdx, startIdx + ECS_PER_PAGE);
 
                     var ecHtml = "";
-                    pageEcs.forEach(function(ec) { ecHtml += '<div class="list-row"><strong>' + ec.lgu.toUpperCase() + '</strong> <span style="color: var(--blue); font-weight: bold; margin-left: 5px;">• ' + ec.centers + ' Active EC(s)</span><br><span style="font-size: 0.75rem; color: var(--text-dark);">Inside: <strong>' + ec.fam + '</strong> Families | <strong>' + ec.pax + '</strong> Pax</span></div>'; });
+                    pageEcs.forEach(function(ec) { ecHtml += '<div class="list-row"><strong>' + escapeInfographicText(ec.lgu.toUpperCase()) + '</strong> <span style="color: var(--blue); font-weight: bold; margin-left: 5px;">• ' + ec.centers + ' Active EC(s)</span><br><span style="font-size: 0.75rem; color: var(--text-dark);">Inside: <strong>' + ec.fam + '</strong> Families | <strong>' + ec.pax + '</strong> Pax</span></div>'; });
                     outEcList.innerHTML = ecHtml;
 
                     var ecPageInfo = document.getElementById('ec-page-info'); if (ecPageInfo) { ecPageInfo.innerText = "PAGE " + (window.currentEcPage + 1) + " / " + totalPages; }
@@ -949,7 +960,7 @@
 
                 var html = "";
                 pageInfra.forEach(function(i) {
-                    var mName = (i.municipality || '').replace(/\s*\([^)]*MUNICIPAL-WIDE[^)]*\)/gi, '').trim();
+                    var mName = (i.municipality || '').replace(/\s*\([^)]*(?:MUNICIPAL|CITY)-WIDE[^)]*\)/gi, '').trim();
                     mName = mName.replace(/,\s*,/g, ',').replace(/(^,)|(,$)/g, '').trim();
                     if (!mName) { mName = "the province"; }
 
@@ -1174,7 +1185,7 @@
                         var parts = a.municipality.split(',');
                         parts.forEach(function(m) { 
                             var mTrim = m.trim();
-                            mTrim = mTrim.replace(/\s*\([^)]*MUNICIPAL-WIDE[^)]*\)/gi, '').trim();
+                            mTrim = mTrim.replace(/\s*\([^)]*(?:MUNICIPAL|CITY)-WIDE[^)]*\)/gi, '').trim();
                             if (mTrim) {
                                 finMunis.add(mTrim); 
                             }
@@ -1490,7 +1501,7 @@
                     }
                     var parts = muni.split(',');
                     parts.forEach(function(m) {
-                        var mTrim = m.trim().replace(/\s*\([^)]*MUNICIPAL-WIDE[^)]*\)/gi, '').trim();
+                        var mTrim = m.trim().replace(/\s*\([^)]*(?:MUNICIPAL|CITY)-WIDE[^)]*\)/gi, '').trim();
                         if (mTrim) {
                             if (mTrim.toUpperCase().indexOf('PROVINCE') !== -1 || mTrim.toUpperCase().indexOf('ALL') !== -1 || mTrim.toUpperCase() === 'TARLAC') {
                                 isProvinceWide = true;
@@ -1574,7 +1585,7 @@
                     
                     narrative += 'Agricultural losses across <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.6rem; color: var(--teal); font-weight: 900; padding: 0 4px; font-style: normal;">' + lguCount + ' LGUs</span> have impacted ';
                     narrative += '<span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--text-dark); font-weight: 900; padding: 0 4px; font-style: normal;">' + farmers.toLocaleString() + ' farmers</span>, ';
-                    narrative += 'primarily affecting <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--blue); font-weight: 900; padding: 0 4px; text-transform: uppercase; font-style: normal;">' + cropText + '</span>. ';
+                    narrative += 'primarily affecting <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--blue); font-weight: 900; padding: 0 4px; text-transform: uppercase; font-style: normal;">' + escapeInfographicText(cropText) + '</span>. ';
                     narrative += 'A combined total of <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.8rem; color: var(--teal); font-weight: 900; padding: 0 4px; font-style: normal;">' + totalHa.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' hectares</span> of land sustained damages, ';
                     
                     narrative += 'comprising <span style="font-family: \'Montserrat\', sans-serif; font-size: 1.3rem; color: var(--text-dark); font-weight: 900; padding: 0 4px; font-style: normal;">' + partial.toLocaleString('en-US', {minimumFractionDigits: 2, maximumFractionDigits: 2}) + ' ha partial</span> and ';

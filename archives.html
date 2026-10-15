@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -19,7 +19,7 @@
             --text-main: #0F172A; --text-muted: #5B6678; 
             --accent-blue: #2F6BFF; --accent-green: #0E9467; --accent-orange: #E8590C; --accent-red: #D92D3A; --accent-purple: #7C4DFF; --accent-teal: #0A8FA6; --accent-yellow: #B7791F; 
             --border-subtle: #E1E6EE; --ink: #0B1730; --hot: #FF8A8E; --signal: #FF7A2F; 
-            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --font-stack: 'Inter', Arial, sans-serif;
             --shadow-soft: 0 4px 20px rgba(16,24,40,.03);
             --shadow-modal: 0 30px 70px rgba(11,23,48,.4);
             --radius-lg: 20px; --radius-md: 12px; --radius-sm: 8px;
@@ -130,8 +130,9 @@
         .modal-body::-webkit-scrollbar { width: 6px; }
         .modal-body::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="theme.css?v=20261015a">
 </head>
-<body>
+<body class="inter-ui">
 
     <!-- NARRATIVE READING MODAL -->
     <div class="modal-overlay" id="narrativeModal" onclick="closeNarrativeModal(event)">
@@ -151,7 +152,7 @@
         <div class="sidebar-inner">
             <div class="sidebar-brand-container">
                 <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
+                <h1 class="sidebar-brand">Tarlac Provincial Disaster Risk Reduction and Management Office</h1>
             </div>
             <nav class="nav" aria-label="Main">
                 <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a>
@@ -435,7 +436,11 @@
         return `<div class="truncate-box">${cleanedText}</div><div class="full-text-hidden" style="display:none;">${cleanedText}</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>`;
     }
 
-    function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
+    function formatTime(timestamp) {
+        if (!timestamp) return 'Pending...';
+        const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
+        return Number.isNaN(date.getTime()) ? 'Pending...' : date.toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+    }
     function formatActionTime(dateString) { 
         if(!dateString) return `<span class="sub-text">N/A</span>`;
         const d = new Date(dateString);
@@ -612,7 +617,9 @@
         if(filteredFloods.length === 0) { alert("No flood data matches your current archive to export."); return; }
         let csvContent = "ArchiveTag,IncidentCause,SitRepNo,Municipality,Barangay,WaterDepth_ft,Status,Latitude,Longitude,TimeMonitored\n";
         filteredFloods.forEach((d) => {
-            const timeStr = d.timeMonitored ? d.timeMonitored.toDate().toISOString() : "";
+            const rawTime = d.timeMonitored;
+            const parsedTime = rawTime && typeof rawTime.toDate === 'function' ? rawTime.toDate() : new Date(rawTime);
+            const timeStr = rawTime && !Number.isNaN(parsedTime.getTime()) ? parsedTime.toISOString() : "";
             csvContent += `"${d.archiveTag || ""}","${d.incidentCause || ""}","${d.sitrepNo || ""}","${d.municipality}","${d.barangay}",${d.waterDepth_ft},"${d.status}",${d.latitude || ""},${d.longitude || ""},"${timeStr}"\n`;
         });
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
@@ -621,8 +628,21 @@
         document.body.appendChild(link); link.click(); document.body.removeChild(link);
     });
 
+    function cleanMunicipalityLabel(value) {
+        return String(value || '').split(',').map(part => {
+            const area = part.trim();
+            if (/^province.?wide\s*\(tarlac\)$/i.test(area) || /^province of tarlac\s*\(province.?wide\)$/i.test(area)) return 'Province of Tarlac';
+            return area.replace(/\s*\((?:municipal|city)-wide\)/gi, '').trim();
+        }).filter(Boolean).join(', ');
+    }
+
     function processSnapshot(snap, collectionName) {
-        let docs = snap.docs.map(d => d.data());
+        let docs = snap.docs.map(d => {
+            const record = d.data();
+            if (record.municipality) record.municipality = cleanMunicipalityLabel(record.municipality);
+            if (record.coverage) record.coverage = cleanMunicipalityLabel(record.coverage);
+            return record;
+        });
         docs.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
         dbData[collectionName] = docs;
         extractTags(docs);
@@ -643,7 +663,11 @@
     onSnapshot(query(collection(db, "related_incidents"), where("isArchived", "==", true)), (snap) => processSnapshot(snap, 'incidents'));
 
     onSnapshot(query(collection(db, "infrastructure_data"), where("isArchived", "==", true)), (snap) => {
-        let docs = snap.docs.map(d => d.data());
+        let docs = snap.docs.map(d => {
+            const record = d.data();
+            if (record.municipality) record.municipality = cleanMunicipalityLabel(record.municipality);
+            return record;
+        });
         docs.sort((a, b) => b.timeMonitored.toMillis() - a.timeMonitored.toMillis());
         
         dbData.roads = docs.filter(d => d.recordType === 'Passability' || ((d.category === 'Road' || d.category === 'Bridge') && d.recordType !== 'Damage' && !(d.status||'').includes('Assessed for Damage'))); 
@@ -698,5 +722,6 @@
         });
     });
 </script>
+<script src="theme.js" defer></script>
 </body>
 </html>

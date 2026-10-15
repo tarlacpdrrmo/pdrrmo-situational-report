@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -37,7 +37,7 @@
             --text-main: #0F172A; --text-muted: #5B6678; 
             --accent-blue: #2F6BFF; --accent-green: #0E9467; --accent-orange: #E8590C; --accent-red: #D92D3A; --accent-purple: #7C4DFF; --accent-teal: #0A8FA6; --accent-yellow: #B7791F; 
             --border-subtle: #E1E6EE; --ink: #0B1730; --hot: #FF8A8E; --signal: #FF7A2F; 
-            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --font-stack: 'Inter', Arial, sans-serif;
             --shadow-soft: 0 4px 20px rgba(16,24,40,.03);
             --shadow-modal: 0 30px 70px rgba(11,23,48,.4);
             --radius-lg: 20px; --radius-md: 12px; --radius-sm: 8px;
@@ -132,8 +132,9 @@
 
         @media (max-width: 1200px) { .ledger-grid { grid-template-columns: minmax(0, 1fr); } }
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="theme.css?v=20261015a">
 </head>
-<body>
+<body class="inter-ui">
 
 
     <!-- GLOBAL SAVING ANIMATION OVERLAY -->
@@ -150,7 +151,7 @@
         <div class="sidebar-inner">
             <div class="sidebar-brand-container">
                 <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
+                <h1 class="sidebar-brand">Tarlac Provincial Disaster Risk Reduction and Management Office</h1>
             </div>
             <nav class="nav" aria-label="Main">
                 <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a>
@@ -499,5 +500,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 </script>
+<script src="theme.js" defer></script>
 </body>
 </html>

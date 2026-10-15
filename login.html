@@ -6,7 +6,7 @@
     <title>PDRRMO | Secure Login</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        @import url('https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap');
         
         :root { 
             --bg-body: #F2F2F7; --bg-card: #FFFFFF; 
@@ -15,7 +15,7 @@
             --border-subtle: #D1D1D6; --input-border: #C7C7CC;
             --shadow-soft: 0 10px 30px rgba(0, 0, 0, 0.05);
             --radius-lg: 14px; --radius-md: 10px;
-            --font-stack: 'Inter', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
         }
 
         body { 
@@ -163,6 +163,7 @@
             color: var(--accent-blue); 
         }
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="theme.css?v=20261013a">
 </head>
 <body>
 
@@ -204,9 +205,16 @@
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
 
-    // DYNAMIC ROUTER: Reads the URL to check for a specific redirect target
+    // Only allow navigation to known pages on this site after authentication.
     const urlParams = new URLSearchParams(window.location.search);
-    const redirectTarget = urlParams.get('redirect') || 'data_entry.html';
+    const allowedRedirects = new Set([
+        'data_entry.html',
+        'admin.html'
+    ]);
+    const requestedRedirect = urlParams.get('redirect') || 'data_entry.html';
+    const redirectTarget = allowedRedirects.has(requestedRedirect)
+        ? requestedRedirect
+        : 'data_entry.html';
 
     // If already logged in, redirect immediately to the target
     onAuthStateChanged(auth, (user) => {
@@ -236,5 +244,6 @@
             });
     });
 </script>
+<script src="theme.js" defer></script>
 </body>
 </html>

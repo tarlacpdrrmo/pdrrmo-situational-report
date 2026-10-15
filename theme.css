@@ -1,0 +1,119 @@
+/* Shared Google inspired workspace theme */
+:root{
+  --bg-body:#f8f9fa;
+  --bg-card:#fff;
+  --bg-hover:#f1f3f4;
+  --text-main:#202124;
+  --text-muted:#5f6368;
+  --accent-blue:#1a73e8;
+  --accent-green:#188038;
+  --accent-orange:#e37400;
+  --accent-red:#d93025;
+  --accent-purple:#a142f4;
+  --accent-teal:#007b83;
+  --accent-yellow:#f9ab00;
+  --border-subtle:#dadce0;
+  --ink:#202124;
+  --hot:#d93025;
+  --signal:#1a73e8;
+  --font-stack:'Roboto',Arial,sans-serif;
+}
+html{scroll-behavior:smooth}
+body{font-family:var(--font-stack);color:var(--text-main);background:radial-gradient(ellipse at 50% -35%,#eaf1fb 0,transparent 58%),#f8f9fa;-webkit-font-smoothing:antialiased}
+body:has(.hero){--font-stack:'Inter',Arial,sans-serif}
+body.inter-ui{--font-stack:'Inter',Arial,sans-serif}
+.sidebar{background:rgba(255,255,255,.94);backdrop-filter:blur(16px);-webkit-backdrop-filter:blur(16px);border-bottom:1px solid #e8eaed;box-shadow:0 1px 3px rgba(60,64,67,.08)}
+.sidebar-inner{max-width:none;width:100%;height:68px;padding-left:clamp(16px,2vw,30px);padding-right:clamp(16px,2vw,30px);gap:clamp(12px,1.6vw,26px)}
+.sidebar-logo{padding:4px;border-radius:12px;background:#f1f3f4}
+.sidebar-brand-container{max-width:305px;min-width:0;gap:9px;white-space:normal}
+.sidebar-brand{max-width:260px;color:#202124;font-size:11px;line-height:1.16;letter-spacing:-.035em;white-space:normal}
+.nav{gap:4px}
+.dashboard-link{padding:9px 11px;border-radius:11px;color:#5f6368;font-family:var(--font-stack);font-size:12px;transition:background .18s ease,color .18s ease,transform .18s ease}
+.dashboard-link i{font-size:13px}
+.dashboard-link:hover{background:#f1f3f4;color:#202124;transform:translateY(-1px)}
+.active-tab,.active-tab:hover{background:#e8f0fe;color:#1a73e8;box-shadow:inset 0 0 0 1px #d2e3fc;transform:none}
+.main-content{padding:0}
+.wrap{width:100%;max-width:none;padding:28px 28px 72px}
+.top-header,.intro{margin-bottom:24px}
+.top-header-text h2,.intro h2,.sec-h h2{color:#202124;font-family:var(--font-stack);font-weight:600;letter-spacing:-.035em}
+.top-header-text p,.intro p,.sec-h p{color:#5f6368}
+.panel,.admin-card,.context-panel,.instruction-state,.workspace-toolbar,.workspace-tabs-container,.login-card{background:linear-gradient(145deg,rgba(255,255,255,.82),rgba(255,255,255,.68));backdrop-filter:blur(14px) saturate(140%);-webkit-backdrop-filter:blur(14px) saturate(140%);border:1px solid rgba(255,255,255,.92);box-shadow:inset 0 1px 0 rgba(255,255,255,.9),0 6px 20px rgba(60,64,67,.07),0 1px 4px rgba(60,64,67,.05)}
+.panel,.admin-card,.context-panel,.instruction-state{border-radius:18px}
+.panel:hover,.admin-card:hover{border-color:#dce3ec;box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 10px 28px rgba(60,64,67,.1),0 1px 5px rgba(60,64,67,.05)}
+.panel:has(.chart-container){background:linear-gradient(145deg,rgba(255,255,255,.76),rgba(255,255,255,.58));backdrop-filter:blur(14px) saturate(145%);-webkit-backdrop-filter:blur(14px) saturate(145%);border:1px solid rgba(255,255,255,.9);box-shadow:inset 0 1px 0 rgba(255,255,255,.95),0 8px 24px rgba(60,64,67,.08),0 1px 4px rgba(60,64,67,.06)}
+.panel:has(.chart-container):hover{border-color:rgba(255,255,255,.96);box-shadow:inset 0 1px 0 rgba(255,255,255,.98),0 10px 28px rgba(60,64,67,.11),0 1px 5px rgba(60,64,67,.07)}
+.health-score-container{background:rgba(248,249,250,.7);border-color:#e8eaed}
+.pt h3,.header-title-group h3,.context-panel h3,.section-title{color:#3c4043}
+input:not([type=checkbox]):not([type=radio]),select,textarea,.ts-wrapper.single .ts-control{border-color:#dadce0;border-radius:10px;background-color:rgba(255,255,255,.82);font-family:var(--font-stack);transition:border-color .18s ease,box-shadow .18s ease,background .18s ease}
+input:focus,select:focus,textarea:focus,.ts-wrapper.focus .ts-control{outline:0;border-color:#1a73e8!important;box-shadow:0 0 0 3px rgba(26,115,232,.13)!important;background-color:#fff!important}
+button,.btn-apply,.btn-export,.btn-add,.submit-btn,.lock-btn,.login-btn{font-family:var(--font-stack);border-radius:10px;transition:filter .18s ease,box-shadow .18s ease,transform .18s ease}
+button:hover,.btn-apply:hover,.btn-export:hover,.btn-add:hover,.submit-btn:hover,.lock-btn:hover,.login-btn:hover{filter:brightness(.98)}
+table{border-color:#e8eaed}
+thead th{background:rgba(248,249,250,.88);color:#5f6368}
+tbody tr:hover{background:rgba(232,240,254,.34)}
+.scroll-reveal{opacity:0;transform:translate3d(0,18px,0) scale(.99);transition:opacity .68s cubic-bezier(.2,.65,.3,1),transform .68s cubic-bezier(.2,.65,.3,1);transition-delay:var(--reveal-delay,0ms);will-change:opacity,transform}
+.scroll-reveal.is-revealed{opacity:1;transform:translate3d(0,0,0) scale(1)}
+/* Login entrance: a quiet, staggered arrival for the card contents. */
+.login-card{border-radius:20px;animation:login-card-arrive .72s cubic-bezier(.2,.7,.25,1) both}
+.login-card .icon-container,.login-card h2,.login-card>p,.login-card .form-group,.login-card .login-btn,.login-card .back-link{animation:login-item-arrive .62s cubic-bezier(.2,.7,.25,1) both}
+.login-card .icon-container{animation-delay:70ms}
+.login-card h2{animation-delay:140ms}
+.login-card>p{animation-delay:210ms}
+.login-card .form-group:nth-child(1){animation-delay:280ms}
+.login-card .form-group:nth-child(2){animation-delay:350ms}
+.login-card .login-btn{animation-delay:420ms}
+.login-card .back-link{animation-delay:490ms}
+@keyframes login-card-arrive{from{opacity:0;transform:translateY(18px) scale(.985)}to{opacity:1;transform:translateY(0) scale(1)}}
+@keyframes login-item-arrive{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+@media(max-width:1080px){.sidebar-inner{gap:10px}.dashboard-link{padding:8px}.link-text{font-size:11px}}
+@media(max-width:860px){.sidebar-inner{height:60px;padding-left:12px;padding-right:12px;gap:8px}.sidebar-logo{width:34px;height:34px}.sidebar-brand{display:none}.nav{overflow-x:auto;gap:2px}.dashboard-link{padding:8px 9px}.link-text{font-size:10px}.wrap{padding:16px 14px 48px}}
+@media(max-width:560px){.sidebar-inner{gap:5px}.sidebar-brand-container{gap:6px}.sidebar-brand{font-size:10px}.dashboard-link{gap:5px;padding:8px 7px}.dashboard-link i{font-size:11px}.link-text{font-size:9px}.login-card{margin:16px;padding:32px 24px}}
+@media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}.scroll-reveal{opacity:1!important;transform:none!important;transition:none!important;will-change:auto}.login-card,.login-card .icon-container,.login-card h2,.login-card>p,.login-card .form-group,.login-card .login-btn,.login-card .back-link{animation:none!important}}
+
+/* Flood Explorer chart dock: match the matte map surface instead of the shared white chart card. */
+body.flood-explorer-view #floodEventPanel .flood-map-chart-control .flood-sitrep-chart-panel{
+  border:1px solid rgba(150,165,184,.24);
+  border-radius:14px;
+  background:rgba(27,33,41,.82);
+  color:#e3e9f1;
+  box-shadow:0 8px 26px rgba(0,0,0,.3);
+  backdrop-filter:blur(12px) saturate(115%);
+  -webkit-backdrop-filter:blur(12px) saturate(115%);
+}
+body.flood-explorer-view #floodEventPanel .flood-map-chart-control .flood-sitrep-chart-panel>.pb,
+body.flood-explorer-view #floodEventPanel .flood-map-chart-control .flood-sitrep-chart-panel .chart-container{
+  background:transparent;
+}
+body.flood-explorer-view #floodEventPanel .flood-map-chart-control .flood-sitrep-chart-panel .chart-empty-message{
+  background:rgba(27,33,41,.94);
+  color:#c7d0dc;
+}
+body.flood-explorer-view #floodEventPanel #floodEventSpeed,
+body.flood-explorer-view #floodEventPanel #floodEventSpeed:focus{
+  border-color:#46515f!important;
+  background-color:#252d37!important;
+  color:#e5eaf1!important;
+  color-scheme:dark;
+}
+body.flood-explorer-view #floodEventPanel #floodEventSpeed option{
+  background-color:#252d37;
+  color:#e5eaf1;
+}
+
+/* Infographic page: keep its information layout and colors while matching workspace surfaces. */
+body:has(.app-wrapper){background:#f8f9fa;color:#202124;font-family:var(--font-stack)}
+body:has(.app-wrapper) h1,
+body:has(.app-wrapper) h2,
+body:has(.app-wrapper) h3,
+body:has(.app-wrapper) h4{font-family:var(--font-stack);letter-spacing:-.035em;text-transform:none}
+body:has(.app-wrapper) .block,
+body:has(.app-wrapper) .modal-card{border:1px solid #dadce0;border-radius:14px;background:#fff;box-shadow:0 1px 2px rgba(60,64,67,.08),0 4px 12px rgba(60,64,67,.08)}
+body:has(.app-wrapper) .header-box{border-radius:13px 13px 0 0}
+body:has(.app-wrapper) .header-box h2{font-size:2rem;letter-spacing:-.045em;text-transform:none}
+body:has(.app-wrapper) .content-box{color:#202124}
+body:has(.app-wrapper) .section-title{font-size:1.35rem}
+body:has(.app-wrapper) .slide-nav-btn{background:#1a73e8;box-shadow:0 2px 6px rgba(26,115,232,.28)}
+body:has(.app-wrapper) .slide-nav-btn:hover{background:#1765cc}
+body:has(.app-wrapper) .read-more-btn{background:#e8f0fe;color:#1a73e8;border-radius:8px}
+body:has(.app-wrapper) .modal-header{background:#f8f9fa}
+@media(max-width:760px){body:has(.app-wrapper) .app-wrapper{gap:16px;padding:16px}body:has(.app-wrapper) .slide{gap:14px}}

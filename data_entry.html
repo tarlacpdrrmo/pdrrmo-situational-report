@@ -7,7 +7,7 @@
     
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     
     <link href="https://cdn.jsdelivr.net/npm/tom-select@2.2.2/dist/css/tom-select.css" rel="stylesheet">
@@ -48,7 +48,7 @@
             --text-main: #0F172A; --text-muted: #5B6678; 
             --accent-blue: #2F6BFF; --accent-green: #0E9467; --accent-orange: #E8590C; --accent-red: #D92D3A; --accent-purple: #7C4DFF; --accent-teal: #0A8FA6; --accent-yellow: #B7791F; 
             --border-subtle: #E1E6EE; --ink: #0B1730; --hot: #FF8A8E; --signal: #FF7A2F; 
-            --font-stack: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+            --font-stack: 'Inter', Arial, sans-serif;
             --shadow-soft: 0 4px 20px rgba(16,24,40,.03);
             --shadow-modal: 0 30px 70px rgba(11,23,48,.4);
             --radius-lg: 20px; --radius-md: 12px; --radius-sm: 8px;
@@ -86,7 +86,23 @@
         .context-panel h3 { margin: 0; color: var(--text-main); font-size: 16px; font-weight: 700; display: flex; align-items: center; gap: 8px;}
         .collapsible-area { overflow: hidden; transition: max-height 0.4s ease, opacity 0.3s ease; max-height: 500px; opacity: 1; margin-top: 20px;}
         .context-panel.locked .collapsible-area { max-height: 0; opacity: 0; margin-top: 0; pointer-events: none;}
-        .context-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; align-items: end; }
+        .context-grid { display: grid; grid-template-columns: repeat(12, minmax(0, 1fr)); gap: 8px 16px; align-items: end; }
+        .context-grid .form-group { min-width: 0; margin-bottom: 8px; }
+        .context-cause, .context-event-id { grid-column: span 6; }
+        .context-sitrep, .context-advisory, .context-datetime { grid-column: span 4; }
+        .context-guidance { grid-column: 1 / -1; display: flex; align-items: flex-start; gap: 10px; margin: 2px 0 4px; padding: 10px 12px; border: 1px solid #D9E5FA; border-radius: 10px; background: #F5F8FF; color: #29466E; }
+        .context-guidance i { margin-top: 2px; color: var(--accent-blue); }
+        .context-guidance strong { display: block; margin-bottom: 2px; color: #193B69; font-size: 12px; }
+        .context-guidance p { margin: 0; font-size: 12px; line-height: 1.45; }
+        @media (max-width: 900px) {
+            .context-cause, .context-event-id { grid-column: span 2; }
+            .context-sitrep, .context-advisory { grid-column: span 1; }
+            .context-datetime { grid-column: span 2; }
+        }
+        @media (max-width: 560px) {
+            .context-grid { grid-template-columns: minmax(0, 1fr); }
+            .context-cause, .context-event-id, .context-sitrep, .context-advisory, .context-datetime { grid-column: span 1; }
+        }
         
         /* WORKSPACE TOOLBAR */
         .workspace-toolbar { display: none; justify-content: space-between; align-items: center; background: var(--bg-card); padding: 15px 25px; border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); margin-bottom: 20px; box-shadow: var(--shadow-soft); flex-shrink: 0; animation: fadeIn 0.3s ease;}
@@ -101,7 +117,9 @@
         .btn-add:hover { background: #1C274C; transform: translateY(-1px); }
 
         /* WORKSPACE HORIZONTAL TABS */
-        .workspace-tabs { display: none; gap: 8px; overflow-x: auto; padding-bottom: 10px; margin-bottom: 15px; scrollbar-width: thin; }
+        .workspace-tabs-container { position: relative; margin-bottom: 15px; }
+        .workspace-tabs-container::after { content: ''; position: absolute; right: 0; top: 0; bottom: 10px; width: 40px; background: linear-gradient(to right, rgba(242,244,248,0), rgba(242,244,248,1)); pointer-events: none; }
+        .workspace-tabs { display: none; gap: 8px; overflow-x: auto; padding-bottom: 10px; scrollbar-width: thin; scroll-behavior: smooth; }
         .workspace-tabs.active { display: flex; animation: fadeIn 0.3s ease; }
         .workspace-tabs::-webkit-scrollbar { height: 6px; }
         .workspace-tabs::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
@@ -113,14 +131,24 @@
         /* DATA TABLES */
         .form-section { display: none; flex-direction: column; animation: fadeIn 0.3s ease-in-out; }
         .form-section.active { display: flex; }
-        .table-side { width: 100%; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); overflow-y: auto; overflow-x: auto; box-shadow: var(--shadow-soft); max-height: 600px;}
+        .table-side { width: 100%; background: var(--bg-card); border-radius: var(--radius-lg); border: 1px solid var(--border-subtle); overflow-y: auto; overflow-x: auto; box-shadow: var(--shadow-soft); max-height: 600px; position: relative;}
         .table-side::-webkit-scrollbar { width: 6px; height: 8px;}
         .table-side::-webkit-scrollbar-thumb { background: #D1D1D6; border-radius: 10px; }
 
-        .data-table { width: 100%; border-collapse: collapse; text-align: left; table-layout: auto; white-space: nowrap; }
-        .data-table th { background: #F8F9FC; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); position: sticky; top: 0; z-index: 2;}
-        .data-table td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #EDF0F5; color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; transition: background 0.2s;}
+        .data-table { width: 100%; border-collapse: separate; border-spacing: 0; text-align: left; table-layout: auto; white-space: nowrap; }
+        .data-table th { background: #F8F9FC; color: var(--text-muted); font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: 0.5px; padding: 14px 20px; border-bottom: 1px solid var(--border-subtle); border-top: none; position: sticky; top: 0; z-index: 2;}
+        .data-table td { padding: 15px 20px; font-size: 13px; border-bottom: 1px solid #EDF0F5; color: var(--text-main); vertical-align: top; word-wrap: break-word; white-space: normal; transition: background 0.2s; background: #fff;}
         .data-table tr:hover td { background-color: #F8F9FC; }
+        
+        /* STICKY FIRST COLUMN */
+        .data-table th:first-child { position: sticky; left: 0; z-index: 3; border-right: 1px solid var(--border-subtle); }
+        .data-table td:first-child { position: sticky; left: 0; z-index: 1; border-right: 1px solid #EDF0F5; font-weight: 700; }
+        
+        /* COMPACT LOCKED PANEL */
+        .context-panel.locked { padding: 15px 25px; display: flex; justify-content: space-between; align-items: center; }
+        .context-panel.locked .context-panel-header { margin: 0; padding: 0; border: none; flex: 1;}
+        .context-panel.locked .form-group { margin: 0; width: auto; }
+        .context-panel.locked #lockCtxBtn { height: 36px; padding: 0 15px; font-size: 12px; }
         
         /* LEDGER TYPOGRAPHY */
         .historical-row td { opacity: 0.7; font-style: italic; }
@@ -259,8 +287,9 @@
 
         @keyframes fadeIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: translateY(0); } }
     </style>
+<link rel="preconnect" href="https://fonts.googleapis.com"><link rel="preconnect" href="https://fonts.gstatic.com" crossorigin><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet"><link rel="stylesheet" href="theme.css?v=20261015a">
 </head>
-<body>
+<body class="inter-ui">
 
     <!-- GLOBAL SAVING ANIMATION OVERLAY -->
     <div class="global-save-overlay" id="globalSaveOverlay">
@@ -276,7 +305,7 @@
         <div class="sidebar-inner">
             <div class="sidebar-brand-container">
                 <img src="logo_pdrrmo.png" alt="PDRRMO Logo" class="sidebar-logo">
-                <h1 class="sidebar-brand">Tarlac PDRRMO</h1>
+                <h1 class="sidebar-brand">Tarlac Provincial Disaster Risk Reduction and Management Office</h1>
             </div>
             <nav class="nav" aria-label="Main">
                 <a href="index.html" class="dashboard-link"><i class="fa-solid fa-chart-pie"></i><span class="link-text">Exec Analytics</span></a>
@@ -312,13 +341,12 @@
                 
                 <div class="collapsible-area">
                     <div class="context-grid">
-                        <div class="form-group"><label>Cause / Incident</label><input type="text" id="ctx-cause" placeholder="e.g., SW Monsoon (Habagat)"></div>
-                        <div class="form-group"><label>SitRep #</label><input type="number" id="ctx-sitrep" placeholder="e.g., 2"></div>
-                        <div class="form-group"><label>Advisory #</label><input type="number" id="ctx-advisory" placeholder="e.g., 5"></div>
-                        <div class="form-group"><label>As of Date & Time</label><input type="datetime-local" id="ctx-datetime"></div>
-                    </div>
-                    <div class="row" style="margin-top: 5px;">
-                        <div class="col form-group" style="flex: 1;"><label>Information Source</label><input type="text" id="ctx-source" value="DOST-PAGASA" required></div>
+                        <div class="form-group context-cause"><label>Cause / Incident</label><input type="text" id="ctx-cause" placeholder="e.g., SW Monsoon (Habagat)"></div>
+                        <div class="form-group context-event-id"><label>Flood event ID</label><input type="text" id="ctx-flood-event" placeholder="e.g., habagat-2026" aria-describedby="flood-event-id-note"></div>
+                        <div class="form-group context-sitrep"><label>SITREP #</label><input type="number" id="ctx-sitrep" placeholder="e.g., 2"></div>
+                        <div class="form-group context-advisory"><label>Advisory #</label><input type="number" id="ctx-advisory" placeholder="e.g., 5"></div>
+                        <div class="form-group context-datetime"><label>As of Date & Time</label><input type="datetime-local" id="ctx-datetime"></div>
+                        <aside class="context-guidance" id="flood-event-id-note" role="note" aria-label="Flood event ID reminder"><i class="fa-solid fa-circle-info" aria-hidden="true"></i><div><strong>Flood event ID reminder</strong><p>Reuse one ID for every SITREP in the same weather disturbance. Replace the saved ID before locking a new disturbance. SITREP # is separate. If blank, the form suggests an ID from the cause and year; it does not detect new events.</p></div></aside>
                     </div>
                 </div>
                 
@@ -326,6 +354,8 @@
                     <button class="lock-btn" id="lockCtxBtn" style="width: 100%;"><i class="fa-solid fa-unlock"></i> Lock Context & Start Encoding</button>
                 </div>
             </div>
+
+            
 
             <div class="workspace-toolbar" id="workspaceToolbar">
                 <div class="toolbar-left">
@@ -339,21 +369,23 @@
             </div>
 
             <!-- ATLAS FIX: Removed Residential Damages Tab -->
-            <div class="workspace-tabs" id="workspaceTabs">
-                <button class="tab-btn active" onclick="openTab('actions')" title="Actions Taken"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
-                <button class="tab-btn" onclick="openTab('flood')" title="Flooded Areas"><i class="fa-solid fa-water"></i> Flooded Areas</button>
-                <button class="tab-btn" onclick="openTab('evac')" title="Affected Pop & ECs"><i class="fa-solid fa-users-rays"></i> Affected Pop & ECs</button>
-                <button class="tab-btn" onclick="openTab('preemptive')" title="Pre-Emptive Evacs"><i class="fa-solid fa-person-walking-arrow-right"></i> Pre-Emptive</button>
-                <button class="tab-btn" onclick="openTab('complement')" title="OpCen Complement"><i class="fa-solid fa-clipboard-user"></i> OpCen Complement</button>
-                <button class="tab-btn" onclick="openTab('deployed')" title="Deployed Assets"><i class="fa-solid fa-truck-fast"></i> Deployed Assets</button>
-                <button class="tab-btn" onclick="openTab('lifelines')" title="Status of Lifelines"><i class="fa-solid fa-bolt"></i> Lifelines</button>
-                <button class="tab-btn" onclick="openTab('roads')" title="Roads & Bridges"><i class="fa-solid fa-road-barrier"></i> Roads & Bridges</button>
-                <button class="tab-btn" onclick="openTab('infrastructure')" title="Damaged Infra"><i class="fa-solid fa-building-shield"></i> Damaged Infra</button>
-                <button class="tab-btn" onclick="openTab('casualties')" title="Casualties"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
-                <button class="tab-btn" onclick="openTab('suspensions')" title="Suspensions"><i class="fa-solid fa-school"></i> Suspensions</button>
-                <button class="tab-btn" onclick="openTab('agri')" title="Agriculture Damages"><i class="fa-solid fa-wheat-awn"></i> Agri Damages</button>
-                <button class="tab-btn" onclick="openTab('assistance')" title="Assistance"><i class="fa-solid fa-hand-holding-hand"></i> Assistance</button>
-                <button class="tab-btn" onclick="openTab('incidents')" title="Related Incidents"><i class="fa-solid fa-triangle-exclamation"></i> Incidents</button>
+            <div class="workspace-tabs-container">
+                <div class="workspace-tabs" id="workspaceTabs">
+                    <button class="tab-btn active" onclick="openTab('actions')" title="Actions Taken"><i class="fa-solid fa-clipboard-list"></i> Actions Taken</button>
+                    <button class="tab-btn" onclick="openTab('flood')" title="Flooded Areas"><i class="fa-solid fa-water"></i> Flooded Areas</button>
+                    <button class="tab-btn" onclick="openTab('evac')" title="Affected Pop & ECs"><i class="fa-solid fa-users-rays"></i> Affected Pop & ECs</button>
+                    <button class="tab-btn" onclick="openTab('preemptive')" title="Pre-Emptive Evacs"><i class="fa-solid fa-person-walking-arrow-right"></i> Pre-Emptive</button>
+                    <button class="tab-btn" onclick="openTab('complement')" title="OpCen Complement"><i class="fa-solid fa-clipboard-user"></i> OpCen Complement</button>
+                    <button class="tab-btn" onclick="openTab('deployed')" title="Deployed Assets"><i class="fa-solid fa-truck-fast"></i> Deployed Assets</button>
+                    <button class="tab-btn" onclick="openTab('lifelines')" title="Status of Lifelines"><i class="fa-solid fa-bolt"></i> Lifelines</button>
+                    <button class="tab-btn" onclick="openTab('roads')" title="Roads & Bridges"><i class="fa-solid fa-road-barrier"></i> Roads & Bridges</button>
+                    <button class="tab-btn" onclick="openTab('infrastructure')" title="Damaged Infra"><i class="fa-solid fa-building-shield"></i> Damaged Infra</button>
+                    <button class="tab-btn" onclick="openTab('casualties')" title="Casualties"><i class="fa-solid fa-truck-medical"></i> Casualties</button>
+                    <button class="tab-btn" onclick="openTab('suspensions')" title="Suspensions"><i class="fa-solid fa-school"></i> Suspensions</button>
+                    <button class="tab-btn" onclick="openTab('agri')" title="Agriculture Damages"><i class="fa-solid fa-wheat-awn"></i> Agri Damages</button>
+                    <button class="tab-btn" onclick="openTab('assistance')" title="Assistance"><i class="fa-solid fa-hand-holding-hand"></i> Assistance</button>
+                    <button class="tab-btn" onclick="openTab('incidents')" title="Related Incidents"><i class="fa-solid fa-triangle-exclamation"></i> Incidents</button>
+                </div>
             </div>
             
             <!-- FULL WIDTH DATA TABLES (ATLAS FIX: Removed Residential Table) -->
@@ -543,7 +575,9 @@
             <form id="form-deployed">
                 <div class="row"><div class="col form-group"><label>Deployed Municipality</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>Specific Area / Barangay</label><input type="text" class="f-brgy" required></div></div>
                 <div class="row"><div class="col form-group"><label>Responding Agency</label><select class="f-agency" required><option value=""></option></select></div><div class="col form-group"><label>Asset Type</label><select class="f-asset" multiple required><option value=""></option></select></div></div>
-                <div class="row"><div class="col form-group"><label>Asset Qty</label><input type="number" class="f-qty" required></div><div class="col form-group"><label>Personnel (Pax)</label><input type="number" class="f-personnel" required></div><div class="col form-group"><label>Deployment Status</label><select class="f-status" required><option value=""></option><option value="Deployed">Active / Deployed</option><option value="Standby">On Standby</option><option value="Demobilized">Demobilized (Returned)</option></select></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
+                <div class="row"><div class="col form-group"><label>Asset Qty</label><input type="number" class="f-qty" required></div><div class="col form-group"><label>Personnel (Pax)</label><input type="number" class="f-personnel" required></div><div class="col form-group"><label>Deployment Status</label><select class="f-status" required><option value=""></option><option value="Deployed">Active / Deployed</option><option value="Standby">On Standby</option><option value="Demobilized">Demobilized (Returned)</option></select></div></div>
+<div class="row"><div class="col form-group"><label>Actual Deployed Date & Time</label><input type="datetime-local" class="f-deployed-at"></div><div class="col form-group"><label>Actual Demobilized Date & Time (Optional)</label><input type="datetime-local" class="f-demobilized-at"></div><div class="col form-group"><label>SITREP Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
+                <small style="display:block;margin:-8px 0 14px;color:var(--text-muted);">Actual operational times are separate from the SITREP reporting timestamp. A redeployment after demobilization starts a new run.</small>
                 <div class="form-group"><label>Remarks / Action Taken</label><input type="text" class="f-remarks" required></div>
                 <div class="row gps-row"><div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input"></div><div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input"></div><div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> GPS</button></div></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
@@ -580,7 +614,8 @@
             <form id="form-infrastructure">
                 <div class="row"><div class="col form-group"><label>Affected Municipalities</label><select class="f-muni-multi" multiple required><option value=""></option></select></div><div class="col form-group"><label>Specific Infra / Asset Name</label><input type="text" class="f-area" required></div></div>
                 <div class="row"><div class="col form-group"><label>Infrastructure Category</label><select class="f-cat" required><option value=""></option><option value="Road">Road</option><option value="Bridge">Bridge</option><option value="Slope Protection">Slope Protection</option><option value="Dike / Barricade">Dike / Barricade</option><option value="Dam">Dam</option><option value="Government Building">Government Building</option><option value="Flood Control">Flood Control</option><option value="Other Public Infra">Other Public Infra</option></select></div><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
-                <div class="row"><div class="col form-group"><label>Damage Cost (PHP) <span style="text-transform: none; font-weight: normal; color: #9AA4B5;">(Leave blank for early reports)</span></label><input type="number" step="0.01" class="f-cost"></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" required></div></div>
+                <div class="row"><div class="col form-group"><label>Assessment status</label><select class="f-assessment-status" required><option value="PENDING">Awaiting technical assessment</option><option value="ASSESSED">Assessment reported</option></select></div><div class="col form-group"><label>Damage extent</label><select class="f-damage-extent" required><option value="UNSPECIFIED">Not stated in report</option><option value="PARTIAL">Partial damage</option><option value="TOTAL">Total damage</option><option value="PARTIAL_AND_TOTAL">Partial and total damage</option></select></div></div>
+                <div class="row"><div class="col form-group"><label>Estimated Damage Cost (PHP) <span style="text-transform: none; font-weight: normal; color: #9AA4B5;">(Leave blank while assessment is pending)</span></label><input type="number" step="0.01" class="f-cost"></div><div class="col form-group"><label>Information Source</label><input type="text" class="f-infra-source" required></div></div>
                 <div class="form-group"><label class="flex-label">Actions Taken / Narrative <span style="text-transform: none; font-weight: normal; color: #9AA4B5;">(For early SitReps)</span> <button type="button" class="magic-btn" onclick="applyMagicClean(this)"><i class="fa-solid fa-wand-magic-sparkles"></i> Auto-Format</button></label><textarea class="f-action" rows="3"></textarea></div>
                 <div class="row gps-row"><div class="col form-group"><label>Latitude (Optional)</label><input type="text" class="lat-input"></div><div class="col form-group"><label>Longitude (Optional)</label><input type="text" class="lng-input"></div><div class="col form-group"><button type="button" class="gps-btn"><i class="fa-solid fa-location-crosshairs"></i> GPS</button></div></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
@@ -627,7 +662,8 @@
         <div class="slide-modal-card" onclick="event.stopPropagation()"><div class="slide-modal-header"><h3><i class="fa-solid fa-hand-holding-hand" style="color: var(--accent-blue);"></i> Cost of Assistance & Relief</h3><button class="modal-close" onclick="closeFormModal('assistance')"><i class="fa-solid fa-xmark"></i></button></div><div class="slide-modal-body">
             <form id="form-assistance">
                 <div class="row"><div class="col form-group"><label>Municipality / Province</label><select class="f-muni" required><option value=""></option></select></div><div class="col form-group"><label>Source of Assistance</label><select class="f-source" required><option value=""></option></select></div></div>
-                <div class="row"><div class="col form-group"><label>Relief Item Provided</label><select class="f-relief" required><option value=""></option></select></div><div class="col form-group"><label>Quantity / Financial Assistance</label><input type="number" step="0.01" class="f-qty" required></div></div>
+                <div class="row"><div class="col form-group"><label>Assistance Type</label><select class="f-assistance-type" required><option value="">Select type</option><option value="FINANCIAL">Financial assistance</option><option value="GOODS">Relief goods</option></select></div><div class="col form-group"><label>Relief Item or Assistance Description</label><select class="f-relief" required><option value=""></option></select></div></div>
+                <div class="row"><div class="col form-group"><label class="assistance-amount-label">Quantity (units)</label><input type="number" step="0.01" class="f-qty" required></div></div>
                 <div class="row"><div class="col form-group"><label>Reported Date & Time</label><input type="datetime-local" class="f-report-time" required></div></div>
                 <div class="form-group"><label>Remarks / Details</label><input type="text" class="f-remarks" required></div>
                 <button type="submit" class="submit-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Save Report</button><div class="error-alert msg-error">Lock Context first!</div>
@@ -659,7 +695,7 @@
     </div>
 <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-app.js";
-    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, query, serverTimestamp, writeBatch } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
+    import { getFirestore, collection, addDoc, updateDoc, doc, onSnapshot, setDoc, serverTimestamp, writeBatch, arrayUnion } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-firestore.js";
     import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.1.0/firebase-auth.js";
     
     import { GoogleGenerativeAI, SchemaType } from "@google/generative-ai";
@@ -682,17 +718,24 @@
         complement: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { agency: { type: SchemaType.STRING }, personnel: { type: SchemaType.STRING }, assetDetails: { type: SchemaType.STRING }, status: { type: SchemaType.STRING } } } },
         deployed: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, barangay: { type: SchemaType.STRING }, agency: { type: SchemaType.STRING }, assetType: { type: SchemaType.STRING }, quantity: { type: SchemaType.STRING }, personnel: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         lifelines: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
-        infrastructure: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } },
+        infrastructure: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, assessmentStatus: { type: SchemaType.STRING }, damageExtent: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } },
         casualties: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, classification: { type: SchemaType.STRING }, count: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } },
         roads: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, specificArea: { type: SchemaType.STRING }, category: { type: SchemaType.STRING }, status: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         suspensions: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { coverage: { type: SchemaType.STRING }, type: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         agri: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { lguCount: { type: SchemaType.STRING }, commodity: { type: SchemaType.STRING }, farmersAffected: { type: SchemaType.STRING }, partialHa: { type: SchemaType.STRING }, totalHa: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING } } } },
-        assistance: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, source: { type: SchemaType.STRING }, reliefItem: { type: SchemaType.STRING }, quantity: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
+        assistance: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, source: { type: SchemaType.STRING }, assistanceType: { type: SchemaType.STRING }, reliefItem: { type: SchemaType.STRING }, quantity: { type: SchemaType.STRING }, cost: { type: SchemaType.STRING }, remarks: { type: SchemaType.STRING } } } },
         incidents: { type: SchemaType.ARRAY, items: { type: SchemaType.OBJECT, properties: { municipality: { type: SchemaType.STRING }, particulars: { type: SchemaType.STRING }, actionsTaken: { type: SchemaType.STRING } } } }
     };
 
     onAuthStateChanged(auth, (user) => { if (user) { document.body.style.visibility = "visible"; } else { window.location.href = "login.html?redirect=data_entry.html"; } });
-    window.logoutUser = function() { signOut(auth).then(() => { window.location.href = "index.html"; }); };
+    window.logoutUser = function() {
+        signOut(auth).catch((error) => {
+            console.error('Could not lock the Command Workspace session:', error);
+            alert('Could not lock the session. Please try again.');
+        });
+    };
+
+
 
     document.addEventListener('DOMContentLoaded', () => {
         const toggleBtn = document.getElementById('toggleSidebarBtn');
@@ -710,8 +753,11 @@
     const validMunicipalities = ["Province of Tarlac", "Anao", "Bamban", "Camiling", "Capas", "Concepcion", "Gerona", "La Paz", "Mayantoc", "Moncada", "Paniqui", "Pura", "Ramos", "San Clemente", "San Jose", "San Manuel", "Santa Ignacia", "Tarlac City", "Victoria"];
     
     document.querySelectorAll('.f-muni, .f-action-lgu').forEach(el => { validMunicipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
-    const coverages = ["Province-Wide (Tarlac)", "Anao (Municipal-Wide)", "Bamban (Municipal-Wide)", "Camiling (Municipal-Wide)", "Capas (Municipal-Wide)", "Concepcion (Municipal-Wide)", "Gerona (Municipal-Wide)", "La Paz (Municipal-Wide)", "Mayantoc (Municipal-Wide)", "Moncada (Municipal-Wide)", "Paniqui (Municipal-Wide)", "Pura (Municipal-Wide)", "Ramos (Municipal-Wide)", "San Clemente (Municipal-Wide)", "San Jose (Municipal-Wide)", "San Manuel (Municipal-Wide)", "Santa Ignacia (Municipal-Wide)", "Tarlac City (City-Wide)", "Victoria (Municipal-Wide)"];
-    document.querySelectorAll('.f-muni-multi, .f-coverage').forEach(el => { coverages.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: ',', plugins: ['remove_button'], ...tsClearOptions }); });
+    const coverageAreas = ["Province of Tarlac (Province-Wide)", ...validMunicipalities.slice(1)];
+    const cleanAreaName = value => /province.?wide\s*\(tarlac\)|province of tarlac/i.test(String(value || '')) ? 'Province of Tarlac' : String(value || '').trim().replace(/\s*\((?:municipal|city)-wide\)/gi, '').trim();
+    const cleanCoverageName = value => /province.?wide|province of tarlac/i.test(String(value || '')) ? 'Province of Tarlac (Province-Wide)' : cleanAreaName(value);
+    document.querySelectorAll('.f-muni-multi').forEach(el => { validMunicipalities.forEach(m => el.add(new Option(m, m))); new TomSelect(el, { create: false, delimiter: ',', plugins: ['remove_button'], ...tsClearOptions }); });
+    document.querySelectorAll('.f-coverage').forEach(el => { coverageAreas.forEach(area => el.add(new Option(area, area))); new TomSelect(el, { create: false, delimiter: ',', plugins: ['remove_button'], ...tsClearOptions }); });
     
     document.querySelectorAll('.f-status, .f-cat, .f-road-cat, .f-road-status, .f-class, .f-type').forEach(el => { new TomSelect(el, { create: false, delimiter: '|', ...tsClearOptions }); });
     
@@ -833,7 +879,7 @@ CRITICAL RULES:
 3. Remove commas from numbers (e.g., "1,517" becomes "1517").
 4. Ignore 'TOTAL' rows at the bottom.
 5. If a schema field does not visually exist in the image, leave it as an empty string "".
-6. COLUMN MAPPING: Intelligently map visual column headers to JSON keys. For flooded areas: Map "Brgy/ Area Flooded" to "barangay" and "Depth of Flood Water" to "waterDepth_ft". Critically, extract the "Date/Time Reported/Monitored" into "timeInitiallyFlooded", and extract the embedded time inside "Status of as this time" into "timeStatusObserved".`;
+6. COLUMN MAPPING: Intelligently map visual column headers to JSON keys. For flooded areas: Map "Brgy/ Area Flooded" to "barangay" and "Depth of Flood Water" to "waterDepth_ft". Critically, extract the "Date/Time Reported/Monitored" into "timeInitiallyFlooded", and extract the embedded time inside "Status of as this time" into "timeStatusObserved". For infrastructure, use assessmentStatus="PENDING" only when the report says assessment is still ongoing or pending; otherwise use "ASSESSED" when an assessment result is reported. Map reported damage as damageExtent="PARTIAL", "TOTAL", or "PARTIAL_AND_TOTAL"; use "UNSPECIFIED" when the report does not state the extent. Do not infer damage extent or assessment completion from cost alone.`;
             
             const customFilterText = document.getElementById('scan-custom-prompt').value.trim();
             let finalPrompt = basePrompt;
@@ -864,6 +910,9 @@ CRITICAL RULES:
     const cleanMuni = (val) => { if (!val) return ''; return String(val).replace(/^\d+\.\s*/, '').trim(); };
 
     function renderStagingTable(module, dataList) {
+        const escapeAttribute = value => String(value ?? '').replace(/[&<>"']/g, char => ({
+            '&': '&amp;', '<': '&lt;', '>': '&gt;', '"': '&quot;', "'": '&#39;'
+        })[char]);
         const thead = document.getElementById('stagingThead'); const tbody = document.getElementById('stagingTbody');
         document.getElementById('staging-count-badge').innerText = `${dataList.length} Rows Extracted`;
         thead.innerHTML = ''; tbody.innerHTML = '';
@@ -872,7 +921,7 @@ CRITICAL RULES:
         let headers = [];
         if (module === 'flood') headers = ['Municipality', 'Barangay', 'Depth (ft)', 'Status', 'Initially Flooded', 'Status Time', 'Action'];
         else if (module === 'evac') headers = ['Municipality', 'Affected Brgys', 'No. of Evac Centers', 'Status', 'Aff (Fam)', 'Aff (Pax)', 'Served (Fam)', 'Served (Pax)', 'Inside ECs CUM (Fam)', 'Inside ECs NOW (Fam)', 'Inside ECs CUM (Pax)', 'Inside ECs NOW (Pax)', 'Action'];
-        else if (module === 'infrastructure') headers = ['Municipality', 'Specific Area', 'Category', 'Cost (PHP)', 'Actions Taken / Remarks', 'Action'];
+        else if (module === 'infrastructure') headers = ['Municipality', 'Specific Area', 'Category', 'Assessment Status', 'Damage Extent', 'Cost (PHP)', 'Actions Taken / Remarks', 'Action'];
         else if (module === 'casualties') headers = ['Municipality', 'Classification', 'Count', 'Remarks', 'Actions Taken', 'Action'];
         else if (module === 'roads') headers = ['Municipality', 'Road / Bridge Name', 'Category', 'Status', 'Remarks', 'Action'];
         else if (module === 'actions') headers = ['Agency', 'Category', 'Description', 'Action'];
@@ -882,7 +931,7 @@ CRITICAL RULES:
         else if (module === 'lifelines') headers = ['Municipality', 'Specific Area', 'Category', 'Status', 'Remarks', 'Action'];
         else if (module === 'suspensions') headers = ['Coverage Area', 'Type', 'Remarks', 'Action'];
         else if (module === 'agri') headers = ['LGU Count', 'Commodity', 'Farmers', 'Partial (ha)', 'Total (ha)', 'Cost (PHP)', 'Action'];
-        else if (module === 'assistance') headers = ['Municipality', 'Source', 'Item', 'Qty', 'Cost (PHP)', 'Remarks', 'Action'];
+        else if (module === 'assistance') headers = ['Municipality', 'Source', 'Type', 'Description', 'Quantity', 'Amount (PHP)', 'Remarks', 'Action'];
         else if (module === 'incidents') headers = ['Municipality', 'Particulars', 'Actions Taken', 'Action'];
         // ATLAS FIX: Removed residential staging headers
 
@@ -893,12 +942,12 @@ CRITICAL RULES:
                 let val = row[f] !== undefined ? row[f] : '';
                 if (t === 'number') val = uiNum(val); 
                 if (f === 'municipality') val = cleanMuni(val);
-                return `<input class="staging-input" type="${t}" ${step?`step="${step}"`:''} value="${val}" onchange="updateStagedRow(${idx}, '${f}', this.type==='number'?parseFloat(this.value):this.value)">`;
+                return `<input class="staging-input" type="${t}" ${step?`step="${step}"`:''} value="${escapeAttribute(val)}" onchange="updateStagedRow(${idx}, '${f}', this.type==='number'?parseFloat(this.value):this.value)">`;
             };
             let rowHtml = '';
             if (module === 'flood') rowHtml = `<td>${gi('municipality')}</td><td>${gi('barangay')}</td><td>${gi('waterDepth_ft','number','0.1')}</td><td>${gi('status')}</td><td>${gi('timeInitiallyFlooded')}</td><td>${gi('timeStatusObserved')}</td>`;
             else if (module === 'evac') rowHtml = `<td>${gi('municipality')}</td><td>${gi('affectedBarangays','number')}</td><td>${gi('evacCenterCount','number')}</td><td>${gi('status')}</td><td>${gi('affectedFamilies','number')}</td><td>${gi('affectedIndividuals','number')}</td><td>${gi('servedFamilies','number')}</td><td>${gi('servedIndividuals','number')}</td><td>${gi('insideEcFamiliesCum','number')}</td><td>${gi('insideEcFamiliesNow','number')}</td><td>${gi('insideEcIndividualsCum','number')}</td><td>${gi('insideEcIndividualsNow','number')}</td>`;
-            else if (module === 'infrastructure') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('cost','number')}</td><td>${gi('actionsTaken')}</td>`;
+            else if (module === 'infrastructure') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('assessmentStatus')}</td><td>${gi('damageExtent')}</td><td>${gi('cost','number')}</td><td>${gi('actionsTaken')}</td>`;
             else if (module === 'casualties') rowHtml = `<td>${gi('municipality')}</td><td>${gi('classification')}</td><td>${gi('count','number')}</td><td>${gi('remarks')}</td><td>${gi('actionsTaken')}</td>`;
             else if (module === 'roads') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('status')}</td><td>${gi('remarks')}</td>`;
             else if (module === 'actions') rowHtml = `<td>${gi('agency')}</td><td>${gi('category')}</td><td>${gi('description')}</td>`;
@@ -908,7 +957,7 @@ CRITICAL RULES:
             else if (module === 'lifelines') rowHtml = `<td>${gi('municipality')}</td><td>${gi('specificArea')}</td><td>${gi('category')}</td><td>${gi('status')}</td><td>${gi('remarks')}</td>`;
             else if (module === 'suspensions') rowHtml = `<td>${gi('coverage')}</td><td>${gi('type')}</td><td>${gi('remarks')}</td>`;
             else if (module === 'agri') rowHtml = `<td>${gi('lguCount','number')}</td><td>${gi('commodity')}</td><td>${gi('farmersAffected','number')}</td><td>${gi('partialHa','number','0.01')}</td><td>${gi('totalHa','number','0.01')}</td><td>${gi('cost','number')}</td>`;
-            else if (module === 'assistance') rowHtml = `<td>${gi('municipality')}</td><td>${gi('source')}</td><td>${gi('reliefItem')}</td><td>${gi('quantity','number')}</td><td>${gi('cost','number')}</td><td>${gi('remarks')}</td>`;
+            else if (module === 'assistance') { const typeValue = row.assistanceType || ''; rowHtml = `<td>${gi('municipality')}</td><td>${gi('source')}</td><td><select class="staging-input" onchange="updateStagedRow(${idx}, 'assistanceType', this.value)"><option value="">Select type</option><option value="FINANCIAL" ${typeValue==='FINANCIAL'?'selected':''}>Financial assistance</option><option value="GOODS" ${typeValue==='GOODS'?'selected':''}>Relief goods</option></select></td><td>${gi('reliefItem')}</td><td>${gi('quantity','number')}</td><td>${gi('cost','number')}</td><td>${gi('remarks')}</td>`; }
             else if (module === 'incidents') rowHtml = `<td>${gi('municipality')}</td><td>${gi('particulars')}</td><td>${gi('actionsTaken')}</td>`;
             // ATLAS FIX: Removed residential staging row html definition
             tbody.innerHTML += `<tr>${rowHtml}<td><button class="btn-row-delete" onclick="deleteStagedRow(${idx})"><i class="fa-solid fa-trash"></i></button></td></tr>`;
@@ -921,6 +970,10 @@ CRITICAL RULES:
     window.commitStagedRecords = async function() {
         if (!isLocked) { alert("Context is not locked. Please lock context first."); return; }
         if (stagedBatchData.length === 0) { alert("No records in queue to commit."); return; }
+        if (stagedTargetModule === 'assistance' && stagedBatchData.some(row => !['FINANCIAL', 'GOODS'].includes(row.assistanceType))) {
+            alert("Choose Financial assistance or Relief goods for every assistance row before saving.");
+            return;
+        }
 
         const saveOverlay = document.getElementById('globalSaveOverlay'); 
         const saveSpinner = document.getElementById('saveSpinner'); 
@@ -949,6 +1002,8 @@ CRITICAL RULES:
                 });
                 
                 let finalDoc = { ...sanitizedRow, ...contextPayload, dateReported: targetDate };
+                if (finalDoc.municipality) finalDoc.municipality = String(finalDoc.municipality).split(',').map(cleanAreaName).join(', ');
+                if (finalDoc.coverage) finalDoc.coverage = String(finalDoc.coverage).split(',').map(cleanCoverageName).join(', ');
                 
                 if (stagedTargetModule === 'flood') {
                     finalDoc.floodStartedAt = row.timeInitiallyFlooded || targetDate;
@@ -958,7 +1013,13 @@ CRITICAL RULES:
                 }
                 
                 if (stagedTargetModule === 'roads') { finalDoc.recordType = 'Passability'; finalDoc.cost = 0; finalDoc.source = 'LDRRMO'; }
-                if (stagedTargetModule === 'infrastructure') { finalDoc.recordType = 'Damage'; finalDoc.status = 'Assessed for Damage'; finalDoc.source = finalDoc.source || 'LDRRMO'; }
+                if (stagedTargetModule === 'infrastructure') { finalDoc.recordType = 'Damage'; const extractedAssessment = String(finalDoc.assessmentStatus || '').toUpperCase(); finalDoc.assessmentStatus = extractedAssessment === 'ASSESSED' ? 'ASSESSED' : 'PENDING'; finalDoc.damageExtent = finalDoc.damageExtent || 'UNSPECIFIED'; finalDoc.status = finalDoc.assessmentStatus === 'ASSESSED' ? 'Assessment Reported' : 'Awaiting Technical Assessment'; finalDoc.cost = finalDoc.assessmentStatus === 'ASSESSED' ? (parseFloat(finalDoc.cost) || 0) : 0; finalDoc.source = finalDoc.source || 'LDRRMO'; }
+                if (stagedTargetModule === 'assistance') {
+                    const amount = dbNum(row.cost || row.quantity);
+                    finalDoc.assistanceType = row.assistanceType;
+                    finalDoc.quantity = row.assistanceType === 'GOODS' ? dbNum(row.quantity) : 0;
+                    finalDoc.cost = row.assistanceType === 'FINANCIAL' ? amount : 0;
+                }
                 
                 batch.set(docRef, finalDoc);
             });
@@ -1008,13 +1069,23 @@ CRITICAL RULES:
     // CONTEXT LOCKING
     // ==========================================
     const lockBtn = document.getElementById('lockCtxBtn');
-    const ctxInputs = ['ctx-cause', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime', 'ctx-source'];
+    const ctxInputs = ['ctx-cause', 'ctx-flood-event', 'ctx-sitrep', 'ctx-advisory', 'ctx-datetime'];
     let isLocked = false; let activeSitrepNo = null; 
+
+    function defaultFloodEventId() {
+        const cause = document.getElementById('ctx-cause').value;
+        const year = (document.getElementById('ctx-datetime').value || new Date().toISOString()).slice(0, 4);
+        return `${floodEventSlug(cause).slice(0, 36) || 'flood-event'}-${year}`;
+    }
 
     // ATLAS FIX: Removed residential dbData empty array initialization
     const dbData = { actions: [], flood: [], evac: [], preemptive: [], complement: [], deployed: [], lifelines: [], roads: [], infrastructure: [], casualties: [], suspensions: [], agri: [], assistance: [], incidents: [] };
     
     ctxInputs.forEach(id => { const el = document.getElementById(id); const savedVal = localStorage.getItem(id); if(savedVal) { el.value = savedVal; if(el._flatpickr) el._flatpickr.setDate(savedVal); } });
+    if (!document.getElementById('ctx-flood-event').value.trim() && document.getElementById('ctx-cause').value.trim()) {
+        document.getElementById('ctx-flood-event').value = defaultFloodEventId();
+        localStorage.setItem('ctx-flood-event', document.getElementById('ctx-flood-event').value);
+    }
 
     if(localStorage.getItem('sitrepContextLocked') === 'true') {
         ctxInputs.forEach(id => { const el = document.getElementById(id); el.disabled = true; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true; });
@@ -1030,6 +1101,8 @@ CRITICAL RULES:
         const panel = document.getElementById('mainContextPanel'); const statusIndicator = document.getElementById('context-status-indicator'); const toolbar = document.getElementById('workspaceToolbar'); const tabs = document.getElementById('workspaceTabs');
         if (!isLocked) {
             if(!document.getElementById('ctx-cause').value || !document.getElementById('ctx-sitrep').value) { alert("Please fill out Incident Cause and SitRep # before locking."); return; }
+            const floodEventInput = document.getElementById('ctx-flood-event');
+            if (!floodEventInput.value.trim()) floodEventInput.value = defaultFloodEventId();
             ctxInputs.forEach(id => { const el = document.getElementById(id); localStorage.setItem(id, el.value); el.disabled = true; if(el._flatpickr && el._flatpickr.altInput) el._flatpickr.altInput.disabled = true; });
             localStorage.setItem('sitrepContextLocked', 'true'); lockBtn.innerHTML = '<i class="fa-solid fa-lock"></i> Context Locked - Click to Edit'; lockBtn.classList.add('locked'); panel.classList.add('locked'); toolbar.classList.add('active'); tabs.classList.add('active');
             isLocked = true; activeSitrepNo = parseInt(document.getElementById('ctx-sitrep').value); let cause = document.getElementById('ctx-cause').value;
@@ -1043,7 +1116,44 @@ CRITICAL RULES:
         }
     });
 
-    function getContextPayload() { return { incidentCause: document.getElementById('ctx-cause').value, sitrepNo: parseInt(document.getElementById('ctx-sitrep').value), advisoryNo: parseInt(document.getElementById('ctx-advisory').value) || 0, asOfDate: document.getElementById('ctx-datetime').value, infoSource: document.getElementById('ctx-source').value, timeMonitored: serverTimestamp() }; }
+    function getContextPayload() { return { incidentCause: document.getElementById('ctx-cause').value, floodEventId: document.getElementById('ctx-flood-event').value.trim(), sitrepNo: parseInt(document.getElementById('ctx-sitrep').value), advisoryNo: parseInt(document.getElementById('ctx-advisory').value) || 0, asOfDate: document.getElementById('ctx-datetime').value, timeMonitored: serverTimestamp() }; }
+
+    function floodEventTime(value) {
+        if (!value) return '';
+        const normalized = /^\d{4}-\d\d-\d\dT\d\d:\d\d$/.test(value) ? `${value}:00+08:00` : value;
+        const date = new Date(normalized);
+        return Number.isFinite(date.getTime()) ? date.toISOString() : '';
+    }
+    function floodEventSlug(value) {
+        return String(value || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '').slice(0, 80);
+    }
+    function appendFloodTimeline(batch, eventId, eventName, coreData, payload, recordId) {
+        const normalizeArea = (value) => String(value || '').replace(/\bportions?\s+of\b/gi, ' ').replace(/\b(portion|portions|purok|sitio|brgy\.?|barangay)\b/gi, ' ').replace(/[^a-z0-9]+/gi, ' ').trim().toLowerCase();
+        const municipality = normalizeArea(coreData.municipality);
+        const barangayBoundaryName = String(coreData.barangay || '').replace(/\bportions?\s+of\b/gi, ' ').replace(/\b(portion|portions|purok|sitio|brgy\.?|barangay)\b/gi, ' ').replace(/[^a-z0-9 -]/gi, ' ').replace(/\s+/g, ' ').trim();
+        const areaKey = `${municipality}:${normalizeArea(barangayBoundaryName)}`;
+        const initialAt = floodEventTime(coreData.floodStartedAt);
+        const changedAt = floodEventTime(coreData.statusChangedAt) || initialAt;
+        const status = ['Flooded', 'Receding', 'Subsided'].includes(coreData.status) ? coreData.status : 'Review';
+        const observations = [];
+        if (initialAt) observations.push({ at: initialAt, status: 'Flooded', eventType: 'initial-observation' });
+        if (changedAt && (!observations.length || status !== 'Flooded' || changedAt !== initialAt)) observations.push({ at: changedAt, status, eventType: 'status-observation' });
+        const eventDoc = (observation) => ({
+            eventId, eventName, areaKey, municipality: coreData.municipality, locationRaw: coreData.barangay,
+            barangayBoundaryName, boundaryScope: /\b(portion|portions|purok|sitio)\b/i.test(coreData.barangay) ? 'partial-area-represented-by-barangay' : 'barangay',
+            at: observation.at, status: observation.status, eventType: observation.eventType, recordId,
+            sitrepNo: payload.sitrepNo,
+            depthRaw: coreData.waterDepth_ft === '' ? '' : `${coreData.waterDepth_ft} ft`, reviewFlags: []
+        });
+        observations.forEach((observation) => {
+            const event = eventDoc(observation);
+            const eventDocId = `${floodEventSlug(eventId)}__${floodEventSlug(areaKey)}__${observation.at.replace(/[^0-9]/g, '').slice(0, 14)}__${observation.status.toLowerCase()}`;
+            batch.set(doc(db, 'flood_emergency_events', eventDocId), event, { merge: true });
+        });
+        if (observations.length) batch.set(doc(db, 'flood_event_registry', floodEventSlug(eventId)), {
+            eventId, eventName: eventName || eventId, lastEventAt: observations[observations.length - 1].at, updatedAt: serverTimestamp()
+        }, { merge: true });
+    }
 
     let filterMuni = "ALL"; let filterKeyword = "";
     document.getElementById('global-muni-filter').addEventListener('change', (e) => { filterMuni = e.target.value; queueRender(); });
@@ -1058,17 +1168,18 @@ CRITICAL RULES:
     // ==========================================
     // MODAL FORM SETUP & EDIT BINDING
     // ==========================================
-    window.currentEditState = { id: null, originalSitrep: null, section: null };
+    window.currentEditState = { id: null, originalSitrep: null, section: null, record: null };
     
     window.openActiveFormModal = function() {
         if (!isLocked) { alert("Please lock context before adding records."); return; }
         document.getElementById(`modal-${activeTabId}`).classList.add('active');
+        if (activeTabId === 'deployed') syncDeploymentTimeRequirements();
     };
 
     window.closeFormModal = function(collectionAlias, event) {
         if(event && event.target.id !== `modal-${collectionAlias}`) return; 
         document.getElementById(`modal-${collectionAlias}`).classList.remove('active');
-        window.currentEditState = { id: null, originalSitrep: null, section: null };
+        window.currentEditState = { id: null, originalSitrep: null, section: null, record: null };
         const form = document.getElementById(`form-${collectionAlias}`); form.reset(); 
         form.querySelectorAll('select, input').forEach(el => { if(el.tomselect) el.tomselect.clear(); if(el._flatpickr) el._flatpickr.clear(); });
         const btn = form.querySelector('.submit-btn'); btn.innerHTML = `<i class="fa-solid fa-cloud-arrow-up"></i> Save Report`; btn.classList.remove('edit-mode'); 
@@ -1079,7 +1190,7 @@ CRITICAL RULES:
         let record = dbData[collectionAlias].find(d => d.id === docId); 
         if (!record) return;
 
-        window.currentEditState = { id: docId, originalSitrep: record.sitrepNo, section: collectionAlias };
+        window.currentEditState = { id: docId, originalSitrep: record.sitrepNo, section: collectionAlias, record };
         
         const form = document.getElementById(`form-${collectionAlias}`); 
         const btn = form.querySelector('.submit-btn'); 
@@ -1098,21 +1209,47 @@ CRITICAL RULES:
         else if(collectionAlias === 'evac') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy-count').value = record.affectedBarangays||0; form.querySelector('.f-ec-count').value = record.evacCenterCount; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-aff-fam').value = record.affectedFamilies||0; form.querySelector('.f-aff-indv').value = record.affectedIndividuals||0; form.querySelector('.f-ec-fam-cum').value = record.insideEcFamiliesCum||0; form.querySelector('.f-ec-fam-now').value = record.insideEcFamiliesNow||0; form.querySelector('.f-ec-indv-cum').value = record.insideEcIndividualsCum||0; form.querySelector('.f-ec-indv-now').value = record.insideEcIndividualsNow||0; form.querySelector('.f-served-fam').value = record.servedFamilies||0; form.querySelector('.f-served-indv').value = record.servedIndividuals||0; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'preemptive') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangayOrigin; form.querySelector('.f-pre-fam').value = record.preEmptiveFamilies; form.querySelector('.f-pre-indv').value = record.preEmptiveIndividuals; form.querySelector('.f-remarks').value = record.remarks; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'complement') { setTSCreate('.f-agency', record.agency); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-personnel').value = record.personnel; form.querySelector('.f-asset-details').value = record.assetDetails; setDate('.f-report-time', record.dateReported); }
-        else if(collectionAlias === 'deployed') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; setTSCreate('.f-agency', record.agency); const tsAst = form.querySelector('.f-asset').tomselect; (record.assetType||'').split(', ').forEach(a => { tsAst.addOption({value: a, text: a}); }); tsAst.setValue((record.assetType||'').split(', ')); form.querySelector('.f-qty').value = record.quantity; form.querySelector('.f-personnel').value = record.personnel; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
+        else if(collectionAlias === 'deployed') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; setTSCreate('.f-agency', record.agency); const tsAst = form.querySelector('.f-asset').tomselect; (record.assetType||'').split(', ').forEach(a => { tsAst.addOption({value: a, text: a}); }); tsAst.setValue((record.assetType||'').split(', ')); form.querySelector('.f-qty').value = record.quantity; form.querySelector('.f-personnel').value = record.personnel; form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; form.querySelector('.f-deployed-at').value = record.deployedAt || ''; form.querySelector('.f-demobilized-at').value = record.demobilizedAt || ''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'lifelines') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'roads') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-status').tomselect.setValue(record.status); form.querySelector('.f-remarks').value = record.remarks; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
-        else if(collectionAlias === 'infrastructure') { form.querySelector('.f-muni-multi').tomselect.setValue((record.municipality||'').split(',').map(s=>s.trim())); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-cost').value = record.cost; form.querySelector('.f-infra-source').value = record.source; form.querySelector('.f-action').value = record.actionsTaken || record.remarks || ''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
+        else if(collectionAlias === 'infrastructure') { form.querySelector('.f-muni-multi').tomselect.setValue((record.municipality||'').split(',').map(s=>cleanAreaName(s))); form.querySelector('.f-area').value = record.specificArea; form.querySelector('.f-cat').tomselect.setValue(record.category); form.querySelector('.f-assessment-status').value = record.assessmentStatus || (parseFloat(record.cost) > 0 ? 'ASSESSED' : 'PENDING'); form.querySelector('.f-damage-extent').value = record.damageExtent || 'UNSPECIFIED'; form.querySelector('.f-cost').value = record.cost; form.querySelector('.f-infra-source').value = record.source; form.querySelector('.f-action').value = record.actionsTaken || record.remarks || ''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'casualties') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-brgy').value = record.barangay; form.querySelector('.f-class').tomselect.setValue(record.classification); form.querySelector('.f-count').value = record.count; form.querySelector('.f-remarks').value = record.remarks; if(form.querySelector('.f-action')) form.querySelector('.f-action').value = record.actionsTaken||''; form.querySelector('.lat-input').value = record.latitude||''; form.querySelector('.lng-input').value = record.longitude||''; setDate('.f-report-time', record.dateReported); }
-        else if(collectionAlias === 'suspensions') { form.querySelector('.f-coverage').tomselect.setValue((record.coverage||'').split(',').map(s=>s.trim())); form.querySelector('.f-type').tomselect.setValue(record.type); form.querySelector('.f-remarks').value = record.remarks; }
+        else if(collectionAlias === 'suspensions') { form.querySelector('.f-coverage').tomselect.setValue((record.coverage||'').split(',').map(s=>cleanCoverageName(s))); form.querySelector('.f-type').tomselect.setValue(record.type); form.querySelector('.f-remarks').value = record.remarks; }
         else if(collectionAlias === 'agri') { form.querySelector('.f-lgu-count').value = record.lguCount; form.querySelector('.f-commodity').value = record.commodity; form.querySelector('.f-farmers').value = record.farmersAffected; form.querySelector('.f-partial-ha').value = record.partialHa||0; form.querySelector('.f-total-ha').value = record.totalHa; form.querySelector('.f-cost').value = record.cost; setDate('.f-report-time', record.dateReported); }
-        else if(collectionAlias === 'assistance') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); setTSCreate('.f-source', record.source); setTSCreate('.f-relief', record.reliefItem); form.querySelector('.f-qty').value = record.cost>0?record.cost:record.quantity; form.querySelector('.f-remarks').value = record.remarks||''; setDate('.f-report-time', record.dateReported); }
+        else if(collectionAlias === 'assistance') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); setTSCreate('.f-source', record.source); setTSCreate('.f-relief', record.reliefItem); const description = String(record.reliefItem || ''); const inferredType = record.assistanceType || (/financial|cash|aics|peso|monetary/i.test(description) || (!description && (parseFloat(record.cost)||0)>0 && !(parseFloat(record.quantity)||0)) ? 'FINANCIAL' : 'GOODS'); form.querySelector('.f-assistance-type').value = inferredType; form.querySelector('.f-qty').value = inferredType === 'FINANCIAL' ? (record.cost>0?record.cost:record.quantity) : record.quantity; form.querySelector('.assistance-amount-label').textContent = inferredType === 'FINANCIAL' ? 'Amount (PHP)' : 'Quantity (units)'; form.querySelector('.f-remarks').value = record.remarks||''; setDate('.f-report-time', record.dateReported); }
         else if(collectionAlias === 'incidents') { form.querySelector('.f-muni').tomselect.setValue(record.municipality); form.querySelector('.f-hazard').value = record.particulars; form.querySelector('.f-action').value = record.actionsTaken; setDate('.f-report-time', record.dateReported); }
+        if (collectionAlias === 'deployed') syncDeploymentTimeRequirements();
         // ATLAS FIX: Removed triggerEdit else-if hook for residential
     };
 
     // ==========================================
     // THE STRICT RULES SUBMISSION ENGINE
     // ==========================================
+    function syncDeploymentTimeRequirements() {
+        const form = document.getElementById('form-deployed');
+        if (!form) return;
+        const status = form.querySelector('.f-status').value;
+        const deployedAt = form.querySelector('.f-deployed-at');
+        const demobilizedAt = form.querySelector('.f-demobilized-at');
+        const existing = window.currentEditState.section === 'deployed' ? window.currentEditState.record : null;
+        deployedAt.required = status === 'Deployed' && (!existing || existing.status !== 'Deployed') && !deployedAt.value;
+        demobilizedAt.required = false;
+    }
+    const deployedForm = document.getElementById('form-deployed');
+    deployedForm.querySelector('.f-status').addEventListener('change', event => {
+        const existing = window.currentEditState.section === 'deployed' ? window.currentEditState.record : null;
+        if (existing?.status === 'Demobilized' && event.target.value !== 'Demobilized') {
+            deployedForm.querySelector('.f-deployed-at').value = '';
+            deployedForm.querySelector('.f-demobilized-at').value = '';
+            deployedForm.querySelector('.submit-btn').innerHTML = '<i class="fa-solid fa-truck-fast"></i> Start New Deployment Run';
+        } else if (window.currentEditState.id && window.currentEditState.section === 'deployed') {
+            deployedForm.querySelector('.submit-btn').innerHTML = `<i class="fa-solid fa-pen"></i> Update for SitRep ${activeSitrepNo}`;
+        }
+        syncDeploymentTimeRequirements();
+    });
+    deployedForm.querySelector('.f-deployed-at').addEventListener('input', syncDeploymentTimeRequirements);
+    deployedForm.querySelector('.f-demobilized-at').addEventListener('input', syncDeploymentTimeRequirements);
+
     async function handleSubmission(e, collectionName, sectionAlias, dataCompiler) {
         e.preventDefault(); 
         const form = e.target; 
@@ -1131,11 +1268,37 @@ CRITICAL RULES:
         try {
             const coreData = dataCompiler(form); 
             if (coreData.validationFailed) { saveOverlay.classList.remove('active'); alert("Validation Failed. Please check missing required fields."); return; }
+            if (sectionAlias === 'deployed' && coreData.status === 'Demobilized' && window.currentEditState.section !== 'deployed') { saveOverlay.classList.remove('active'); alert('To demobilize a deployment, edit its active run from the Deployed Assets table.'); return; }
             
             const contextData = getContextPayload(); 
-            const finalPayload = { ...coreData, ...contextData };
+            let finalPayload = { ...coreData, ...contextData };
+            if (finalPayload.municipality) finalPayload.municipality = String(finalPayload.municipality).split(',').map(cleanAreaName).join(', ');
+            if (finalPayload.coverage) finalPayload.coverage = String(finalPayload.coverage).split(',').map(cleanCoverageName).join(', ');
+            const startingNewDeployment = sectionAlias === 'deployed' && window.currentEditState.record?.status === 'Demobilized' && coreData.status !== 'Demobilized';
+            if (sectionAlias === 'deployed') {
+                const existing = window.currentEditState.section === 'deployed' && !startingNewDeployment ? window.currentEditState.record : null;
+                const deploymentId = existing?.deploymentId || (crypto.randomUUID ? crypto.randomUUID() : `deployment-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`);
+                const legacySourceId = existing?.legacySourceId || (!existing?.deploymentId && existing?.id ? existing.id : '');
+                const deployedAt = coreData.deployedAt || existing?.deployedAt || '';
+                const demobilizedAt = coreData.status === 'Demobilized' ? coreData.demobilizedAt : '';
+                const priorEvents = Array.isArray(existing?.deploymentEvents) ? existing.deploymentEvents : [];
+                const statusChanged = !existing || existing.status !== coreData.status || priorEvents.length === 0;
+                const eventTime = coreData.status === 'Deployed' ? deployedAt : coreData.status === 'Demobilized' ? demobilizedAt : '';
+                const nextEvent = statusChanged ? [{ status: coreData.status, eventAt: eventTime, reportedAt: coreData.dateReported || '', sitrepNo: activeSitrepNo }] : [];
+                finalPayload = { ...finalPayload, deploymentId, legacySourceId, deployedAt, demobilizedAt, deploymentEvents: arrayUnion(...priorEvents, ...nextEvent) };
+            }
             
-            if (window.currentEditState.id && window.currentEditState.section === sectionAlias) {
+            if (sectionAlias === 'flood') {
+                if (!contextData.floodEventId) throw new Error('Lock the incident context to create or select a flood event ID.');
+                const batch = writeBatch(db);
+                const editingSameRecord = window.currentEditState.id && window.currentEditState.section === sectionAlias && !startingNewDeployment;
+                const floodRecordRef = editingSameRecord
+                    ? doc(db, collectionName, window.currentEditState.id)
+                    : doc(collection(db, collectionName));
+                batch.set(floodRecordRef, finalPayload, { merge: editingSameRecord });
+                appendFloodTimeline(batch, contextData.floodEventId, contextData.incidentCause, coreData, finalPayload, floodRecordRef.id);
+                await batch.commit();
+            } else if (window.currentEditState.id && window.currentEditState.section === sectionAlias && !startingNewDeployment) {
                 if (window.currentEditState.originalSitrep === activeSitrepNo) {
                     await updateDoc(doc(db, collectionName, window.currentEditState.id), finalPayload); 
                 } 
@@ -1172,7 +1335,11 @@ CRITICAL RULES:
         return `<div class="truncate-box">${cleanedText}</div><div class="full-text-hidden" style="display:none;">${cleanedText}</div><button class="read-more-btn" onclick="openNarrativeModal(this)"><i class="fa-solid fa-expand" style="margin-right:6px;"></i>Read More</button>`;
     }
 
-    function formatTime(timestamp) { return timestamp ? timestamp.toDate().toLocaleString('en-PH', { timeZone: 'Asia/Manila' }) : "Pending..."; }
+    function formatTime(timestamp) {
+        if (!timestamp) return 'Pending...';
+        const date = typeof timestamp.toDate === 'function' ? timestamp.toDate() : new Date(timestamp);
+        return Number.isNaN(date.getTime()) ? 'Pending...' : date.toLocaleString('en-PH', { timeZone: 'Asia/Manila' });
+    }
     function formatActionTime(dateString) { if(!dateString) return `<span class="sub-text">N/A</span>`; const d = new Date(dateString); return `<span class="action-time">${d.toLocaleString('en-PH', { timeZone: 'Asia/Manila', dateStyle: 'short', timeStyle: 'short' })}</span>`; }
     function formatCurrency(amount) { return new Intl.NumberFormat('en-PH', { style: 'currency', currency: 'PHP' }).format(amount || 0); }
     function formatGPS(lat, lng) { return (lat && lng && lat !== "" && lat !== "Fetching..." && lat !== "Error") ? `<span class="gps-text"><i class="fa-solid fa-location-dot"></i> ${lat},${lng}</span>` : ``; }
@@ -1218,7 +1385,7 @@ CRITICAL RULES:
         document.getElementById('tb-complement').innerHTML = buildRows(getLatestRecords(dbData.complement, ['agency']).filter(matchesFilter), d => { let badgeClass = (d.status === 'Checked-In') ? "bg-primary" : (d.status === 'Demobilized') ? "bg-secondary" : "bg-warning"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.agency}</span></td><td><span class="strong-text">${d.personnel} Pax</span></td><td>${formatNarrative(d.assetDetails)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('complement', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 6);
         document.getElementById('tb-lifelines').innerHTML = buildRows(getLatestRecords(dbData.lifelines, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") || d.status.includes("Outage") ? "bg-danger" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td>${d.specificArea}</td><td>${d.category}</td><td>${formatGPS(d.latitude, d.longitude)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatActionTime(d.dateReported)}</td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('lifelines', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 8);
         document.getElementById('tb-roads').innerHTML = buildRows(getLatestRecords(dbData.roads, ['municipality', 'specificArea']).filter(matchesFilter), d => { let badgeClass = d.status.includes("Not Passable") ? "bg-danger" : "bg-success"; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.specificArea}</span><span class="sub-text">${d.municipality}</span>${formatGPS(d.latitude, d.longitude)}</td><td>${formatActionTime(d.dateReported)}</td><td><span class="badge ${badgeClass}">${d.status}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('roads', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 5);
-        document.getElementById('tb-infrastructure').innerHTML = buildRows(getLatestRecords(dbData.infrastructure, ['specificArea']).filter(matchesFilter), d => { let actionDisplay = d.actionsTaken ? `<div class="sub-text" style="margin-top: 6px;"><b>Actions Taken:</b> ${d.actionsTaken}</div>` : (d.remarks ? `<div class="sub-text" style="margin-top: 6px;">${d.remarks}</div>` : ''); let costDisplay = d.cost > 0 ? formatCurrency(d.cost) : '<span class="sub-text" style="font-style: italic;">Assessment Ongoing</span>'; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text" style="color:var(--accent-blue);">${d.specificArea}</span>${actionDisplay}${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text" style="color:var(--accent-blue);">${costDisplay}</span></td><td><span class="strong-text" style="color:var(--accent-blue);">${d.source||'Unknown'}</span><br><span style="font-size:11px; color:var(--text-muted);">as of ${formatActionTime(d.dateReported)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('infrastructure', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 4);
+        document.getElementById('tb-infrastructure').innerHTML = buildRows(getLatestRecords(dbData.infrastructure, ['municipality', 'specificArea', 'category']).filter(matchesFilter), d => { let actionDisplay = d.actionsTaken ? `<div class="sub-text" style="margin-top: 6px;"><b>Actions Taken:</b> ${d.actionsTaken}</div>` : (d.remarks ? `<div class="sub-text" style="margin-top: 6px;">${d.remarks}</div>` : ''); let assessmentStatus = d.assessmentStatus || (parseFloat(d.cost) > 0 ? 'ASSESSED' : 'PENDING'); let costDisplay = assessmentStatus === 'PENDING' ? '<span class="sub-text" style="font-style: italic;">Awaiting technical assessment</span>' : (d.cost > 0 ? formatCurrency(d.cost) : '<span class="sub-text" style="font-style: italic;">Assessment reported; cost not reported</span>'); if (assessmentStatus === 'ASSESSED' && d.damageExtent) costDisplay += `<br><span class="sub-text">${d.damageExtent.replaceAll('_', ' ')}</span>`; return `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text" style="color:var(--accent-blue);">${d.specificArea}</span>${actionDisplay}${formatGPS(d.latitude, d.longitude)}</td><td><span class="strong-text" style="color:var(--accent-blue);">${costDisplay}</span></td><td><span class="strong-text" style="color:var(--accent-blue);">${d.source||'Unknown'}</span><br><span style="font-size:11px; color:var(--text-muted);">as of ${formatActionTime(d.dateReported)}</span></td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('infrastructure', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`; }, 4);
         document.getElementById('tb-suspensions').innerHTML = buildRows(getLatestRecords(dbData.suspensions, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.coverage.substring(0,30)}...</span></td><td><span class="badge bg-danger">${d.type}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('suspensions', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 4);
         // ATLAS FIX: Removed tb-residential rendering
         document.getElementById('tb-preemptive').innerHTML = buildRows(getLatestRecords(dbData.preemptive, ['id']).filter(matchesFilter), d => `<tr class="${getRowClass(d.sitrepNo)}"><td><span class="strong-text">${d.municipality}</span></td><td><span class="strong-text">${d.barangayOrigin||'N/A'}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveFamilies || 0}</span></td><td><span class="strong-text" style="color: var(--accent-teal);">${d.preEmptiveIndividuals || 0}</span></td><td>${formatNarrative(d.remarks)}</td><td style="text-align:right;">${formatTime(d.timeMonitored)}${buildTrackerTag(d.sitrepNo)}<br><button type="button" class="btn-table-edit" onclick="triggerEdit('preemptive', '${d.id}')" style="margin-top:6px;"><i class="fa-solid fa-pen"></i> Edit</button></td></tr>`, 6);
@@ -1243,22 +1410,31 @@ CRITICAL RULES:
     document.getElementById('form-evac').addEventListener('submit', (e) => { handleSubmission(e, "evacuation_data", "evac", (f) => { const affFam = parseInt(f.querySelector('.f-aff-fam').value) || 0; const affIndv = parseInt(f.querySelector('.f-aff-indv').value) || 0; const servedFam = parseInt(f.querySelector('.f-served-fam').value) || 0; const servedIndv = parseInt(f.querySelector('.f-served-indv').value) || 0; const ecFamCum = parseInt(f.querySelector('.f-ec-fam-cum').value) || 0; const ecFamNow = parseInt(f.querySelector('.f-ec-fam-now').value) || 0; const ecIndvCum = parseInt(f.querySelector('.f-ec-indv-cum').value) || 0; const ecIndvNow = parseInt(f.querySelector('.f-ec-indv-now').value) || 0; return { validationFailed: (affFam + affIndv + servedFam + servedIndv + ecFamCum + ecFamNow + ecIndvCum + ecIndvNow) === 0, municipality: f.querySelector('.f-muni').value, affectedBarangays: parseInt(f.querySelector('.f-brgy-count').value)||0, evacCenterCount: parseInt(f.querySelector('.f-ec-count').value)||0, status: f.querySelector('.f-status').value, affectedFamilies: affFam, affectedIndividuals: affIndv, servedFamilies: servedFam, servedIndividuals: servedIndv, insideEcFamiliesCum: ecFamCum, insideEcFamiliesNow: ecFamNow, insideEcIndividualsCum: ecIndvCum, insideEcIndividualsNow: ecIndvNow, latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-preemptive').addEventListener('submit', (e) => { handleSubmission(e, "preemptive_data", "preemptive", (f) => ({ municipality: f.querySelector('.f-muni').value, barangayOrigin: f.querySelector('.f-brgy').value, preEmptiveFamilies: parseInt(f.querySelector('.f-pre-fam').value)||0, preEmptiveIndividuals: parseInt(f.querySelector('.f-pre-indv').value)||0, remarks: f.querySelector('.f-remarks').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-complement').addEventListener('submit', (e) => { handleSubmission(e, "complement_data", "complement", (f) => ({ agency: f.querySelector('.f-agency').value, status: f.querySelector('.f-status').value, personnel: parseInt(f.querySelector('.f-personnel').value)||0, assetDetails: f.querySelector('.f-asset-details').value, dateReported: f.querySelector('.f-report-time').value })); });
-    document.getElementById('form-deployed').addEventListener('submit', (e) => { handleSubmission(e, "resource_data", "deployed", (f) => { const assetSelect = f.querySelector('.f-asset'); const selectedAssets = Array.from(assetSelect.selectedOptions).map(opt => opt.value).join(', '); return { municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, agency: f.querySelector('.f-agency').value, assetType: selectedAssets, quantity: parseInt(f.querySelector('.f-qty').value)||0, personnel: parseInt(f.querySelector('.f-personnel').value)||0, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
+    document.getElementById('form-deployed').addEventListener('submit', (e) => { handleSubmission(e, "resource_data", "deployed", (f) => { const assetSelect = f.querySelector('.f-asset'); const selectedAssets = Array.from(assetSelect.selectedOptions).map(opt => opt.value).join(', '); return { municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, agency: f.querySelector('.f-agency').value, assetType: selectedAssets, quantity: parseInt(f.querySelector('.f-qty').value)||0, personnel: parseInt(f.querySelector('.f-personnel').value)||0, status: f.querySelector('.f-status').value, deployedAt: f.querySelector('.f-deployed-at').value, demobilizedAt: f.querySelector('.f-demobilized-at').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-lifelines').addEventListener('submit', (e) => { handleSubmission(e, "lifeline_data", "lifelines", (f) => ({ municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
-    document.getElementById('form-infrastructure').addEventListener('submit', (e) => { handleSubmission(e, "infrastructure_data", "infrastructure", (f) => ({ recordType: 'Damage', municipality: Array.from(f.querySelector('.f-muni-multi').selectedOptions).map(opt => opt.value).join(', '), specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: "Assessed for Damage", cost: parseFloat(f.querySelector('.f-cost').value) || 0, source: f.querySelector('.f-infra-source').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), remarks: f.querySelector('.f-action').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
+    document.getElementById('form-infrastructure').addEventListener('submit', (e) => { handleSubmission(e, "infrastructure_data", "infrastructure", (f) => { const assessmentStatus = f.querySelector('.f-assessment-status').value; return { recordType: 'Damage', municipality: Array.from(f.querySelector('.f-muni-multi').selectedOptions).map(opt => opt.value).join(', '), specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, assessmentStatus, damageExtent: f.querySelector('.f-damage-extent').value, status: assessmentStatus === 'ASSESSED' ? 'Assessment Reported' : 'Awaiting Technical Assessment', cost: assessmentStatus === 'ASSESSED' ? (parseFloat(f.querySelector('.f-cost').value) || 0) : 0, source: f.querySelector('.f-infra-source').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), remarks: f.querySelector('.f-action').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-roads').addEventListener('submit', (e) => { handleSubmission(e, "infrastructure_data", "roads", (f) => ({ recordType: 'Passability', municipality: f.querySelector('.f-muni').value, specificArea: f.querySelector('.f-area').value, category: f.querySelector('.f-cat').value, status: f.querySelector('.f-status').value, remarks: f.querySelector('.f-remarks').value.trim(), latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value, cost: 0, source: 'LDRRMO' })); });
     document.getElementById('form-casualties').addEventListener('submit', (e) => { handleSubmission(e, "casualties_data", "casualties", (f) => ({ municipality: f.querySelector('.f-muni').value, barangay: f.querySelector('.f-brgy').value, classification: f.querySelector('.f-class').value, count: parseInt(f.querySelector('.f-count').value), remarks: f.querySelector('.f-remarks').value.trim(), actionsTaken: f.querySelector('.f-action') ? f.querySelector('.f-action').value.trim() : "", latitude: f.querySelector('.lat-input').value, longitude: f.querySelector('.lng-input').value, dateReported: f.querySelector('.f-report-time').value })); });
     document.getElementById('form-suspensions').addEventListener('submit', (e) => { handleSubmission(e, "suspensions_data", "suspensions", (f) => ({ coverage: Array.from(f.querySelector('.f-coverage').selectedOptions).map(opt => opt.value).join(', '), type: f.querySelector('.f-type').value, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: "" })); });
     document.getElementById('form-agri').addEventListener('submit', (e) => { handleSubmission(e, "agri_damages", "agri", (f) => ({ lguCount: parseInt(f.querySelector('.f-lgu-count').value)||0, commodity: f.querySelector('.f-commodity').value, farmersAffected: parseInt(f.querySelector('.f-farmers').value)||0, partialHa: parseFloat(f.querySelector('.f-partial-ha').value)||0, totalHa: parseFloat(f.querySelector('.f-total-ha').value)||0, cost: parseFloat(f.querySelector('.f-cost').value)||0, dateReported: f.querySelector('.f-report-time').value })); });
     // ATLAS FIX: Removed residential form submission listener
-    document.getElementById('form-assistance').addEventListener('submit', (e) => { handleSubmission(e, "assistance_data", "assistance", (f) => { let item = f.querySelector('.f-relief').value; let raw = parseFloat(f.querySelector('.f-qty').value)||0; let isCash = item.toLowerCase().includes('financial') || item.toLowerCase().includes('cash'); return { municipality: f.querySelector('.f-muni').value, source: f.querySelector('.f-source').value, reliefItem: item, quantity: isCash?0:raw, cost: isCash?raw:0, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: f.querySelector('.f-report-time').value }; }); });
+    document.querySelector('.f-assistance-type')?.addEventListener('change', event => {
+        const label = event.target.form?.querySelector('.assistance-amount-label');
+        if (label) label.textContent = event.target.value === 'FINANCIAL' ? 'Amount (PHP)' : 'Quantity (units)';
+    });
+    document.getElementById('form-assistance').addEventListener('submit', (e) => { handleSubmission(e, "assistance_data", "assistance", (f) => { let item = f.querySelector('.f-relief').value; let raw = parseFloat(f.querySelector('.f-qty').value)||0; let isFinancial = f.querySelector('.f-assistance-type').value === 'FINANCIAL'; return { municipality: f.querySelector('.f-muni').value, source: f.querySelector('.f-source').value, assistanceType: isFinancial ? 'FINANCIAL' : 'GOODS', reliefItem: item, quantity: isFinancial?0:raw, cost: isFinancial?raw:0, remarks: f.querySelector('.f-remarks').value.trim(), dateReported: f.querySelector('.f-report-time').value }; }); });
     document.getElementById('form-incidents').addEventListener('submit', (e) => { handleSubmission(e, "related_incidents", "incidents", (f) => ({ municipality: f.querySelector('.f-muni').value, particulars: f.querySelector('.f-hazard').value.trim(), actionsTaken: f.querySelector('.f-action').value.trim(), dateReported: f.querySelector('.f-report-time').value })); });
 
     // ==========================================
     // DATABASE LISTENERS (FILTERS ARCHIVED)
     // ==========================================
     const watch = (col, key) => onSnapshot(collection(db, col), snap => { 
-        dbData[key] = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
+        dbData[key] = snap.docs.map(d => {
+            const record = { id: d.id, ...d.data() };
+            if (record.municipality) record.municipality = String(record.municipality).split(',').map(cleanAreaName).join(', ');
+            if (record.coverage) record.coverage = String(record.coverage).split(',').map(cleanCoverageName).join(', ');
+            return record;
+        }).filter(d => d.isArchived !== true); 
         queueRender(); 
     });
 
@@ -1266,7 +1442,11 @@ CRITICAL RULES:
     watch("actions_data", "actions"); watch("flooded_areas", "flood"); watch("evacuation_data", "evac"); watch("preemptive_data", "preemptive"); watch("complement_data", "complement"); watch("resource_data", "deployed"); watch("lifeline_data", "lifelines"); watch("casualties_data", "casualties"); watch("suspensions_data", "suspensions"); watch("agri_damages", "agri"); watch("assistance_data", "assistance"); watch("related_incidents", "incidents");
     
     onSnapshot(collection(db, "infrastructure_data"), (snap) => { 
-        let allInfra = snap.docs.map(d => ({ id: d.id, ...d.data() })).filter(d => d.isArchived !== true); 
+        let allInfra = snap.docs.map(d => {
+            const record = { id: d.id, ...d.data() };
+            if (record.municipality) record.municipality = String(record.municipality).split(',').map(cleanAreaName).join(', ');
+            return record;
+        }).filter(d => d.isArchived !== true); 
         dbData.roads = allInfra.filter(d => d.recordType === 'Passability' || ((d.category === 'Road' || d.category === 'Bridge') && d.recordType !== 'Damage' && !(d.status||'').includes('Assessed for Damage'))); 
         dbData.infrastructure = allInfra.filter(d => d.recordType === 'Damage' || (!d.recordType && parseFloat(d.cost) > 0) || (d.status||'').includes('Assessed for Damage')); 
         queueRender(); 
@@ -1326,5 +1506,6 @@ document.addEventListener('DOMContentLoaded', () => {
 });
     
 </script>
+<script src="theme.js" defer></script>
 </body>
 </html>
