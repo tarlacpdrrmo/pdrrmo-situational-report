@@ -1,0 +1,7 @@
+﻿# Source UI analysis and adoption
+
+The reference `Desktop\flood_hazard_dashboard.html` uses a full-viewport, dark operational layout. A 54 px top bar places the brand on the left, five tabs in the center, and four compact KPIs on the right. The workspace has four stacked selectable telemetry cards on the left, a large central visualization workspace, and a 280 px selected-area inspector on the right. The real-time center view splits the available space between a 2D map and a 3D flood surface. The inspector contains a forecast nomogram, compact chart, selected-area information, and a yellow hatched timeline track.
+
+The revised prototype carries those layout proportions, card rhythm, colors, navigation labels, control placement, and map/inspector hierarchy into a static annex interface. The sidebar cards now represent locations from four different municipalities. Selecting one updates the right inspector and map caption. The History tab contains the annex table. Overview contains municipality markers and bars. Prediction and Comparison retain their tabs but use explicit empty states because the annex does not contain forecasts or period comparisons.
+
+The 3D surface and municipality markers are schematic, since Annex 1 has no coordinates or elevation geometry. The timeline retains the reference's yellow hatched appearance and is only a visual control; it does not imply time-series data. Counts and statuses are derived from the annex rows and remarks, while unreported information remains unreported.
